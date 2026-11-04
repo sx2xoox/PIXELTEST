@@ -62,6 +62,25 @@ node atelier/cli.js mc examples/mc/mossling.mjs --out out/mc     # .bbmodel(+Jav
 - 걷기: 다리 ±20~30°를 반대 위상으로, 팔은 같은 쪽 다리와 반대로 ±15~20°, 몸통은 한 주기에 두 번 0.5유닛 튄다, 머리는 z ±3° 흔든다. 길이 1초, loop.
 - 시트의 4프레임 애니메이션 패널로 동작이 자연스러운지 확인한다.
 
+## 5.5 Bedrock · 블록스테이트 · 스킨/갑옷
+- **Bedrock:** `mc`가 엔티티마다 `.geo.json`(1.12.0)과 `.animation.json`(1.8.0)을 함께 낸다.
+  `node atelier/cli.js addon examples/mc/mossling.mjs --out out/addon`을 실행하면 `.mcaddon`(RP+BP)이 나오고, 게임에서 `/summon atelier:mossling`으로 소환한다.
+  좌표 변환은 Blockbench 코덱과 같다(x 반전, 회전 x·y 반전, 위·아래 면 UV 반전). `node test/bedrock-roundtrip.mjs <엔티티...>`로 왕복 검증한다.
+- **블록스테이트:** `cubes` 대신 `parts: { 이름: [큐브...] }`와 `blockstate`(Java 문법, model에 부품 이름)를 쓴다.
+  - 방향 블록은 `variants`의 `facing=*`에 `y: 0/90/180/270`을 준다. 기본 모델은 북쪽 벽(z=0)에 붙인다(`wall_sconce`).
+  - 연결 블록은 `multipart`를 쓴다. 기둥은 항상 붙이고, 가로대는 "북쪽으로 뻗은" 하나만 만들어 y 회전으로 재사용한다. `uvlock:true`(`garden_fence`).
+  - 시트에 상태별 패널이 자동으로 붙는다(variants 각각, multipart 대표 조합).
+- **스킨(64×64):** `new Skin({slim})` → `fillPart / chars / band / draw / shade / fold`. 면 이름은 north=정면, east=몹의 오른쪽.
+  - 기본 층은 빈틈없이 칠한다(`critiqueSkin`). 후드·망토·소매처럼 두께 있는 것은 오버레이 층에 그린다.
+  - **품질 핵심:** 평면 노이즈만 쓰면 아마추어처럼 보인다. 반드시 `shade(part)`(위는 밝게, 아래는 어둡게, 팔에 가려지는 안쪽 면은 AO)와 `fold`(주름)를 넣는다.
+  - 얼굴은 눈 2px(흰자+눈동자), 코는 그림자 1~2px, 입은 1~2px. 머리카락은 앞이마 2줄과 옆머리로 처리한다.
+- **갑옷(64×32):** `new Armor('humanoid' | 'humanoid_leggings')`. 왼쪽 팔다리는 오른쪽 UV를 거울로 재사용한다(바닐라와 동일).
+  - `keepRows`로 부위 일부만 남긴다(견갑 = 팔 위 5줄, 부츠 = 다리 아래 4줄). 남기지 않은 부위의 **아래 면도 비워야** 손 높이에 판이 뜨지 않는다.
+  - 투구는 얼굴 열린 형태 + 코 보호대 + 볼 보호대로 만든다. 눈높이 검은 띠는 선글라스처럼 보인다.
+  - 트림(금색 띠)으로 덩어리를 나누고, 흉갑 중앙에 포인트(보석) 하나를 둔다.
+  - `playerSpec(skin, { armor })`로 착용 모습을 미리 본다. 미리보기 텍스처는 64×128로 합친 것이고, 실제 파일은 `extraFiles`로 따로 저장된다.
+  - 장비 텍스처 경로(`textures/entity/equipment/humanoid/…`)와 정의 JSON 위치는 버전마다 다르다(1.21.2 이후 변경). 쓰기 전에 대상 버전을 확인한다.
+
 ## 6. DSL 요약 (`atelier/mc/model.js`)
 ```js
 export default {

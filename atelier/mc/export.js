@@ -179,3 +179,94 @@ export const itemModel = (name, ns = 'atelier', parent = 'minecraft:item/generat
   parent,
   textures: { layer0: `${ns}:item/${name}` },
 });
+
+// ---------------------------------------------------------------------------
+// Bedrock: geometry(.geo.json 1.12.0) / animation(.animation.json 1.8.0)
+// 좌표 변환은 Blockbench bedrock 코덱과 동일하게 맞췄다(js/formats/bedrock/bedrock.js 확인):
+//   큐브 origin.x = -(from.x + size.x), pivot.x 부호 반전, rotation x·y 부호 반전,
+//   면 UV는 [u,v]+[w,h]이고 up/down은 원점을 반대 모서리로 옮기고 크기를 음수로
+//   본(bone) pivot.x 반전, rotation x·y 반전 / 애니메이션 rotation x·y, position x 반전
+// ---------------------------------------------------------------------------
+const neg = v => (v === 0 ? 0 : -v);
+
+export function toBedrockGeometry(m) {
+  const name = m.spec.name ?? 'model';
+  const bones = m.bones.map(b => {
+    const bone = { name: b.name };
+    if (b.parent) bone.parent = b.parent;
+    bone.pivot = [neg(b.pivot[0]), b.pivot[1], b.pivot[2]].map(num);
+    if (b.rotation && b.rotation.some(Boolean)) bone.rotation = [neg(b.rotation[0]), neg(b.rotation[1]), b.rotation[2]].map(num);
+    const cubes = m.cubes.filter(c => c.bone === b.name).map(c => {
+      const cube = { origin: [neg(c.from[0] + c.size[0]), c.from[1], c.from[2]].map(num), size: c.size.map(num) };
+      if (c.inflate) cube.inflate = c.inflate;
+      if (c.rot.angles.some(Boolean)) {
+        cube.pivot = [neg(c.rot.origin[0]), c.rot.origin[1], c.rot.origin[2]].map(num);
+        cube.rotation = [neg(c.rot.angles[0]), neg(c.rot.angles[1]), c.rot.angles[2]].map(num);
+      }
+      cube.uv = {};
+      for (const f of FACES) {
+        const r = c.faceRects[f];
+        if (!r) continue;
+        let uv = [r.uv[0], r.uv[1]], size = [r.uv[2] - r.uv[0], r.uv[3] - r.uv[1]];
+        if (f === 'up' || f === 'down') { uv = [uv[0] + size[0], uv[1] + size[1]]; size = [-size[0], -size[1]]; }
+        cube.uv[f] = { uv: uv.map(num), uv_size: size.map(num) };
+      }
+      return cube;
+    });
+    if (cubes.length) bone.cubes = cubes;
+    return bone;
+  });
+  // 보이는 범위: 모델 높이/너비를 블록 단위로
+  const ys = m.cubes.flatMap(c => [c.from[1], c.to[1]]), xs = m.cubes.flatMap(c => [c.from[0], c.to[0], c.from[2], c.to[2]]);
+  const vbw = Math.ceil(Math.max(...xs.map(Math.abs)) * 2 / 16 + 1), vbh = Math.ceil(Math.max(...ys) / 16 + 1);
+  return {
+    format_version: '1.12.0',
+    'minecraft:geometry': [{
+      description: { identifier: `geometry.${name}`, texture_width: m.atlasW, texture_height: m.atlasH, visible_bounds_width: vbw, visible_bounds_height: vbh, visible_bounds_offset: [0, vbh / 2 - 0.5, 0] },
+      bones,
+    }],
+  };
+}
+
+export function toBedrockAnimation(m) {
+  const name = m.spec.name ?? 'model';
+  const animations = {};
+  for (const [an, a] of Object.entries(m.animations)) {
+    const bones = {};
+    for (const [bn, chans] of Object.entries(a.bones)) {
+      bones[bn] = {};
+      for (const [ch, keys] of Object.entries(chans)) {
+        const conv = v => (ch === 'rotation' ? [neg(v[0]), neg(v[1]), v[2]] : ch === 'position' ? [neg(v[0]), v[1], v[2]] : v);
+        bones[bn][ch] = Object.fromEntries(Object.entries(keys).sort((a, b) => +a[0] - +b[0]).map(([t, v]) => [(+t).toFixed(4).replace(/0+$/, '').replace(/\.$/, '.0'), conv(v).map(num)]));
+      }
+    }
+    animations[`animation.${name}.${an}`] = { loop: a.loop !== false, animation_length: a.length ?? 1, bones };
+  }
+  return { format_version: '1.8.0', animations };
+}
+
+// ---------------------------------------------------------------------------
+// Java 블록스테이트 + 부품 모델
+// spec.blockstate: { variants: { 'facing=north': { model:'<part>', y:0 }, ... } }
+//               또는 { multipart: [{ apply:{ model:'<part>' } }, { when:{ north:'true' }, apply:{ model:'side', y:0, uvlock:true } }] }
+// model 값은 부품 이름(parts의 키) → ns:block/<name>_<part> 로 바뀐다
+// ---------------------------------------------------------------------------
+export function toJavaPartModels(m) {
+  if (!m.spec.parts) return { [m.spec.name]: toJavaBlockModel(m) };
+  const out = {};
+  for (const part of Object.keys(m.spec.parts)) {
+    const sub = { ...m, cubes: m.cubes.filter(c => c.part === part) };
+    out[`${m.spec.name}_${part}`] = toJavaBlockModel(sub);
+  }
+  return out;
+}
+
+export function toBlockstate(m) {
+  const name = m.spec.name, ns = m.spec.namespace ?? 'atelier';
+  const ref = part => `${ns}:block/${m.spec.parts ? `${name}_${part}` : name}`;
+  const fix = a => (Array.isArray(a) ? a.map(fix) : { ...a, model: ref(a.model) });
+  const bs = m.spec.blockstate;
+  if (!bs) return { variants: { '': { model: ref(Object.keys(m.spec.parts ?? { x: 1 })[0]) } } };
+  if (bs.variants) return { variants: Object.fromEntries(Object.entries(bs.variants).map(([k, v]) => [k, fix(v)])) };
+  return { multipart: bs.multipart.map(p => ({ ...(p.when ? { when: p.when } : {}), apply: fix(p.apply) })) };
+}

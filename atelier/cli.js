@@ -5,6 +5,7 @@
 //   palette <#hex> [harmony]      [--out dir]                → 토큰 + 스와치
 //   mc      <model.mjs|json> ...  [--out dir]                → .bbmodel, Java JSON, 텍스처, 3D 미리보기 시트
 //   sprite  <sprites.mjs> ...     [--out dir]                → 16×16 픽셀 텍스처/아이템 png, 아이템 JSON, 검수 시트
+//   addon   <entity 모델...>      [--out dir] [--ns atelier]  → Bedrock .mcaddon(RP+BP, 소환 가능한 몹)
 //   pack    <model/sprite 파일...> [--out dir] [--ns atelier] [--pack-format 46] → Java 리소스팩 폴더 + zip
 
 import fs from 'fs';
@@ -14,10 +15,10 @@ import { render, sheet, compareSheet, close } from './render.js';
 import { FORMATS } from './layout.js';
 import { palette, contrast } from './color.js';
 import { compileModel } from './mc/model.js';
-import { toBBModel, toJavaBlockModel, itemModel } from './mc/export.js';
+import { toBBModel, toJavaBlockModel, itemModel, toBedrockGeometry, toBedrockAnimation, toJavaPartModels, toBlockstate } from './mc/export.js';
 import { modelSheet } from './mc/render3d.js';
 import { critiqueSprite, spriteSheet } from './mc/sprite.js';
-import { buildPack } from './mc/pack.js';
+import { buildPack, buildBedrockAddon } from './mc/pack.js';
 
 const args = process.argv.slice(2);
 const cmd = args.shift();
@@ -90,17 +91,27 @@ async function main() {
   } else if (cmd === 'mc') {
     for (const file of args) {
       const spec = await loadScene(file);
-      if (!spec || !spec.cubes) { console.log(`  건너뜀: ${file}은 큐브 모델이 아님(스프라이트면 sprite 명령)`); continue; }
+      if (!spec || !(spec.cubes || spec.parts)) { console.log(`  건너뜀: ${file}은 큐브 모델이 아님(스프라이트면 sprite 명령)`); continue; }
       const m = compileModel(spec);
       const name = spec.name ?? base(file);
       fs.writeFileSync(path.join(outDir, name + '.bbmodel'), JSON.stringify(toBBModel(m)));
       fs.writeFileSync(path.join(outDir, name + '.texture.png'), m.atlas.toPNG());
-      if (m.type === 'block') fs.writeFileSync(path.join(outDir, name + '.java.json'), JSON.stringify(toJavaBlockModel(m), null, 2));
+      const written = ['bbmodel', 'texture.png', 'sheet.png'];
+      for (const [fn, cv] of Object.entries(spec.extraFiles ?? {})) { fs.writeFileSync(path.join(outDir, fn), cv.toPNG()); console.log(`  + ${outDir}/${fn}`); }
+      if (m.type === 'block') {
+        if (spec.parts) {
+          for (const [mn, json] of Object.entries(toJavaPartModels(m))) { fs.writeFileSync(path.join(outDir, mn + '.java.json'), JSON.stringify(json, null, 2)); written.push(`${mn}.java.json`); }
+          fs.writeFileSync(path.join(outDir, name + '.blockstate.json'), JSON.stringify(toBlockstate(m), null, 2)); written.push('blockstate.json');
+        } else { fs.writeFileSync(path.join(outDir, name + '.java.json'), JSON.stringify(toJavaBlockModel(m), null, 2)); written.push('java.json'); }
+      } else {
+        fs.writeFileSync(path.join(outDir, name + '.geo.json'), JSON.stringify(toBedrockGeometry(m), null, 2)); written.push('geo.json');
+        if (Object.keys(m.animations).length) { fs.writeFileSync(path.join(outDir, name + '.animation.json'), JSON.stringify(toBedrockAnimation(m), null, 2)); written.push('animation.json'); }
+      }
       fs.writeFileSync(path.join(outDir, name + '.sheet.png'), await modelSheet(m, m.issues, { title: name }));
       const score = Math.max(0, 100 - m.issues.reduce((s, i) => s + { error: 15, warn: 7, info: 2 }[i.severity], 0));
       console.log(`\n■ ${name}  [${m.type}] cubes ${m.cubes.length} · atlas ${m.atlasW}×${m.atlasH} · score ${score}`);
       for (const i of m.issues) console.log(`  [${i.severity}] ${i.msg}${i.fix ? `\n          → ${i.fix}` : ''}`);
-      console.log(`  files: ${outDir}/${name}.{bbmodel,texture.png,sheet.png${m.type === 'block' ? ',java.json' : ''}}`);
+      console.log(`  files: ${outDir}/${name}.{${written.join(',')}}`);
     }
   } else if (cmd === 'sprite') {
     const items = [];
@@ -124,10 +135,10 @@ async function main() {
     const blocks = [], items = [];
     for (const file of args) {
       const loaded = await loadScene(file);
-      if (loaded && loaded.cubes) {
+      if (loaded && (loaded.cubes || loaded.parts)) {
         const m = compileModel(loaded);
         if (m.type !== 'block') { console.log(`  건너뜀: ${loaded.name}은 entity(리소스팩 블록 모델이 아님 — .bbmodel을 쓰세요)`); continue; }
-        blocks.push({ name: loaded.name, model: toJavaBlockModel(m), texture: m.atlas });
+        blocks.push({ name: loaded.name, models: toJavaPartModels(m), blockstate: toBlockstate(m), texture: m.atlas });
       } else for (const it of [].concat(loaded)) {
         if ((it.kind ?? 'item') === 'item') items.push({ name: it.name, texture: it.canvas });
         else blocks.push({ name: it.name, model: { parent: 'minecraft:block/cube_all' }, texture: it.canvas });
@@ -135,6 +146,17 @@ async function main() {
     }
     const r = buildPack(outDir, { name: packName, ns, packFormat, blocks, items });
     console.log(`리소스팩: 블록 ${blocks.length} · 아이템 ${items.length} · 파일 ${r.count}개\n  ${r.root}/\n  ${r.zipPath}`);
+  } else if (cmd === 'addon') {
+    const entities = [];
+    for (const file of args) {
+      const spec = await loadScene(file);
+      if (!spec?.cubes && !spec?.texture) continue;
+      const m = compileModel(spec);
+      if (m.type !== 'entity') { console.log(`  건너뜀: ${spec.name}은 entity가 아님`); continue; }
+      entities.push({ name: spec.name, displayName: spec.displayName, geometry: toBedrockGeometry(m), animation: Object.keys(m.animations).length ? toBedrockAnimation(m) : null, texture: m.atlas, hitbox: spec.hitbox, health: spec.health, eggColors: spec.eggColors });
+    }
+    const r = buildBedrockAddon(outDir, { name: packName === 'atelier_pack' ? 'atelier_addon' : packName, ns, entities });
+    console.log(`Bedrock 애드온: 엔티티 ${entities.length} · 파일 ${r.count}개\n  ${r.root}/\n  ${r.addonPath}\n  게임에서: /summon ${ns}:${entities[0]?.name}`);
   } else if (cmd === 'palette') {
     const [seed, harmony = 'complementary'] = args;
     const t = palette(seed, harmony);

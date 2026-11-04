@@ -18,6 +18,28 @@ export const FACES = ['north', 'east', 'south', 'west', 'up', 'down'];
 
 const hash = s => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
+/**
+ * 마인크래프트 박스 UV(Blockbench와 동일 규칙). [u,v] 오프셋과 크기 (w,h,d)
+ *   동 [u, v+d] · 북 [u+d, v+d] · 서 [u+d+w, v+d] · 남 [u+2d+w, v+d] (각 d|w × h)
+ *   위 [u+d+w, v+d] → [u+d, v] (양축 반전) · 아래 [u+d+2w, v] → [u+d+w, v+d] (가로 반전)
+ * mirror면 가로 뒤집기 + 동/서 교환(바닐라 왼팔·왼다리 갑옷)
+ */
+export function boxUV([u, v], [w, h, d], mirror = false) {
+  const r = {
+    east: [u, v + d, u + d, v + d + h],
+    west: [u + d + w, v + d, u + 2 * d + w, v + d + h],
+    up: [u + d + w, v + d, u + d, v],
+    down: [u + d + 2 * w, v, u + d + w, v + d],
+    south: [u + 2 * d + w, v + d, u + 2 * d + 2 * w, v + d + h],
+    north: [u + d, v + d, u + d + w, v + d + h],
+  };
+  if (mirror) {
+    for (const f of FACES) r[f] = [r[f][2], r[f][1], r[f][0], r[f][3]];
+    [r.east, r.west] = [r.west, r.east];
+  }
+  return r;
+}
+
 export function faceDims(size, face) {
   const [sx, sy, sz] = size;
   if (face === 'north' || face === 'south') return [sx, sy];
@@ -71,7 +93,9 @@ export function compileModel(spec) {
   const mats = spec.materials ?? {};
   const resolveMat = m => (typeof m === 'string' ? (mats[m] ? { ...mats[m] } : { mat: m }) : { ...m });
 
-  const cubes = spec.cubes.map((c0, idx) => {
+  // parts: { 이름: [큐브...] } → 블록스테이트용 부품. 모든 부품이 아틀라스 하나를 공유한다
+  const srcCubes = spec.parts ? Object.entries(spec.parts).flatMap(([part, list]) => list.map(c => ({ ...c, part }))) : spec.cubes;
+  const cubes = srcCubes.map((c0, idx) => {
     const c = { ...c0 };
     if (!c.from) { c.from = c.origin; c.to = c.origin.map((v, i) => v + c.size[i]); }
     c.name ??= `cube${idx}`;
@@ -80,6 +104,17 @@ export function compileModel(spec) {
     return c;
   });
 
+  let atlas, atlasW, atlasH;
+  if (spec.texture) {
+    // ---------- 고정 텍스처 + 박스 UV(스킨·갑옷처럼 정해진 배치) ----------
+    atlas = spec.texture; atlasW = atlas.w; atlasH = atlas.h;
+    for (const c of cubes) {
+      c.faceRects = {};
+      if (!c.boxUv) throw new Error(`${c.name}: texture 모드에서는 boxUv:[u,v]가 필요`);
+      const uv = boxUV(c.boxUv, c.size, c.mirror);
+      for (const f of FACES) c.faceRects[f] = c.faces?.[f]?.hidden ? null : { uv: uv[f] };
+    }
+  } else {
   // ---------- 면 칠하기 ----------
   const rects = [];
   for (const c of cubes) {
@@ -102,9 +137,8 @@ export function compileModel(spec) {
       rects.push(r);
     }
   }
-  const [atlasW, atlasH] = pack(rects, type === 'block');
-  const atlasSize = atlasW;
-  const atlas = new PixelCanvas(atlasW, atlasH);
+  [atlasW, atlasH] = pack(rects, type === 'block');
+  atlas = new PixelCanvas(atlasW, atlasH);
   for (const r of rects) atlas.paste(r.canvas, r.x, r.y);
   for (const c of cubes)
     for (const f of FACES) {
@@ -113,6 +147,10 @@ export function compileModel(spec) {
       const src = r.sharedWith ?? r;
       c.faceRects[f].uv = [src.x, src.y, src.x + r.w, src.y + r.h];
     }
+  const used = rects.reduce((s, r) => s + r.w * r.h, 0) / (atlasW * atlasH);
+  if (used < 0.35 && atlasW > 16) add('info', 'atlas-waste', `아틀라스 사용률 ${(used * 100).toFixed(0)}%`, '같은 면은 faces.<dir>.share로 공유하세요.');
+  }
+  const atlasSize = atlasW;
 
   // ---------- 검증 ----------
   if (type === 'block') {
@@ -143,11 +181,13 @@ export function compileModel(spec) {
       }
     }
   if (cubes.length > (type === 'block' ? 40 : 80)) add('info', 'cube-count', `큐브 ${cubes.length}개 → 많음(성능/편집성)`, '보이지 않는 큐브를 합치세요.');
-  const used = rects.reduce((s, r) => s + r.w * r.h, 0) / (atlasW * atlasH);
-  if (used < 0.35 && atlasW > 16) add('info', 'atlas-waste', `아틀라스 사용률 ${(used * 100).toFixed(0)}%`, '같은 면은 faces.<dir>.share로 공유하세요.');
-
   // 뼈대 검증
-  const bones = spec.bones ?? [];
+  let bones = spec.bones ?? [];
+  if (spec.parts && !spec.bones) {
+    // 부품을 Blockbench 그룹(폴더)으로: 회전 없는 정리용
+    bones = Object.keys(spec.parts).map(name => ({ name, pivot: [8, 8, 8] }));
+    cubes.forEach(c => (c.bone = c.part));
+  }
   if (type === 'entity') {
     if (!bones.length) add('error', 'no-bones', '엔티티에 bone이 없음', '최소 root/body/head bone을 두세요(애니메이션 피벗).');
     for (const c of cubes) if (!bones.find(b => b.name === c.bone)) add('error', 'bone-missing', `${c.name}의 bone "${c.bone}"이 정의되지 않음`, 'bones에 추가하세요.');

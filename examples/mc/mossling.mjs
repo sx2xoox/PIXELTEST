@@ -1,5 +1,6 @@
 // 엔티티 모델(독자 디자인): 머리 큰 2등신 이끼 돌정령. 귀여움 = 큰 머리, 짧은 다리, 낮은 눈 위치.
 // bone 피벗은 관절 위치(어깨, 엉덩이, 목)에 둔다 → 회전이 자연스럽다.
+// 좌우: 엔티티는 북쪽(-z)을 바라보므로 몹의 오른쪽(_r)이 +x, 왼쪽(_l)이 -x.
 import { PixelCanvas } from '../../atelier/pixel.js';
 
 const sprout = () => ({
@@ -25,10 +26,10 @@ export default {
     { name: 'root', pivot: [0, 0, 0] },
     { name: 'body', pivot: [0, 6, 0], parent: 'root' },
     { name: 'head', pivot: [0, 12, 0], parent: 'body' },
-    { name: 'arm_l', pivot: [5, 11, 0], parent: 'body' },
-    { name: 'arm_r', pivot: [-5, 11, 0], parent: 'body' },
-    { name: 'leg_l', pivot: [2.5, 6, 0], parent: 'root' },
-    { name: 'leg_r', pivot: [-2.5, 6, 0], parent: 'root' },
+    { name: 'arm_r', pivot: [5, 11, 0], parent: 'body' },
+    { name: 'arm_l', pivot: [-5, 11, 0], parent: 'body' },
+    { name: 'leg_r', pivot: [2.5, 6, 0], parent: 'root' },
+    { name: 'leg_l', pivot: [-2.5, 6, 0], parent: 'root' },
   ],
   cubes: [
     { name: 'torso', bone: 'body', from: [-4, 6, -3], to: [4, 12, 3], material: 'body',
@@ -47,19 +48,19 @@ export default {
     { name: 'moss_cap', bone: 'head', from: [-5, 19, -4], to: [5, 20, 4], material: 'moss', inflate: 0.25 },
     { name: 'sprout_a', bone: 'head', from: [0, 20, -2], to: [0, 24, 2], material: sprout(), rotation: [0, 45, 0], pivot: [0, 20, 0] },
     { name: 'sprout_b', bone: 'head', from: [0, 20, -2], to: [0, 24, 2], material: sprout(), rotation: [0, -45, 0], pivot: [0, 20, 0] },
-    { name: 'arm_l', bone: 'arm_l', from: [4, 4, -1], to: [6, 11, 1], material: 'rockDark' },
-    { name: 'arm_r', bone: 'arm_r', from: [-6, 4, -1], to: [-4, 11, 1], material: 'rockDark' },
-    { name: 'leg_l', bone: 'leg_l', from: [1, 0, -2], to: [4, 6, 1], material: 'rockDark' },
-    { name: 'leg_r', bone: 'leg_r', from: [-4, 0, -2], to: [-1, 6, 1], material: 'rockDark' },
+    { name: 'arm_r', bone: 'arm_r', from: [4, 4, -1], to: [6, 11, 1], material: 'rockDark' },
+    { name: 'arm_l', bone: 'arm_l', from: [-6, 4, -1], to: [-4, 11, 1], material: 'rockDark' },
+    { name: 'leg_r', bone: 'leg_r', from: [1, 0, -2], to: [4, 6, 1], material: 'rockDark' },
+    { name: 'leg_l', bone: 'leg_l', from: [-4, 0, -2], to: [-1, 6, 1], material: 'rockDark' },
   ],
   animations: {
     walk: {
       length: 1, loop: true,
       bones: {
-        leg_l: { rotation: { 0: [25, 0, 0], 0.5: [-25, 0, 0], 1: [25, 0, 0] } },
-        leg_r: { rotation: { 0: [-25, 0, 0], 0.5: [25, 0, 0], 1: [-25, 0, 0] } },
-        arm_l: { rotation: { 0: [-20, 0, 0], 0.5: [20, 0, 0], 1: [-20, 0, 0] } },
-        arm_r: { rotation: { 0: [20, 0, 0], 0.5: [-20, 0, 0], 1: [20, 0, 0] } },
+        leg_r: { rotation: { 0: [25, 0, 0], 0.5: [-25, 0, 0], 1: [25, 0, 0] } },
+        leg_l: { rotation: { 0: [-25, 0, 0], 0.5: [25, 0, 0], 1: [-25, 0, 0] } },
+        arm_r: { rotation: { 0: [-20, 0, 0], 0.5: [20, 0, 0], 1: [-20, 0, 0] } },
+        arm_l: { rotation: { 0: [20, 0, 0], 0.5: [-20, 0, 0], 1: [20, 0, 0] } },
         body: { position: { 0: [0, 0, 0], 0.25: [0, 0.5, 0], 0.5: [0, 0, 0], 0.75: [0, 0.5, 0], 1: [0, 0, 0] } },
         head: { rotation: { 0: [0, 0, 3], 0.5: [0, 0, -3], 1: [0, 0, 3] } },
       },

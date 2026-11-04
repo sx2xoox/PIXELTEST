@@ -94,6 +94,27 @@ export const MATERIALS = {
     return c;
   },
 
+  /** 작은 부품용 나무(가로대, 손잡이, 테두리): 이음매·못 없이 결만. dir 'h'면 가로결, 'v'면 세로결 */
+  wood(w, h, { base = '#a98557', seed = 17, dir = 'h' } = {}) {
+    const r = pixelRamp(base, 4, { spread: 0.06, hueShift: 12 });
+    const c = new PixelCanvas(w, h).fill(r[2]);
+    const R = rng(seed);
+    const along = dir === 'h' ? w : h, across = dir === 'h' ? h : w;
+    for (let k = 0; k < across; k++) {
+      // 결 하나: 줄마다 어두운 결 조각을 길게
+      let pos = Math.floor(R() * along);
+      while (pos < along + 4) {
+        const len = 2 + Math.floor(R() * 4);
+        const col = R() < 0.7 ? r[1] : r[3];
+        for (let i = 0; i < len; i++) dir === 'h' ? c.set((pos + i) % w, k, col) : c.set(k, (pos + i) % h, col);
+        pos += len + 2 + Math.floor(R() * 5);
+      }
+    }
+    // 위쪽 첫 줄은 살짝 밝게(모서리 하이라이트) — 2px 이상 두께일 때만
+    if (across >= 2) for (let i = 0; i < along; i++) dir === 'h' ? c.set(i, 0, mix(c.get(i, 0), r[3], 0.5)) : c.set(0, i, mix(c.get(0, i), r[3], 0.5));
+    return c;
+  },
+
   log(w, h, { bark = '#6a4c2d', inner = '#b88f58', face = 'north', seed = 6 } = {}) {
     if (isSide(face)) {
       const r = pixelRamp(bark, 5, { spread: 0.06, hueShift: 10 });
@@ -199,7 +220,8 @@ export const MATERIALS = {
     const r = pixelRamp(base, 5, { spread: 0.08, hueShift: 14, chroma: 0.8 });
     const c = new PixelCanvas(w, h).noiseFill(r.slice(2, 4), { seed, cell: 8, octaves: 1, contrast: 1.2 });
     // 사선 반사 줄
-    c.each((x, y) => { if ((x + y) % 7 === 0) c.set(x, y, r[4]); });
+    // 사선 반사: 넓은 면에서 사탕 줄무늬가 되지 않게 간격 9, 밝기는 섞어서 은은하게
+    c.each((x, y) => { if ((x + y) % 9 === 0) c.set(x, y, mix(c.get(x, y), r[4], 0.45)); });
     bevel(c, r, 1.2);
     if (rivets && w >= 6 && h >= 6) for (const [x, y] of [[1, 1], [w - 2, 1], [1, h - 2], [w - 2, h - 2]]) c.set(x, y, r[0]);
     return c;
@@ -208,7 +230,8 @@ export const MATERIALS = {
   cloth(w, h, { base = '#c94a4a', seed = 12, pattern = 'weave' } = {}) {
     const r = pixelRamp(base, 4, { spread: 0.05, hueShift: 12 });
     const c = new PixelCanvas(w, h).noiseFill(r.slice(1, 3), { seed, cell: 4, contrast: 1.4 });
-    if (pattern === 'weave') c.each((x, y) => { if ((x * 3 + y * 5) % 7 === 0) c.set(x, y, r[3]); });
+    // weave: 밝은 점이 물방울처럼 튀지 않게 한 단계 사이 색으로, 간격도 넓게
+    if (pattern === 'weave') c.each((x, y) => { if ((x * 3 + y * 5) % 11 === 0) c.set(x, y, mix(r[2], r[3], 0.5)); });
     if (pattern === 'stripe') c.each((x, y) => { if (y % 4 === 0) c.set(x, y, r[0]); });
     return c;
   },

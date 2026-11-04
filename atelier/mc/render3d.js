@@ -16,7 +16,7 @@ function payload(m) {
     type: m.type,
     bones: m.bones.map(b => ({ name: b.name, pivot: b.pivot, rotation: b.rotation ?? [0, 0, 0], parent: b.parent ?? null })),
     cubes: m.cubes.map(c => ({
-      from: c.from, to: c.to, inflate: c.inflate ?? 0, light: c.light ?? 0, bone: c.bone ?? null, origin: c.rot.origin, angles: c.rot.angles,
+      from: c.from, to: c.to, inflate: c.inflate ?? 0, light: c.light ?? 0, part: c.part ?? null, bone: c.bone ?? null, origin: c.rot.origin, angles: c.rot.angles,
       faces: Object.fromEntries(FACES.map(f => [f, c.faceRects[f] ? c.faceRects[f].uv : null])),
     })),
     animations: m.animations,
@@ -54,7 +54,7 @@ function pageScript() {
       }
       return pose;
     };
-    const build = (pose, silhouette) => {
+    const build = (pose, silhouette, state) => {
       const scene = new T.Scene();
       const mat = silhouette
         ? new T.MeshBasicMaterial({ color: 0xf2f2f2, side: T.DoubleSide })
@@ -80,9 +80,21 @@ function pageScript() {
         pivots[name] = b.pivot;
         return g;
       };
-      for (const c of data.cubes) {
-        const parent = ensure(c.bone);
-        const bp = c.bone ? boneByName[c.bone].pivot : [0, 0, 0];
+      // 블록스테이트 미리보기: [{ part, x, y }] → 블록 중심(8,8,8) 기준으로 부품을 돌려 배치(bone 무시)
+      const items = [];
+      if (state) {
+        for (const st of state) {
+          const g = new T.Group();
+          g.position.set(8, 8, 8);
+          g.rotation.order = 'YXZ';
+          g.rotation.set(rad(-(st.x || 0)), rad(-(st.y || 0)), 0); // 마인크래프트 블록스테이트 회전은 위에서 볼 때 시계방향
+          scene.add(g);
+          for (const c of data.cubes) if (c.part === st.part) items.push([c, g, [8, 8, 8]]);
+        }
+      } else for (const c of data.cubes) items.push([c, null, null]);
+      for (const [c, stateGroup, stateCenter] of items) {
+        const parent = stateGroup ?? ensure(c.bone);
+        const bp = stateCenter ?? (c.bone ? boneByName[c.bone].pivot : [0, 0, 0]);
         const size = c.to.map((v, i) => Math.max(0.001, v - c.from[i] + c.inflate * 2));
         const geo = new T.BoxGeometry(...size);
         const uv = geo.attributes.uv;
@@ -118,12 +130,13 @@ function pageScript() {
     renderer.outputEncoding = T.sRGBEncoding;
     renderer.setPixelRatio(1);
     renderer.setSize(px, px);
-    const restBox = new T.Box3().setFromObject(build({}, false));
+    const restBox = new T.Box3().setFromObject(build({}, false, views.find(v => v.state)?.state));
     const out = [];
     for (const v of views) {
       const anim = v.anim ? data.animations[v.anim] : null;
-      const scene = build(evalAnim(anim, v.t || 0), v.silhouette);
-      const box = restBox;
+      const scene = build(evalAnim(anim, v.t || 0), v.silhouette, v.state);
+      // 애니메이션 프레임은 휴지 자세 기준(프레임마다 흔들리지 않게), 나머지는 장면마다 맞춘다
+      const box = v.anim ? restBox : new T.Box3().setFromObject(scene);
       const ctr = box.getCenter(new T.Vector3());
       const sz = box.getSize(new T.Vector3());
       const half = Math.max(sz.x, sz.y, sz.z) * (v.zoom || 0.62);
@@ -139,6 +152,24 @@ function pageScript() {
     }
     return out;
   };
+}
+
+/** 블록스테이트에서 대표 상태 몇 개를 뽑는다 → [{ label, state:[{part,x,y}] }] */
+export function blockstateSamples(m) {
+  const bs = m.spec.blockstate;
+  if (!bs || !m.spec.parts) return [];
+  const toState = a => [].concat(a).slice(0, 1).map(x => ({ part: x.model, x: x.x ?? 0, y: x.y ?? 0 }));
+  if (bs.variants) return Object.entries(bs.variants).slice(0, 8).map(([k, v]) => ({ label: k || 'default', state: toState(v) }));
+  const props = [...new Set(bs.multipart.flatMap(p => Object.keys(p.when ?? {})))];
+  const sets = [[], props.slice(0, 1), props.slice(0, 2), [props[0], props[2]].filter(Boolean), props.slice(0, 3), props];
+  const seen = new Set();
+  return sets
+    .map(on => {
+      const val = k => (on.includes(k) ? 'true' : 'false');
+      const state = bs.multipart.filter(p => !p.when || Object.entries(p.when).every(([k, v]) => String(v).split('|').includes(val(k)))).flatMap(p => toState(p.apply));
+      return { label: on.length ? on.join('+') : '연결 없음', state };
+    })
+    .filter(x => { const k = x.label; if (seen.has(k)) return false; seen.add(k); return true; });
 }
 
 export async function modelSheet(m, issues, { title = 'model' } = {}) {
@@ -159,6 +190,13 @@ export async function modelSheet(m, issues, { title = 'model' } = {}) {
     { label: '실루엣 정면', dir: [0, 0, F], silhouette: true },
     { label: '실루엣 3/4', dir: [F * -0.9, 0.75, F * 1], silhouette: true },
   ];
+  // 블록스테이트 상태 미리보기
+  const states = blockstateSamples(m);
+  if (states.length) {
+    const full = states[states.length - 1].state;
+    views.forEach(v => (v.state = full));
+    for (const st of states) views.push({ label: st.label, dir: [-0.9, 0.85, 1], state: st.state });
+  }
   for (const an of Object.keys(m.animations)) {
     const L = m.animations[an].length ?? 1;
     for (let i = 0; i < 4; i++) views.push({ label: `${an} t=${((L * i) / 4).toFixed(2)}`, dir: [F * -0.9, 0.5, F * 1], anim: an, t: (L * i) / 4 });

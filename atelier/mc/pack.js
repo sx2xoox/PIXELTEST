@@ -46,14 +46,19 @@ export function buildPack(outDir, { name = 'atelier_pack', description = 'Made w
   const json = o => JSON.stringify(o, null, 2);
   add('pack.mcmeta', json({ pack: { pack_format: packFormat, description } }));
   for (const b of blocks) {
-    const model = JSON.parse(JSON.stringify(b.model));
-    model.textures = model.parent ? { all: `${ns}:block/${b.name}` } : { 0: `${ns}:block/${b.name}`, particle: `${ns}:block/${b.name}` };
-    add(`assets/${ns}/blockstates/${b.name}.json`, json({ variants: { '': { model: `${ns}:block/${b.name}` } } }));
-    add(`assets/${ns}/models/block/${b.name}.json`, json(model));
+    const models = b.models ?? { [b.name]: b.model };
+    for (const [mn, m0] of Object.entries(models)) {
+      const model = JSON.parse(JSON.stringify(m0));
+      model.textures = model.parent ? { all: `${ns}:block/${b.name}` } : { 0: `${ns}:block/${b.name}`, particle: `${ns}:block/${b.name}` };
+      add(`assets/${ns}/models/block/${mn}.json`, json(model));
+    }
+    const bs = b.blockstate ? JSON.parse(JSON.stringify(b.blockstate).replaceAll('"atelier:', `"${ns}:`)) : { variants: { '': { model: `${ns}:block/${b.name}` } } };
+    add(`assets/${ns}/blockstates/${b.name}.json`, json(bs));
+    const itemModelName = Object.keys(models)[0];
     add(`assets/${ns}/textures/block/${b.name}.png`, b.texture.toPNG());
     // 블록 아이템: 1.21.4+ items 정의 + 구버전용 models/item
-    add(`assets/${ns}/items/${b.name}.json`, json({ model: { type: 'minecraft:model', model: `${ns}:block/${b.name}` } }));
-    add(`assets/${ns}/models/item/${b.name}.json`, json({ parent: `${ns}:block/${b.name}` }));
+    add(`assets/${ns}/items/${b.name}.json`, json({ model: { type: 'minecraft:model', model: `${ns}:block/${itemModelName}` } }));
+    add(`assets/${ns}/models/item/${b.name}.json`, json({ parent: `${ns}:block/${itemModelName}` }));
   }
   for (const it of items) {
     add(`assets/${ns}/textures/item/${it.name}.png`, it.texture.toPNG());
@@ -68,4 +73,88 @@ export function buildPack(outDir, { name = 'atelier_pack', description = 'Made w
   const zipPath = path.join(outDir, name + '.zip');
   fs.writeFileSync(zipPath, zip(files));
   return { root, zipPath, count: files.length };
+}
+
+// ---------------------------------------------------------------------------
+// Bedrock 애드온(.mcaddon) = 리소스팩(RP) + 행동팩(BP). 엔티티를 게임에서 바로 소환할 수 있게 한다.
+//   RP: manifest.json, entity/<n>.entity.json, models/entity/<n>.geo.json, animations/<n>.animation.json,
+//       textures/entity/<n>.png, texts/en_US.lang
+//   BP: manifest.json(RP 의존), entities/<n>.json(체력·이동·배회 AI)
+// ---------------------------------------------------------------------------
+import crypto from 'crypto';
+const uuidOf = seed => {
+  const h = crypto.createHash('md5').update(seed).digest('hex');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+};
+
+export function buildBedrockAddon(outDir, { name = 'atelier_addon', ns = 'atelier', entities = [], minEngine = [1, 21, 0] }) {
+  const json = o => JSON.stringify(o, null, 2);
+  const rpUuid = uuidOf(`${name}/rp`), bpUuid = uuidOf(`${name}/bp`);
+  const files = [];
+  const add = (p, d) => files.push([p, d]);
+  const manifest = (kind, uuid, deps) => ({
+    format_version: 2,
+    header: { name: `${name} ${kind}`, description: 'Made with Atelier', uuid, version: [1, 0, 0], min_engine_version: minEngine },
+    modules: [{ type: kind === 'RP' ? 'resources' : 'data', uuid: uuidOf(`${uuid}/module`), version: [1, 0, 0] }],
+    ...(deps ? { dependencies: deps } : {}),
+  });
+  add(`${name}_RP/manifest.json`, json(manifest('RP', rpUuid)));
+  add(`${name}_BP/manifest.json`, json(manifest('BP', bpUuid, [{ uuid: rpUuid, version: [1, 0, 0] }])));
+  const lang = [];
+  for (const e of entities) {
+    const id = `${ns}:${e.name}`;
+    const anims = Object.keys(e.animation?.animations ?? {});
+    const short = a => a.split('.').pop();
+    add(`${name}_RP/entity/${e.name}.entity.json`, json({
+      format_version: '1.10.0',
+      'minecraft:client_entity': {
+        description: {
+          identifier: id,
+          materials: { default: 'entity_alphatest' },
+          textures: { default: `textures/entity/${e.name}` },
+          geometry: { default: `geometry.${e.name}` },
+          ...(anims.length ? { animations: Object.fromEntries(anims.map(a => [short(a), a])) } : {}),
+          // 걷기 애니메이션은 이동 속도로 가중치를 준다(가만히 있으면 0)
+          ...(anims.length ? { scripts: { animate: anims.map(a => (short(a) === 'walk' ? { walk: 'query.modified_move_speed' } : short(a))) } } : {}),
+          render_controllers: ['controller.render.default'],
+          spawn_egg: { base_color: e.eggColors?.[0] ?? '#7a818c', overlay_color: e.eggColors?.[1] ?? '#5d8f3a' },
+        },
+      },
+    }));
+    add(`${name}_RP/models/entity/${e.name}.geo.json`, json(e.geometry));
+    if (anims.length) add(`${name}_RP/animations/${e.name}.animation.json`, json(e.animation));
+    add(`${name}_RP/textures/entity/${e.name}.png`, e.texture.toPNG());
+    lang.push(`entity.${id}.name=${e.displayName ?? e.name}`, `item.spawn_egg.entity.${id}.name=Spawn ${e.displayName ?? e.name}`);
+    const h = e.hitbox ?? { width: 0.6, height: 1.2 };
+    add(`${name}_BP/entities/${e.name}.json`, json({
+      format_version: '1.20.0',
+      'minecraft:entity': {
+        description: { identifier: id, is_spawnable: true, is_summonable: true, is_experimental: false },
+        components: {
+          'minecraft:type_family': { family: [e.name, 'mob'] },
+          'minecraft:health': { value: e.health ?? 10, max: e.health ?? 10 },
+          'minecraft:collision_box': h,
+          'minecraft:movement': { value: e.speed ?? 0.2 },
+          'minecraft:navigation.walk': { can_walk: true, avoid_water: true },
+          'minecraft:movement.basic': {},
+          'minecraft:jump.static': {},
+          'minecraft:physics': {},
+          'minecraft:pushable': { is_pushable: true, is_pushable_by_piston: true },
+          'minecraft:behavior.float': { priority: 0 },
+          'minecraft:behavior.random_stroll': { priority: 6, speed_multiplier: 1 },
+          'minecraft:behavior.look_at_player': { priority: 7, look_distance: 6, probability: 0.02 },
+          'minecraft:behavior.random_look_around': { priority: 8 },
+        },
+      },
+    }));
+  }
+  add(`${name}_RP/texts/en_US.lang`, lang.join('\n') + '\n');
+  add(`${name}_RP/texts/languages.json`, json(['en_US']));
+  for (const [p, d] of files) {
+    fs.mkdirSync(path.dirname(path.join(outDir, name, p)), { recursive: true });
+    fs.writeFileSync(path.join(outDir, name, p), d);
+  }
+  const addonPath = path.join(outDir, name + '.mcaddon');
+  fs.writeFileSync(addonPath, zip(files));
+  return { root: path.join(outDir, name), addonPath, count: files.length };
 }
