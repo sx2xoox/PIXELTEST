@@ -25,7 +25,7 @@ const bayer = (x, y) => B4[(y & 3) * 4 + (x & 3)] / 16;
  */
 export function ribbonArc({ size = 128, frames = 7, start = 200, sweep = -220, radius = 0.36, width = 0.045, spiral = 0.12,
   strands = [{ dr: 0, da: 0, w: 1, len: 1, tone: 1 }, { dr: 0.07, da: 0.06, w: 0.55, len: 0.85, tone: 0.75 }, { dr: -0.06, da: 0.1, w: 0.4, len: 0.7, tone: 0.6 }],
-  ramp = RAMPS.blood, petals = 10, seed = 1, petalRamp = null, liquid = false, particle: shape = 'petal' } = {}) {
+  ramp = RAMPS.blood, petals = 10, seed = 1, petalRamp = null, liquid = false, wisp = false, particle: shape = 'petal' } = {}) {
   const R = rng(seed), cx = size / 2, cy = size / 2, Rr = size * radius, dir = Math.sign(sweep) || 1, sw = Math.abs(sweep);
   const pr = petalRamp ?? ramp;
   const P = Array.from({ length: petals }, () => ({ u: 0.25 + R() * 0.75, born: 0.08 + R() * 0.35, out: 0.08 + R() * 0.22, along: (R() - 0.3) * 0.25, rot: R() * Math.PI, spin: (R() - 0.5) * 6, len: 2.5 + R() * 3, tone: 0.55 + R() * 0.45 }));
@@ -47,11 +47,13 @@ export function ribbonArc({ size = 128, frames = 7, start = 200, sweep = -220, r
         const u = (((((a - start) * dir) % 360) + 360) % 360) / sw; // 0 시작 → 1 끝
         if (u > h || u < tl) continue;
         const lu = (u - tl) / (h - tl);                            // 0 꼬리 → 1 머리
-        const rr = Rr * (1 + s.dr + spiral * (u - 0.5));
+        let rr = Rr * (1 + s.dr + spiral * (u - 0.5));
+        if (wisp) rr += Math.sin(u * 26 + p * 9 + s.dr * 40) * size * width * 0.9 * (1 - lu);   // 연기: 꼬리 쪽일수록 출렁임
         const prof = Math.sin(Math.PI * Math.min(1, lu * 1.08)) ** 0.55 * (0.35 + 0.65 * lu); // 양끝 뾰족, 머리 쪽 두꺼움
         const w = size * width * s.w * prof * (0.45 + 0.55 * energy);
         if (w < 0.35) continue;
-        const sd = (r - rr) / w, d = Math.abs(sd);                 // 0 심 → 1 가장자리(sd > 0 바깥쪽)
+        const sd = (r - rr) / w, d = Math.abs(sd);
+        if (wisp && lu < 0.45 && bayer(x, y) > lu / 0.45) continue;                                 // 연기: 꼬리는 디더로 흩어짐                 // 0 심 → 1 가장자리(sd > 0 바깥쪽)
         if (d > 1) continue;
         if (liquid && lu < 0.32) {                                 // 액체: 꼬리가 방울로 끊어짐
           const arc = u * sw * Math.PI / 180 * rr, step = Math.max(3, w * 2.6), ph = ((arc % step) + step) % step - step / 2;
@@ -80,7 +82,7 @@ export function ribbonArc({ size = 128, frames = 7, start = 200, sweep = -220, r
       const tx = -Math.sin(ang) * dir, ty = Math.cos(ang) * dir;
       const rr = Rr * (1 + spiral * (q.u - 0.5)) + size * q.out * t;
       const px = cx + Math.cos(ang) * rr + tx * size * q.along * t, py = cy + Math.sin(ang) * rr + ty * size * q.along * t + size * 0.05 * t * t;
-      particle(c, shape, px, py, Math.atan2(ty, tx) + (shape === 'petal' ? q.rot + q.spin * t : 0), q.len * (1 - 0.6 * t) * (size / 128), pr, q.tone * (1 - 0.5 * t), k);
+      particle(c, shape, px, py, Math.atan2(ty, tx) + (spins(shape) ? q.rot + q.spin * t : 0), q.len * (1 - 0.6 * t) * (size / 128), pr, q.tone * (1 - 0.5 * t), k);
     }
     out.push(c);
   }
@@ -88,10 +90,21 @@ export function ribbonArc({ size = 128, frames = 7, start = 200, sweep = -220, r
 }
 
 /** 모티프 입자: 'petal' 꽃잎 | 'drop' 핏방울(진행 방향으로 꼬리) | 'bat' 박쥐(날갯짓 2프레임) */
+export const spins = shape => shape === 'petal' || Array.isArray(shape);
 export function particle(c, shape, x, y, rot, len, ramp, tone, frame = 0) {
+  if (Array.isArray(shape)) { const sp = shape[Math.floor(tone * 997) % shape.length]; return stamp(c, sp, x, y, rot, Math.max(0.4, len / 4)); } // 스프라이트 입자(집기 등): 회전하며 날아감
   if (shape === 'bat') return bat(c, x, y, Math.max(1, Math.round(len / 2.5)), frame);
   if (shape === 'drop') return drop(c, x, y, rot, len, ramp, tone);
   return petal(c, x, y, rot, len, ramp, tone);
+}
+/** 스프라이트를 회전·확대해 찍기(최근접 샘플링 → 픽셀 유지) */
+export function stamp(c, sp, x, y, rot, scale = 1) {
+  const cs = Math.cos(rot), sn = Math.sin(rot), R = Math.ceil(Math.hypot(sp.w, sp.h) * scale / 2) + 1;
+  for (let j = -R; j <= R; j++) for (let i = -R; i <= R; i++) {
+    const u = (cs * i + sn * j) / scale + sp.w / 2, v = (-sn * i + cs * j) / scale + sp.h / 2;
+    const col = sp.get(Math.floor(u), Math.floor(v));
+    if (col) c.set(Math.round(x + i), Math.round(y + j), col);
+  }
 }
 /** 핏방울: 둥근 머리 + 진행 반대쪽으로 가늘어지는 꼬리, 머리에 크림 반사점 */
 export function drop(c, x, y, rot, len, ramp, tone = 1) {
@@ -157,7 +170,7 @@ export function ribbonLine({ size = 128, frames = 6, angle = -30, length = 0.95,
     for (const q of P) {
       if (p < q.born || q.u > head) continue;
       const t = (p - q.born) / (1 - q.born), base = (q.u - 0.5) * size * length;
-      particle(c, shape, cx + ux * base - uy * q.side * size * q.out * t, cy + uy * base + ux * q.side * size * q.out * t + size * 0.04 * t * t, shape === 'petal' ? q.rot + q.spin * t : Math.atan2(ux * q.side, -uy * q.side), q.len * (1 - 0.6 * t) * (size / 128), ramp, q.tone * (1 - 0.5 * t), k);
+      particle(c, shape, cx + ux * base - uy * q.side * size * q.out * t, cy + uy * base + ux * q.side * size * q.out * t + size * 0.04 * t * t, spins(shape) ? q.rot + q.spin * t : Math.atan2(ux * q.side, -uy * q.side), q.len * (1 - 0.6 * t) * (size / 128), ramp, q.tone * (1 - 0.5 * t), k);
     }
     out.push(c);
   }
@@ -198,7 +211,7 @@ export function petalBurst({ size = 64, frames = 7, count = 16, ramp = RAMPS.blo
       }
     }
     const e = 1 - (1 - t) ** 2;
-    for (const q of P) particle(c, shape, h + Math.cos(q.a) * size * q.sp * e, h + Math.sin(q.a) * size * q.sp * e + size * 0.08 * t * t, shape === 'petal' ? q.rot + q.spin * t : q.a, q.len * (1 - 0.55 * t) * Math.sqrt(size / 64), ramp, q.tone * (1 - 0.4 * t), k);
+    for (const q of P) particle(c, shape, h + Math.cos(q.a) * size * q.sp * e, h + Math.sin(q.a) * size * q.sp * e + size * 0.08 * t * t, spins(shape) ? q.rot + q.spin * t : q.a, q.len * (1 - 0.55 * t) * Math.sqrt(size / 64), ramp, q.tone * (1 - 0.4 * t), k);
     out.push(c);
   }
   return out;
