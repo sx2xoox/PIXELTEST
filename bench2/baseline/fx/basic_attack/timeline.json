@@ -1,0 +1,692 @@
+{
+  "name": "피의 군주 기본 공격 3연타 — 1타 가로베기, 2타 쌍월 올려베기와 피 분사, 3타 내려찍기 후 지면 폭혈과 가시",
+  "duration_ticks": 46,
+  "tracks": [
+    {
+      "id": "hit1_slash",
+      "frames": [
+        "hit1_0.png",
+        "hit1_1.png",
+        "hit1_2.png",
+        "hit1_2.png",
+        "hit1_3.png",
+        "hit1_3.png",
+        "hit1_4.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 0,
+      "end_tick": 6,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "billboard": "fixed",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0,
+            1.2,
+            -0.7
+          ],
+          "rotation": [
+            -50,
+            0,
+            6
+          ],
+          "scale": [
+            0.9,
+            0.9,
+            1
+          ]
+        },
+        {
+          "tick": 6,
+          "translation": [
+            0,
+            1.15,
+            -0.9
+          ],
+          "rotation": [
+            -50,
+            0,
+            10
+          ],
+          "scale": [
+            1.08,
+            1.08,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit2_slash",
+      "frames": [
+        "hit2_0.png",
+        "hit2_1.png",
+        "hit2_2.png",
+        "hit2_3.png",
+        "hit2_4.png",
+        "hit2_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 9,
+      "end_tick": 15,
+      "size": [
+        3.6,
+        3.6
+      ],
+      "billboard": "fixed",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0.1,
+            1.25,
+            -1.0
+          ],
+          "rotation": [
+            -38,
+            0,
+            32
+          ],
+          "scale": [
+            0.9,
+            0.9,
+            1
+          ]
+        },
+        {
+          "tick": 6,
+          "translation": [
+            0.2,
+            1.35,
+            -1.2
+          ],
+          "rotation": [
+            -38,
+            0,
+            38
+          ],
+          "scale": [
+            1.12,
+            1.12,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit2_spray",
+      "frames": [
+        "hit2_spray_0.png",
+        "hit2_spray_1.png",
+        "hit2_spray_2.png",
+        "hit2_spray_3.png",
+        "hit2_spray_4.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 11,
+      "end_tick": 16,
+      "size": [
+        2.4,
+        2.4
+      ],
+      "billboard": "center",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0.5,
+            1.5,
+            -1.4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 5,
+          "translation": [
+            0.8,
+            1.4,
+            -1.6
+          ],
+          "scale": [
+            1.2,
+            1.2,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_charge",
+      "frames": [
+        "hit3_charge_0.png",
+        "hit3_charge_1.png",
+        "hit3_charge_2.png",
+        "hit3_charge_3.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 19,
+      "end_tick": 23,
+      "size": [
+        1.4,
+        1.4
+      ],
+      "billboard": "center",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0.35,
+            2.9,
+            0.1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 4,
+          "translation": [
+            0.35,
+            3.0,
+            0.0
+          ],
+          "scale": [
+            0.8,
+            0.8,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_slash",
+      "frames": [
+        "hit3_0.png",
+        "hit3_1.png",
+        "hit3_2.png",
+        "hit3_3.png",
+        "hit3_4.png",
+        "hit3_5.png",
+        "hit3_3.png",
+        "hit3_4.png",
+        "hit3_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 24,
+      "end_tick": 32,
+      "size": [
+        4.6,
+        4.6
+      ],
+      "billboard": "fixed",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0.54,
+            1.95,
+            -2.0
+          ],
+          "rotation": [
+            0,
+            60,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 3,
+          "translation": [
+            0.54,
+            1.85,
+            -2.04
+          ],
+          "rotation": [
+            0,
+            60,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 8,
+          "translation": [
+            0.54,
+            1.8,
+            -2.06
+          ],
+          "rotation": [
+            0,
+            60,
+            0
+          ],
+          "scale": [
+            1.04,
+            1.04,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_flash",
+      "frames": [
+        "hit3_flash_0.png",
+        "hit3_flash_1.png",
+        "hit3_flash_2.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 27,
+      "end_tick": 29,
+      "size": [
+        2.8,
+        2.8
+      ],
+      "billboard": "center",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0.5,
+            0.5,
+            -2.0
+          ],
+          "scale": [
+            0.8,
+            0.8,
+            1
+          ]
+        },
+        {
+          "tick": 2,
+          "translation": [
+            0.5,
+            0.6,
+            -2.0
+          ],
+          "scale": [
+            1.3,
+            1.3,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_splat",
+      "frames": [
+        "hit3_splat_0.png",
+        "hit3_splat_1.png",
+        "hit3_splat_2.png",
+        "hit3_splat_3.png",
+        "hit3_splat_4.png",
+        "hit3_splat_5.png"
+      ],
+      "ticks_per_frame": 3,
+      "start_tick": 27,
+      "end_tick": 45,
+      "size": [
+        4.5,
+        4.5
+      ],
+      "billboard": "fixed",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0.5,
+            0.03,
+            -2.0
+          ],
+          "rotation": [
+            -90,
+            0,
+            0
+          ],
+          "scale": [
+            0.8,
+            0.8,
+            1
+          ]
+        },
+        {
+          "tick": 6,
+          "translation": [
+            0.5,
+            0.03,
+            -2.0
+          ],
+          "rotation": [
+            -90,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_wave",
+      "frames": [
+        "hit3_wave_0.png",
+        "hit3_wave_1.png",
+        "hit3_wave_2.png",
+        "hit3_wave_3.png",
+        "hit3_wave_4.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 27,
+      "end_tick": 36,
+      "size": [
+        5,
+        5
+      ],
+      "billboard": "fixed",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0.5,
+            0.08,
+            -2.0
+          ],
+          "rotation": [
+            -90,
+            0,
+            0
+          ],
+          "scale": [
+            0.6,
+            0.6,
+            1
+          ]
+        },
+        {
+          "tick": 9,
+          "translation": [
+            0.5,
+            0.08,
+            -2.0
+          ],
+          "rotation": [
+            -90,
+            0,
+            0
+          ],
+          "scale": [
+            1.5,
+            1.5,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_thorns",
+      "frames": [
+        "hit3_thorns_0.png",
+        "hit3_thorns_1.png",
+        "hit3_thorns_2.png",
+        "hit3_thorns_3.png",
+        "hit3_thorns_4.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 28,
+      "end_tick": 40,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "billboard": "vertical",
+      "keys": [
+        {
+          "tick": 0,
+          "translation": [
+            0.5,
+            1.6,
+            -2.3
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 12,
+          "translation": [
+            0.5,
+            1.5,
+            -2.3
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "player": [
+    {
+      "tick": 0,
+      "arm_r": [
+        -95,
+        60,
+        0
+      ],
+      "arm_l": [
+        -40,
+        20,
+        0
+      ],
+      "body": [
+        0,
+        35,
+        0
+      ]
+    },
+    {
+      "tick": 4,
+      "arm_r": [
+        -90,
+        -70,
+        0
+      ],
+      "arm_l": [
+        -50,
+        -30,
+        0
+      ],
+      "body": [
+        0,
+        -35,
+        0
+      ]
+    },
+    {
+      "tick": 8,
+      "arm_r": [
+        -25,
+        -45,
+        25
+      ],
+      "arm_l": [
+        -20,
+        -20,
+        0
+      ],
+      "body": [
+        0,
+        -30,
+        0
+      ],
+      "head": [
+        0,
+        -10,
+        0
+      ]
+    },
+    {
+      "tick": 13,
+      "arm_r": [
+        -165,
+        45,
+        -25
+      ],
+      "arm_l": [
+        -110,
+        30,
+        0
+      ],
+      "body": [
+        -8,
+        30,
+        0
+      ],
+      "head": [
+        -10,
+        10,
+        0
+      ]
+    },
+    {
+      "tick": 19,
+      "arm_r": [
+        -175,
+        0,
+        0
+      ],
+      "arm_l": [
+        -170,
+        0,
+        0
+      ],
+      "body": [
+        -12,
+        0,
+        0
+      ],
+      "head": [
+        -15,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 24,
+      "arm_r": [
+        -180,
+        0,
+        0
+      ],
+      "arm_l": [
+        -178,
+        0,
+        0
+      ],
+      "body": [
+        -15,
+        0,
+        0
+      ],
+      "head": [
+        -15,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 27,
+      "arm_r": [
+        -35,
+        0,
+        0
+      ],
+      "arm_l": [
+        -40,
+        0,
+        0
+      ],
+      "body": [
+        28,
+        0,
+        0
+      ],
+      "head": [
+        10,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 36,
+      "arm_r": [
+        -30,
+        0,
+        0
+      ],
+      "arm_l": [
+        -35,
+        0,
+        0
+      ],
+      "body": [
+        24,
+        0,
+        0
+      ],
+      "head": [
+        8,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 46,
+      "arm_r": [
+        0,
+        0,
+        0
+      ],
+      "arm_l": [
+        0,
+        0,
+        0
+      ],
+      "body": [
+        0,
+        0,
+        0
+      ],
+      "head": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}
