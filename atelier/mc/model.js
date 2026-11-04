@@ -110,7 +110,8 @@ export function compileModel(spec) {
     atlas = spec.texture; atlasW = atlas.w; atlasH = atlas.h;
     for (const c of cubes) {
       c.faceRects = {};
-      if (!c.boxUv) throw new Error(`${c.name}: texture 모드에서는 boxUv:[u,v]가 필요`);
+      if (c.faceUV) { for (const f of FACES) c.faceRects[f] = c.faces?.[f]?.hidden || !c.faceUV[f] ? null : { uv: c.faceUV[f] }; continue; } // 면별 UV 직접 지정(복셀 돌출)
+      if (!c.boxUv) throw new Error(`${c.name}: texture 모드에서는 boxUv:[u,v] 또는 faceUV가 필요`);
       const uv = boxUV(c.boxUv, c.size, c.mirror);
       for (const f of FACES) c.faceRects[f] = c.faces?.[f]?.hidden ? null : { uv: uv[f] };
     }

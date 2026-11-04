@@ -1,25 +1,33 @@
 {
-  "name": "혈월 강림 — 땅의 피를 낫 끝으로 모아 등 뒤에 핏빛 달을 띄우고, 섬광과 함께 1.25바퀴 회전베기로 주변을 가른 뒤 결정 가시 다발 6개가 원형으로 솟는다",
+  "name": "혈화난무(血花亂舞) — 핏빛 꽃잎을 끌어모아 리본 여섯 가닥으로 몸을 휘감은 뒤, 앞으로 X자 대참격을 날려 혈화를 터뜨린다",
   "duration_ticks": 60,
   "tracks": [
     {
-      "id": "rise0",
+      "id": "gather",
       "frames": [
-        "drop_0.png"
+        "gather_0.png",
+        "gather_1.png",
+        "gather_2.png",
+        "gather_3.png",
+        "gather_4.png",
+        "gather_5.png",
+        "gather_6.png",
+        "gather_7.png"
       ],
+      "ticks_per_frame": 1,
       "start_tick": 0,
-      "end_tick": 10,
+      "end_tick": 7,
       "size": [
-        0.35,
-        0.35
+        5,
+        5
       ],
       "billboard": "center",
       "keys": [
         {
           "tick": 0,
           "translation": [
-            2.4,
-            0.2,
+            0,
+            1.2,
             0
           ],
           "scale": [
@@ -27,41 +35,40 @@
             1,
             1
           ]
-        },
-        {
-          "tick": 10,
-          "translation": [
-            0,
-            4.1,
-            -0.2
-          ],
-          "scale": [
-            0.4,
-            0.4,
-            1
-          ]
         }
       ]
     },
     {
-      "id": "rise1",
+      "id": "gather2",
       "frames": [
-        "drop_0.png"
+        "gather_0.png",
+        "gather_1.png",
+        "gather_2.png",
+        "gather_3.png",
+        "gather_4.png",
+        "gather_5.png",
+        "gather_6.png",
+        "gather_7.png"
       ],
-      "start_tick": 1,
+      "ticks_per_frame": 1,
+      "start_tick": 4,
       "end_tick": 11,
       "size": [
-        0.35,
-        0.35
+        4,
+        4
       ],
-      "billboard": "center",
       "keys": [
         {
-          "tick": 1,
+          "tick": 4,
           "translation": [
-            1.697056274847714,
-            0.2,
-            1.6970562748477138
+            0,
+            0.1,
+            0
+          ],
+          "rotation": [
+            -90,
+            0,
+            0
           ],
           "scale": [
             1,
@@ -71,590 +78,362 @@
         },
         {
           "tick": 11,
+          "rotation": [
+            -90,
+            0,
+            90
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ringIn",
+      "frames": [
+        "ringIn_0.png",
+        "ringIn_1.png",
+        "ringIn_2.png",
+        "ringIn_3.png",
+        "ringIn_4.png",
+        "ringIn_5.png",
+        "ringIn_6.png",
+        "ringIn_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 4,
+      "end_tick": 11,
+      "size": [
+        5,
+        5
+      ],
+      "keys": [
+        {
+          "tick": 4,
           "translation": [
             0,
-            4.1,
-            -0.2
+            0.05,
+            0
+          ],
+          "rotation": [
+            -90,
+            0,
+            0
           ],
           "scale": [
-            0.4,
-            0.4,
+            1,
+            1,
             1
           ]
         }
       ]
     },
     {
-      "id": "rise2",
+      "id": "wrap0",
       "frames": [
-        "drop_0.png"
+        "wrap0_0.png",
+        "wrap0_1.png",
+        "wrap0_2.png",
+        "wrap0_3.png",
+        "wrap0_4.png",
+        "wrap0_5.png",
+        "wrap0_6.png",
+        "wrap0_7.png",
+        "wrap0_8.png",
+        "wrap0_9.png",
+        "wrap0_10.png"
       ],
-      "start_tick": 2,
-      "end_tick": 12,
+      "ticks_per_frame": 1,
+      "start_tick": 12,
+      "end_tick": 22,
       "size": [
-        0.35,
-        0.35
+        4.2,
+        4.2
       ],
-      "billboard": "center",
       "keys": [
-        {
-          "tick": 2,
-          "translation": [
-            1.4695761589768238e-16,
-            0.2,
-            2.4
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
         {
           "tick": 12,
           "translation": [
             0,
-            4.1,
-            -0.2
-          ],
-          "scale": [
-            0.4,
-            0.4,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "rise3",
-      "frames": [
-        "drop_0.png"
-      ],
-      "start_tick": 3,
-      "end_tick": 13,
-      "size": [
-        0.35,
-        0.35
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 3,
-          "translation": [
-            -1.6970562748477138,
-            0.2,
-            1.697056274847714
-          ],
-          "scale": [
             1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 13,
-          "translation": [
+            0
+          ],
+          "rotation": [
+            -90,
             0,
-            4.1,
-            -0.2
+            0
           ],
           "scale": [
-            0.4,
-            0.4,
+            0.85,
+            0.85,
+            1
+          ]
+        },
+        {
+          "tick": 22,
+          "rotation": [
+            -90,
+            0,
+            -70
+          ],
+          "scale": [
+            1.15,
+            1.15,
             1
           ]
         }
       ]
     },
     {
-      "id": "rise4",
+      "id": "wrap1",
       "frames": [
-        "drop_0.png"
+        "wrap1_0.png",
+        "wrap1_1.png",
+        "wrap1_2.png",
+        "wrap1_3.png",
+        "wrap1_4.png",
+        "wrap1_5.png",
+        "wrap1_6.png",
+        "wrap1_7.png",
+        "wrap1_8.png",
+        "wrap1_9.png",
+        "wrap1_10.png"
       ],
-      "start_tick": 4,
-      "end_tick": 14,
+      "ticks_per_frame": 1,
+      "start_tick": 14,
+      "end_tick": 24,
       "size": [
-        0.35,
-        0.35
+        4.7,
+        4.7
       ],
-      "billboard": "center",
       "keys": [
-        {
-          "tick": 4,
-          "translation": [
-            -2.4,
-            0.2,
-            2.9391523179536476e-16
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
         {
           "tick": 14,
           "translation": [
             0,
-            4.1,
-            -0.2
+            1.35,
+            0
           ],
-          "scale": [
-            0.4,
-            0.4,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "rise5",
-      "frames": [
-        "drop_0.png"
-      ],
-      "start_tick": 5,
-      "end_tick": 15,
-      "size": [
-        0.35,
-        0.35
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 5,
-          "translation": [
-            -1.6970562748477145,
-            0.2,
-            -1.6970562748477138
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 15,
-          "translation": [
+          "rotation": [
+            -62,
             0,
-            4.1,
-            -0.2
+            0
           ],
           "scale": [
-            0.4,
-            0.4,
+            0.85,
+            0.85,
+            1
+          ]
+        },
+        {
+          "tick": 24,
+          "rotation": [
+            -62,
+            0,
+            70
+          ],
+          "scale": [
+            1.15,
+            1.15,
             1
           ]
         }
       ]
     },
     {
-      "id": "rise6",
+      "id": "wrap2",
       "frames": [
-        "drop_0.png"
+        "wrap2_0.png",
+        "wrap2_1.png",
+        "wrap2_2.png",
+        "wrap2_3.png",
+        "wrap2_4.png",
+        "wrap2_5.png",
+        "wrap2_6.png",
+        "wrap2_7.png",
+        "wrap2_8.png",
+        "wrap2_9.png",
+        "wrap2_10.png"
       ],
-      "start_tick": 6,
-      "end_tick": 16,
+      "ticks_per_frame": 1,
+      "start_tick": 16,
+      "end_tick": 26,
       "size": [
-        0.35,
-        0.35
+        5.2,
+        5.2
       ],
-      "billboard": "center",
       "keys": [
-        {
-          "tick": 6,
-          "translation": [
-            -4.408728476930471e-16,
-            0.2,
-            -2.4
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
         {
           "tick": 16,
           "translation": [
             0,
-            4.1,
-            -0.2
-          ],
-          "scale": [
-            0.4,
-            0.4,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "rise7",
-      "frames": [
-        "drop_0.png"
-      ],
-      "start_tick": 7,
-      "end_tick": 17,
-      "size": [
-        0.35,
-        0.35
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 7,
-          "translation": [
-            1.6970562748477136,
-            0.2,
-            -1.6970562748477145
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 17,
-          "translation": [
-            0,
-            4.1,
-            -0.2
-          ],
-          "scale": [
-            0.4,
-            0.4,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "pool",
-      "frames": [
-        "pool_0.png",
-        "pool_1.png",
-        "pool_2.png",
-        "pool_3.png",
-        "pool_4.png",
-        "pool_5.png",
-        "pool_6.png",
-        "pool_7.png",
-        "pool_8.png",
-        "pool_9.png",
-        "pool_10.png",
-        "pool_11.png",
-        "pool_12.png",
-        "pool_13.png",
-        "pool_14.png",
-        "pool_15.png",
-        "pool_16.png",
-        "pool_17.png",
-        "pool_18.png",
-        "pool_19.png",
-        "pool_fade_0.png",
-        "pool_fade_1.png",
-        "pool_fade_2.png",
-        "pool_fade_3.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 4,
-      "end_tick": 51,
-      "size": [
-        4.4,
-        4.4
-      ],
-      "keys": [
-        {
-          "tick": 4,
-          "translation": [
-            0,
-            0.03,
+            1.6,
             0
           ],
           "rotation": [
-            -90,
+            -118,
             0,
             0
           ],
           "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 50,
-          "rotation": [
-            -90,
-            0,
-            40
-          ]
-        }
-      ]
-    },
-    {
-      "id": "halo",
-      "frames": [
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_0.png",
-        "halo_fade_0.png",
-        "halo_fade_1.png",
-        "halo_fade_2.png",
-        "halo_fade_3.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 8,
-      "end_tick": 51,
-      "size": [
-        4,
-        4
-      ],
-      "tint": "#a8162a",
-      "keys": [
-        {
-          "tick": 8,
-          "translation": [
-            0,
-            3.9,
-            1.9
-          ],
-          "rotation": [
-            0,
-            0,
-            0
-          ],
-          "scale": [
-            0.3,
-            0.3,
-            1
-          ]
-        },
-        {
-          "tick": 18,
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 50,
-          "rotation": [
-            0,
-            0,
-            -90
-          ]
-        }
-      ]
-    },
-    {
-      "id": "moon",
-      "frames": [
-        "moon_0.png",
-        "moon_1.png",
-        "moon_2.png",
-        "moon_3.png",
-        "moon_0.png",
-        "moon_1.png",
-        "moon_2.png",
-        "moon_3.png",
-        "moon_0.png",
-        "moon_1.png",
-        "moon_2.png",
-        "moon_3.png",
-        "moon_0.png",
-        "moon_1.png",
-        "moon_2.png",
-        "moon_3.png",
-        "moon_0.png",
-        "moon_1.png",
-        "moon_2.png",
-        "moon_3.png",
-        "moon_fade_0.png",
-        "moon_fade_1.png",
-        "moon_fade_2.png",
-        "moon_fade_3.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 6,
-      "end_tick": 53,
-      "size": [
-        3.2,
-        3.2
-      ],
-      "keys": [
-        {
-          "tick": 6,
-          "translation": [
-            0,
-            2.4,
-            1.6
-          ],
-          "scale": [
-            0.25,
-            0.25,
-            1
-          ]
-        },
-        {
-          "tick": 18,
-          "translation": [
-            0,
-            3.9,
-            1.6
-          ],
-          "scale": [
-            1,
-            1,
+            0.85,
+            0.85,
             1
           ]
         },
         {
           "tick": 26,
+          "rotation": [
+            -118,
+            0,
+            -70
+          ],
           "scale": [
-            1.12,
-            1.12,
-            1
-          ]
-        },
-        {
-          "tick": 34,
-          "scale": [
-            1,
-            1,
+            1.15,
+            1.15,
             1
           ]
         }
       ]
     },
     {
-      "id": "flash",
+      "id": "wrap3",
       "frames": [
-        "flash_0.png",
-        "flash_1.png",
-        "flash_2.png"
+        "wrap3_0.png",
+        "wrap3_1.png",
+        "wrap3_2.png",
+        "wrap3_3.png",
+        "wrap3_4.png",
+        "wrap3_5.png",
+        "wrap3_6.png",
+        "wrap3_7.png",
+        "wrap3_8.png",
+        "wrap3_9.png",
+        "wrap3_10.png"
       ],
       "ticks_per_frame": 1,
       "start_tick": 18,
-      "end_tick": 20,
+      "end_tick": 28,
       "size": [
-        2.2,
-        2.2
+        4.2,
+        4.2
       ],
-      "billboard": "center",
       "keys": [
         {
           "tick": 18,
           "translation": [
             0,
-            4.1,
-            -0.2
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spin_dark",
-      "frames": [
-        "bladeD_0.png",
-        "bladeD_1.png",
-        "bladeD_2.png",
-        "bladeD_3.png",
-        "bladeD_4.png",
-        "bladeD_5.png",
-        "bladeD_6.png",
-        "bladeD_7.png",
-        "bladeD_fade_0.png",
-        "bladeD_fade_1.png",
-        "bladeD_fade_2.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 21,
-      "end_tick": 31,
-      "size": [
-        7.4,
-        7.4
-      ],
-      "keys": [
-        {
-          "tick": 21,
-          "translation": [
-            0,
-            1.05,
+            0.65,
             0
           ],
           "rotation": [
-            -90,
+            -74,
             0,
-            30
+            0
           ],
           "scale": [
-            1,
-            1,
+            0.85,
+            0.85,
             1
           ]
         },
         {
-          "tick": 31,
+          "tick": 28,
           "rotation": [
-            -90,
+            -74,
             0,
-            -420
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spin",
-      "frames": [
-        "blade_0.png",
-        "blade_1.png",
-        "blade_2.png",
-        "blade_3.png",
-        "blade_4.png",
-        "blade_5.png",
-        "blade_6.png",
-        "blade_7.png",
-        "blade_fade_0.png",
-        "blade_fade_1.png",
-        "blade_fade_2.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 21,
-      "end_tick": 31,
-      "size": [
-        6.8,
-        6.8
-      ],
-      "keys": [
-        {
-          "tick": 21,
-          "translation": [
-            0,
+            70
+          ],
+          "scale": [
             1.15,
+            1.15,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrap4",
+      "frames": [
+        "wrap4_0.png",
+        "wrap4_1.png",
+        "wrap4_2.png",
+        "wrap4_3.png",
+        "wrap4_4.png",
+        "wrap4_5.png",
+        "wrap4_6.png",
+        "wrap4_7.png",
+        "wrap4_8.png",
+        "wrap4_9.png",
+        "wrap4_10.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 20,
+      "end_tick": 30,
+      "size": [
+        4.7,
+        4.7
+      ],
+      "keys": [
+        {
+          "tick": 20,
+          "translation": [
+            0,
+            1.95,
+            0
+          ],
+          "rotation": [
+            -106,
+            0,
+            0
+          ],
+          "scale": [
+            0.85,
+            0.85,
+            1
+          ]
+        },
+        {
+          "tick": 30,
+          "rotation": [
+            -106,
+            0,
+            -70
+          ],
+          "scale": [
+            1.15,
+            1.15,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrap5",
+      "frames": [
+        "wrap5_0.png",
+        "wrap5_1.png",
+        "wrap5_2.png",
+        "wrap5_3.png",
+        "wrap5_4.png",
+        "wrap5_5.png",
+        "wrap5_6.png",
+        "wrap5_7.png",
+        "wrap5_8.png",
+        "wrap5_9.png",
+        "wrap5_10.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 22,
+      "end_tick": 32,
+      "size": [
+        5.2,
+        5.2
+      ],
+      "keys": [
+        {
+          "tick": 22,
+          "translation": [
+            0,
+            1.2,
             0
           ],
           "rotation": [
@@ -663,17 +442,284 @@
             0
           ],
           "scale": [
-            1,
-            1,
+            0.85,
+            0.85,
             1
           ]
         },
         {
-          "tick": 31,
+          "tick": 32,
           "rotation": [
             -90,
             0,
-            -450
+            70
+          ],
+          "scale": [
+            1.15,
+            1.15,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrap6",
+      "frames": [
+        "wrap6_0.png",
+        "wrap6_1.png",
+        "wrap6_2.png",
+        "wrap6_3.png",
+        "wrap6_4.png",
+        "wrap6_5.png",
+        "wrap6_6.png",
+        "wrap6_7.png",
+        "wrap6_8.png",
+        "wrap6_9.png",
+        "wrap6_10.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 24,
+      "end_tick": 34,
+      "size": [
+        4.2,
+        4.2
+      ],
+      "keys": [
+        {
+          "tick": 24,
+          "translation": [
+            0,
+            0.9,
+            0
+          ],
+          "rotation": [
+            -55,
+            0,
+            0
+          ],
+          "scale": [
+            0.85,
+            0.85,
+            1
+          ]
+        },
+        {
+          "tick": 34,
+          "rotation": [
+            -55,
+            0,
+            -70
+          ],
+          "scale": [
+            1.15,
+            1.15,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrap7",
+      "frames": [
+        "wrap7_0.png",
+        "wrap7_1.png",
+        "wrap7_2.png",
+        "wrap7_3.png",
+        "wrap7_4.png",
+        "wrap7_5.png",
+        "wrap7_6.png",
+        "wrap7_7.png",
+        "wrap7_8.png",
+        "wrap7_9.png",
+        "wrap7_10.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 26,
+      "end_tick": 36,
+      "size": [
+        4.7,
+        4.7
+      ],
+      "keys": [
+        {
+          "tick": 26,
+          "translation": [
+            0,
+            1.5,
+            0
+          ],
+          "rotation": [
+            -125,
+            0,
+            0
+          ],
+          "scale": [
+            0.85,
+            0.85,
+            1
+          ]
+        },
+        {
+          "tick": 36,
+          "rotation": [
+            -125,
+            0,
+            70
+          ],
+          "scale": [
+            1.15,
+            1.15,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "xA",
+      "frames": [
+        "xA_0.png",
+        "xA_1.png",
+        "xA_2.png",
+        "xA_3.png",
+        "xA_4.png",
+        "xA_5.png",
+        "xA_6.png",
+        "xA_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 31,
+      "end_tick": 38,
+      "size": [
+        6,
+        6
+      ],
+      "keys": [
+        {
+          "tick": 31,
+          "translation": [
+            0,
+            1.4,
+            -2.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "xB",
+      "frames": [
+        "xB_0.png",
+        "xB_1.png",
+        "xB_2.png",
+        "xB_3.png",
+        "xB_4.png",
+        "xB_5.png",
+        "xB_6.png",
+        "xB_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 33,
+      "end_tick": 40,
+      "size": [
+        6,
+        6
+      ],
+      "keys": [
+        {
+          "tick": 33,
+          "translation": [
+            0,
+            1.4,
+            -2.3000000000000003
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "star",
+      "frames": [
+        "star_0.png",
+        "star_1.png",
+        "star_2.png",
+        "star_3.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 34,
+      "end_tick": 37,
+      "size": [
+        3,
+        3
+      ],
+      "billboard": "center",
+      "keys": [
+        {
+          "tick": 34,
+          "translation": [
+            0,
+            1.4,
+            -2.2
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "burst",
+      "frames": [
+        "burst_0.png",
+        "burst_1.png",
+        "burst_2.png",
+        "burst_3.png",
+        "burst_4.png",
+        "burst_5.png",
+        "burst_6.png",
+        "burst_7.png",
+        "burst_8.png",
+        "burst_9.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 34,
+      "end_tick": 53,
+      "size": [
+        6.5,
+        6.5
+      ],
+      "billboard": "center",
+      "keys": [
+        {
+          "tick": 34,
+          "translation": [
+            0,
+            1.4,
+            -2.2
+          ],
+          "scale": [
+            1,
+            1,
+            1
           ]
         }
       ]
@@ -688,25 +734,22 @@
         "ring_4.png",
         "ring_5.png",
         "ring_6.png",
-        "ring_fade_0.png",
-        "ring_fade_1.png",
-        "ring_fade_2.png"
+        "ring_7.png"
       ],
       "ticks_per_frame": 2,
-      "start_tick": 24,
-      "end_tick": 43,
+      "start_tick": 34,
+      "end_tick": 49,
       "size": [
-        8,
-        8
+        7,
+        7
       ],
-      "tint": "#c41e2c",
       "keys": [
         {
-          "tick": 24,
+          "tick": 34,
           "translation": [
             0,
-            0.07,
-            0
+            0.05,
+            -1.4
           ],
           "rotation": [
             -90,
@@ -714,54 +757,6 @@
             0
           ],
           "scale": [
-            0.5,
-            0.5,
-            1
-          ]
-        },
-        {
-          "tick": 44,
-          "scale": [
-            1.3,
-            1.3,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spikes0",
-      "frames": [
-        "spikes_0.png",
-        "spikes_1.png",
-        "spikes_2.png",
-        "spikes_3.png",
-        "spikes_4.png",
-        "spikes_5.png",
-        "spikes_6.png",
-        "spikes_7.png",
-        "spikes_8.png",
-        "spikes_fade_0.png",
-        "spikes_fade_1.png",
-        "spikes_fade_2.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 25,
-      "end_tick": 48,
-      "size": [
-        1.9,
-        2.85
-      ],
-      "billboard": "vertical",
-      "keys": [
-        {
-          "tick": 25,
-          "translation": [
-            2.579408520639136,
-            1.42,
-            0.7979045579856169
-          ],
-          "scale": [
             1,
             1,
             1
@@ -770,513 +765,40 @@
       ]
     },
     {
-      "id": "splat0",
+      "id": "ring2",
       "frames": [
-        "splat_0.png",
-        "splat_1.png",
-        "splat_2.png",
-        "splat_3.png",
-        "splat_4.png",
-        "splat_5.png",
-        "splat_fade_0.png",
-        "splat_fade_1.png"
+        "ring_0.png",
+        "ring_1.png",
+        "ring_2.png",
+        "ring_3.png",
+        "ring_4.png",
+        "ring_5.png",
+        "ring_6.png",
+        "ring_7.png"
       ],
       "ticks_per_frame": 2,
-      "start_tick": 26,
-      "end_tick": 41,
-      "size": [
-        1.5,
-        1.5
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 26,
-          "translation": [
-            2.3214676685752225,
-            0.7,
-            0.7181141021870552
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spikes1",
-      "frames": [
-        "spikes_0.png",
-        "spikes_1.png",
-        "spikes_2.png",
-        "spikes_3.png",
-        "spikes_4.png",
-        "spikes_5.png",
-        "spikes_6.png",
-        "spikes_7.png",
-        "spikes_8.png",
-        "spikes_fade_0.png",
-        "spikes_fade_1.png",
-        "spikes_fade_2.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 27,
-      "end_tick": 50,
-      "size": [
-        1.9,
-        2.85
-      ],
-      "billboard": "vertical",
-      "keys": [
-        {
-          "tick": 27,
-          "translation": [
-            0.5986986433086305,
-            1.42,
-            2.632785584604338
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spikes2",
-      "frames": [
-        "spikes_0.png",
-        "spikes_1.png",
-        "spikes_2.png",
-        "spikes_3.png",
-        "spikes_4.png",
-        "spikes_5.png",
-        "spikes_6.png",
-        "spikes_7.png",
-        "spikes_8.png",
-        "spikes_fade_0.png",
-        "spikes_fade_1.png",
-        "spikes_fade_2.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 29,
+      "start_tick": 37,
       "end_tick": 52,
       "size": [
-        1.9,
-        2.85
+        4.5,
+        4.5
       ],
-      "billboard": "vertical",
       "keys": [
         {
-          "tick": 29,
-          "translation": [
-            -1.9807098773305052,
-            1.42,
-            1.834881026618722
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "splat2",
-      "frames": [
-        "splat_0.png",
-        "splat_1.png",
-        "splat_2.png",
-        "splat_3.png",
-        "splat_4.png",
-        "splat_5.png",
-        "splat_fade_0.png",
-        "splat_fade_1.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 30,
-      "end_tick": 45,
-      "size": [
-        1.5,
-        1.5
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 30,
-          "translation": [
-            -1.7826388895974548,
-            0.7,
-            1.65139292395685
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spikes3",
-      "frames": [
-        "spikes_0.png",
-        "spikes_1.png",
-        "spikes_2.png",
-        "spikes_3.png",
-        "spikes_4.png",
-        "spikes_5.png",
-        "spikes_6.png",
-        "spikes_7.png",
-        "spikes_8.png",
-        "spikes_fade_0.png",
-        "spikes_fade_1.png",
-        "spikes_fade_2.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 31,
-      "end_tick": 54,
-      "size": [
-        1.9,
-        2.85
-      ],
-      "billboard": "vertical",
-      "keys": [
-        {
-          "tick": 31,
-          "translation": [
-            -2.5794085206391366,
-            1.42,
-            -0.7979045579856161
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spikes4",
-      "frames": [
-        "spikes_0.png",
-        "spikes_1.png",
-        "spikes_2.png",
-        "spikes_3.png",
-        "spikes_4.png",
-        "spikes_5.png",
-        "spikes_6.png",
-        "spikes_7.png",
-        "spikes_8.png",
-        "spikes_fade_0.png",
-        "spikes_fade_1.png",
-        "spikes_fade_2.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 33,
-      "end_tick": 56,
-      "size": [
-        1.9,
-        2.85
-      ],
-      "billboard": "vertical",
-      "keys": [
-        {
-          "tick": 33,
-          "translation": [
-            -0.598698643308632,
-            1.42,
-            -2.632785584604338
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "splat4",
-      "frames": [
-        "splat_0.png",
-        "splat_1.png",
-        "splat_2.png",
-        "splat_3.png",
-        "splat_4.png",
-        "splat_5.png",
-        "splat_fade_0.png",
-        "splat_fade_1.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 34,
-      "end_tick": 49,
-      "size": [
-        1.5,
-        1.5
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 34,
-          "translation": [
-            -0.5388287789777688,
-            0.7,
-            -2.3695070261439044
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spikes5",
-      "frames": [
-        "spikes_0.png",
-        "spikes_1.png",
-        "spikes_2.png",
-        "spikes_3.png",
-        "spikes_4.png",
-        "spikes_5.png",
-        "spikes_6.png",
-        "spikes_7.png",
-        "spikes_8.png",
-        "spikes_fade_0.png",
-        "spikes_fade_1.png",
-        "spikes_fade_2.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 35,
-      "end_tick": 58,
-      "size": [
-        1.9,
-        2.85
-      ],
-      "billboard": "vertical",
-      "keys": [
-        {
-          "tick": 35,
-          "translation": [
-            1.9807098773305059,
-            1.42,
-            -1.8348810266187214
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "fall0",
-      "frames": [
-        "drop_0.png"
-      ],
-      "start_tick": 40,
-      "end_tick": 49,
-      "size": [
-        0.3,
-        0.3
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 40,
-          "translation": [
-            -1.2,
-            3.3,
-            1.4
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 49,
-          "translation": [
-            -1.32,
-            0.1,
-            1.2
-          ],
-          "scale": [
-            0.7,
-            0.7,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "fall1",
-      "frames": [
-        "drop_0.png"
-      ],
-      "start_tick": 42,
-      "end_tick": 51,
-      "size": [
-        0.3,
-        0.3
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 42,
-          "translation": [
-            -0.6,
-            3.3,
-            1.4
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 51,
-          "translation": [
-            -0.66,
-            0.1,
-            1.2
-          ],
-          "scale": [
-            0.7,
-            0.7,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "fall2",
-      "frames": [
-        "drop_0.png"
-      ],
-      "start_tick": 44,
-      "end_tick": 53,
-      "size": [
-        0.3,
-        0.3
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 44,
+          "tick": 37,
           "translation": [
             0,
-            3.3,
-            1.4
+            0.06,
+            -2.2
           ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 53,
-          "translation": [
+          "rotation": [
+            -90,
             0,
-            0.1,
-            1.2
-          ],
-          "scale": [
-            0.7,
-            0.7,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "fall3",
-      "frames": [
-        "drop_0.png"
-      ],
-      "start_tick": 46,
-      "end_tick": 55,
-      "size": [
-        0.3,
-        0.3
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 46,
-          "translation": [
-            0.6,
-            3.3,
-            1.4
+            30
           ],
           "scale": [
             1,
             1,
-            1
-          ]
-        },
-        {
-          "tick": 55,
-          "translation": [
-            0.66,
-            0.1,
-            1.2
-          ],
-          "scale": [
-            0.7,
-            0.7,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "fall4",
-      "frames": [
-        "drop_0.png"
-      ],
-      "start_tick": 48,
-      "end_tick": 57,
-      "size": [
-        0.3,
-        0.3
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 48,
-          "translation": [
-            1.2,
-            3.3,
-            1.4
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 57,
-          "translation": [
-            1.32,
-            0.1,
-            1.2
-          ],
-          "scale": [
-            0.7,
-            0.7,
             1
           ]
         }
@@ -1298,53 +820,30 @@
       ]
     },
     {
-      "tick": 9,
+      "tick": 10,
       "arm_r": [
-        -175,
+        -30,
         0,
-        0
+        40
       ],
       "arm_l": [
-        -165,
+        -20,
         0,
-        0
+        -40
       ],
       "body": [
-        -10,
+        8,
         0,
         0
       ],
       "head": [
-        -25,
+        10,
         0,
         0
       ]
     },
     {
-      "tick": 18,
-      "arm_r": [
-        -178,
-        0,
-        0
-      ],
-      "arm_l": [
-        -170,
-        0,
-        0
-      ],
-      "body": [
-        -12,
-        0,
-        0
-      ],
-      "head": [
-        -25,
-        0,
-        0
-      ]
-    },
-    {
-      "tick": 21,
+      "tick": 13,
       "arm_r": [
         -90,
         0,
@@ -1367,7 +866,7 @@
       ]
     },
     {
-      "tick": 26,
+      "tick": 20,
       "arm_r": [
         -90,
         0,
@@ -1380,7 +879,7 @@
       ]
     },
     {
-      "tick": 31,
+      "tick": 28,
       "arm_r": [
         -90,
         0,
@@ -1388,25 +887,51 @@
       ],
       "body": [
         0,
-        410,
+        400,
+        0
+      ]
+    },
+    {
+      "tick": 31,
+      "arm_r": [
+        -175,
+        0,
+        0
+      ],
+      "body": [
+        -10,
+        360,
         0
       ]
     },
     {
       "tick": 34,
       "arm_r": [
-        -40,
+        -30,
         0,
         0
       ],
       "body": [
-        18,
+        22,
         360,
         0
       ]
     },
     {
-      "tick": 52,
+      "tick": 46,
+      "arm_r": [
+        -20,
+        0,
+        0
+      ],
+      "body": [
+        10,
+        360,
+        0
+      ]
+    },
+    {
+      "tick": 58,
       "arm_r": [
         0,
         0,

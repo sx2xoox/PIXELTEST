@@ -88,22 +88,24 @@ export function boots() {
   return c;
 }
 
-/** 피의 낫 아이콘 v3: 넓은 초승달 날(위 = 어두운 등, 아래 = 밝은 날, 끝은 아래로 떨어짐) + 1:1 대각선 자루 + 뼈 손잡이 + 혈석 */
-export const scythe = () => draw([
-  '................',
-  '....ooooooo.....',
-  '..oorrrrrrroo...',
-  '.orrRRRRRRRr3o..',
-  'orRhhhhho.oo43o.',
-  'orho.......o4eo.',
-  'oho.......o43o..',
-  'oo.......o43o...',
-  '........o43o....',
-  '.......o43o.....',
-  '......oWBo......',
-  '.....oWBo.......',
-  '....oWBo........',
-  '...o43o.........',
-  '..o32o..........',
-  '..ooo...........',
-], { name: 'scythe' });
+/** 피의 낫 아이콘 v4: 3D 모델(v4 스프라이트)과 같은 팔레트·문법 — 흑철 자루, 붉은 감개, 가시 코등이의 혈석, 초승달 날의 흰 하이라이트 선 */
+import { C as SC } from './scythe_sprite.mjs';
+const L4 = { o: SC.K1, k: SC.G1, g: SC.G3, G: SC.G4, s: SC.G5, r: SC.R1, m: SC.R2, R: SC.R3, e: SC.R5, E: SC.R6, p: SC.P1, P: SC.P2, W: SC.WH };
+export const scythe = () => new PixelCanvas(16).chars(0, 0, [
+  '............o...',
+  '....oooooo.ogo..',
+  '..oommRRRmoeEgo.',
+  '.omRReeeeoeWeeGo',
+  'omReeWWWPooeEego',
+  'omeWPPoo..ogkgo.',
+  'oeWPoo...okgo.o.',
+  'oWPo....okgo....',
+  'oPo....okgo.....',
+  'oo....okgo......',
+  '.....oreEo......',
+  '....oeRmo.......',
+  '...oRemo........',
+  '..okgo..........',
+  '.okGo...........',
+  '.ooo............',
+], L4);

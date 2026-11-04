@@ -1,114 +1,127 @@
 {
-  "name": "기본 공격 3연타 — 1타 수평 베기 · 2타 역사선 올려베기 · 3타 내려찍기(바닥 균열 + 충격파 + 결정 가시 다발 + 피웅덩이)",
-  "duration_ticks": 54,
+  "name": "기본 공격 3연타 — 1타 수평 베기(가닥 2) · 2타 역사선 올려베기(가닥 3) · 3타 내려찍기(가닥 4 + 바닥 고리·빛줄기·혈화 폭발)",
+  "duration_ticks": 50,
   "tracks": [
     {
-      "id": "hit1_slash",
+      "id": "hit1_0",
       "frames": [
-        "hit1_0.png",
-        "hit1_1.png",
-        "hit1_2.png",
-        "hit1_3.png",
-        "hit1_4.png",
-        "hit1_5.png",
-        "hit1_fade_0.png",
-        "hit1_fade_1.png"
+        "hit1_0_0.png",
+        "hit1_0_1.png",
+        "hit1_0_2.png",
+        "hit1_0_3.png",
+        "hit1_0_4.png",
+        "hit1_0_5.png",
+        "hit1_0_6.png"
       ],
       "ticks_per_frame": 1,
       "start_tick": 2,
-      "end_tick": 10,
+      "end_tick": 8,
       "size": [
-        3.6,
-        3.6
+        4.4,
+        4.4
       ],
       "keys": [
         {
           "tick": 2,
           "translation": [
             0,
-            1.25,
-            -0.9
+            1.2,
+            0
           ],
           "rotation": [
-            -38,
+            -90,
             0,
             0
           ],
           "scale": [
-            1.05,
-            1.05,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 8,
+          "scale": [
+            1.08,
+            1.08,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit1_1",
+      "frames": [
+        "hit1_1_0.png",
+        "hit1_1_1.png",
+        "hit1_1_2.png",
+        "hit1_1_3.png",
+        "hit1_1_4.png",
+        "hit1_1_5.png",
+        "hit1_1_6.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 3,
+      "end_tick": 9,
+      "size": [
+        4.4,
+        4.4
+      ],
+      "keys": [
+        {
+          "tick": 3,
+          "translation": [
+            0,
+            1.2,
+            0
+          ],
+          "rotation": [
+            -76,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
             1
           ]
         },
         {
           "tick": 9,
           "scale": [
-            1.25,
-            1.25,
+            1.08,
+            1.08,
             1
           ]
         }
       ]
     },
     {
-      "id": "hit1_star",
+      "id": "hit1_burst",
       "frames": [
-        "star_0.png",
-        "star_1.png",
-        "star_2.png",
-        "star_3.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 4,
-      "end_tick": 7,
-      "size": [
-        1.2,
-        1.2
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 4,
-          "translation": [
-            -0.5,
-            1.3,
-            -1.9
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "hit1_splat",
-      "frames": [
-        "splat_0.png",
-        "splat_1.png",
-        "splat_2.png",
-        "splat_3.png",
-        "splat_4.png",
-        "splat_5.png",
-        "splat_fade_0.png",
-        "splat_fade_1.png"
+        "burst_0.png",
+        "burst_1.png",
+        "burst_2.png",
+        "burst_3.png",
+        "burst_4.png",
+        "burst_5.png",
+        "burst_6.png"
       ],
       "ticks_per_frame": 1,
       "start_tick": 5,
-      "end_tick": 13,
+      "end_tick": 11,
       "size": [
-        1.2,
-        1.2
+        1.4,
+        1.4
       ],
       "billboard": "center",
       "keys": [
         {
           "tick": 5,
           "translation": [
-            -0.5,
-            1.3,
-            -2
+            -0.8,
+            1.25,
+            -1.4
           ],
           "scale": [
             1,
@@ -119,36 +132,35 @@
       ]
     },
     {
-      "id": "hit2_slash",
+      "id": "hit2_0",
       "frames": [
-        "hit2_0.png",
-        "hit2_1.png",
-        "hit2_2.png",
-        "hit2_3.png",
-        "hit2_4.png",
-        "hit2_5.png",
-        "hit2_fade_0.png",
-        "hit2_fade_1.png"
+        "hit2_0_0.png",
+        "hit2_0_1.png",
+        "hit2_0_2.png",
+        "hit2_0_3.png",
+        "hit2_0_4.png",
+        "hit2_0_5.png",
+        "hit2_0_6.png"
       ],
       "ticks_per_frame": 1,
       "start_tick": 11,
-      "end_tick": 19,
+      "end_tick": 17,
       "size": [
-        4,
-        4
+        5,
+        5
       ],
       "keys": [
         {
           "tick": 11,
           "translation": [
-            0.1,
-            1.4,
-            -1.3
+            0,
+            1.3,
+            -0.9
           ],
           "rotation": [
             0,
             0,
-            -35
+            -28
           ],
           "scale": [
             1,
@@ -158,115 +170,169 @@
         },
         {
           "tick": 17,
-          "rotation": [
-            0,
-            0,
-            -48
-          ],
           "scale": [
-            1.18,
-            1.18,
+            1.08,
+            1.08,
             1
           ]
         }
       ]
     },
     {
-      "id": "hit2_star",
+      "id": "hit2_1",
       "frames": [
-        "star_0.png",
-        "star_1.png",
-        "star_2.png",
-        "star_3.png"
+        "hit2_1_0.png",
+        "hit2_1_1.png",
+        "hit2_1_2.png",
+        "hit2_1_3.png",
+        "hit2_1_4.png",
+        "hit2_1_5.png",
+        "hit2_1_6.png"
       ],
       "ticks_per_frame": 1,
-      "start_tick": 13,
-      "end_tick": 16,
-      "size": [
-        1.5,
-        1.5
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 13,
-          "translation": [
-            0.5,
-            1.8,
-            -1.9
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "hit2_splat",
-      "frames": [
-        "splat_0.png",
-        "splat_1.png",
-        "splat_2.png",
-        "splat_3.png",
-        "splat_4.png",
-        "splat_5.png",
-        "splat_fade_0.png",
-        "splat_fade_1.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 14,
-      "end_tick": 22,
-      "size": [
-        1.3,
-        1.3
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 14,
-          "translation": [
-            0.6,
-            1.8,
-            -2
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "hit3_slash",
-      "frames": [
-        "hit3_0.png",
-        "hit3_1.png",
-        "hit3_2.png",
-        "hit3_3.png",
-        "hit3_4.png",
-        "hit3_5.png",
-        "hit3_6.png",
-        "hit3_fade_0.png",
-        "hit3_fade_1.png",
-        "hit3_fade_2.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 22,
-      "end_tick": 32,
+      "start_tick": 12,
+      "end_tick": 18,
       "size": [
         5,
         5
       ],
       "keys": [
         {
-          "tick": 22,
+          "tick": 12,
           "translation": [
             0,
-            1.6,
+            1.3,
+            -0.9
+          ],
+          "rotation": [
+            0,
+            18,
+            -22
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 18,
+          "scale": [
+            1.08,
+            1.08,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit2_2",
+      "frames": [
+        "hit2_2_0.png",
+        "hit2_2_1.png",
+        "hit2_2_2.png",
+        "hit2_2_3.png",
+        "hit2_2_4.png",
+        "hit2_2_5.png",
+        "hit2_2_6.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 12,
+      "end_tick": 18,
+      "size": [
+        5,
+        5
+      ],
+      "keys": [
+        {
+          "tick": 12,
+          "translation": [
+            0,
+            1.3,
+            -0.9
+          ],
+          "rotation": [
+            0,
+            -16,
+            -34
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 18,
+          "scale": [
+            1.08,
+            1.08,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit2_burst",
+      "frames": [
+        "burst_0.png",
+        "burst_1.png",
+        "burst_2.png",
+        "burst_3.png",
+        "burst_4.png",
+        "burst_5.png",
+        "burst_6.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 14,
+      "end_tick": 20,
+      "size": [
+        1.7,
+        1.7
+      ],
+      "billboard": "center",
+      "keys": [
+        {
+          "tick": 14,
+          "translation": [
+            0.9,
+            2.1,
             -1.4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_0",
+      "frames": [
+        "hit3_0_0.png",
+        "hit3_0_1.png",
+        "hit3_0_2.png",
+        "hit3_0_3.png",
+        "hit3_0_4.png",
+        "hit3_0_5.png",
+        "hit3_0_6.png",
+        "hit3_0_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 21,
+      "end_tick": 28,
+      "size": [
+        5.8,
+        5.8
+      ],
+      "keys": [
+        {
+          "tick": 21,
+          "translation": [
+            0,
+            1.5,
+            -0.7
           ],
           "rotation": [
             0,
@@ -278,72 +344,47 @@
             1,
             1
           ]
-        }
-      ]
-    },
-    {
-      "id": "hit3_star",
-      "frames": [
-        "star_0.png",
-        "star_1.png",
-        "star_2.png",
-        "star_3.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 26,
-      "end_tick": 29,
-      "size": [
-        2.6,
-        2.6
-      ],
-      "billboard": "center",
-      "keys": [
+        },
         {
-          "tick": 26,
-          "translation": [
-            0,
-            0.6,
-            -2.6
-          ],
+          "tick": 28,
           "scale": [
-            1,
-            1,
+            1.08,
+            1.08,
             1
           ]
         }
       ]
     },
     {
-      "id": "hit3_crack",
+      "id": "hit3_1",
       "frames": [
-        "crack_0.png",
-        "crack_1.png",
-        "crack_2.png",
-        "crack_3.png",
-        "crack_4.png",
-        "crack_5.png",
-        "crack_fade_0.png",
-        "crack_fade_1.png",
-        "crack_fade_2.png"
+        "hit3_1_0.png",
+        "hit3_1_1.png",
+        "hit3_1_2.png",
+        "hit3_1_3.png",
+        "hit3_1_4.png",
+        "hit3_1_5.png",
+        "hit3_1_6.png",
+        "hit3_1_7.png"
       ],
-      "ticks_per_frame": 2,
-      "start_tick": 26,
-      "end_tick": 43,
+      "ticks_per_frame": 1,
+      "start_tick": 22,
+      "end_tick": 29,
       "size": [
-        4.2,
-        4.2
+        5.8,
+        5.8
       ],
       "keys": [
         {
-          "tick": 26,
+          "tick": 22,
           "translation": [
             0,
-            0.04,
-            -2.6
+            1.5,
+            -0.7
           ],
           "rotation": [
-            -90,
             0,
+            102,
             0
           ],
           "scale": [
@@ -351,49 +392,108 @@
             1,
             1
           ]
+        },
+        {
+          "tick": 29,
+          "scale": [
+            1.08,
+            1.08,
+            1
+          ]
         }
       ]
     },
     {
-      "id": "hit3_pool",
+      "id": "hit3_2",
       "frames": [
-        "pool_0.png",
-        "pool_1.png",
-        "pool_2.png",
-        "pool_3.png",
-        "pool_4.png",
-        "pool_5.png",
-        "pool_6.png",
-        "pool_7.png",
-        "pool_8.png",
-        "pool_fade_0.png",
-        "pool_fade_1.png",
-        "pool_fade_2.png",
-        "pool_fade_3.png"
+        "hit3_2_0.png",
+        "hit3_2_1.png",
+        "hit3_2_2.png",
+        "hit3_2_3.png",
+        "hit3_2_4.png",
+        "hit3_2_5.png",
+        "hit3_2_6.png",
+        "hit3_2_7.png"
       ],
-      "ticks_per_frame": 2,
-      "start_tick": 28,
-      "end_tick": 53,
+      "ticks_per_frame": 1,
+      "start_tick": 22,
+      "end_tick": 29,
       "size": [
-        2.4,
-        2.4
+        5.8,
+        5.8
       ],
       "keys": [
         {
-          "tick": 28,
+          "tick": 22,
           "translation": [
             0,
-            0.03,
-            -2.6
+            1.5,
+            -0.7
           ],
           "rotation": [
-            -90,
             0,
-            20
+            78,
+            0
           ],
           "scale": [
             1,
             1,
+            1
+          ]
+        },
+        {
+          "tick": 29,
+          "scale": [
+            1.08,
+            1.08,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_3",
+      "frames": [
+        "hit3_3_0.png",
+        "hit3_3_1.png",
+        "hit3_3_2.png",
+        "hit3_3_3.png",
+        "hit3_3_4.png",
+        "hit3_3_5.png",
+        "hit3_3_6.png",
+        "hit3_3_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 23,
+      "end_tick": 30,
+      "size": [
+        5.8,
+        5.8
+      ],
+      "keys": [
+        {
+          "tick": 23,
+          "translation": [
+            0,
+            1.5,
+            -0.7
+          ],
+          "rotation": [
+            0,
+            114,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 30,
+          "scale": [
+            1.08,
+            1.08,
             1
           ]
         }
@@ -408,24 +508,23 @@
         "ring_3.png",
         "ring_4.png",
         "ring_5.png",
-        "ring_fade_0.png",
-        "ring_fade_1.png"
+        "ring_6.png",
+        "ring_7.png"
       ],
       "ticks_per_frame": 2,
-      "start_tick": 27,
-      "end_tick": 42,
+      "start_tick": 26,
+      "end_tick": 41,
       "size": [
-        4.4,
-        4.4
+        5.5,
+        5.5
       ],
-      "tint": "#c42a2e",
       "keys": [
         {
-          "tick": 27,
+          "tick": 26,
           "translation": [
             0,
-            0.06,
-            -2.6
+            0.05,
+            -2.4
           ],
           "rotation": [
             -90,
@@ -433,51 +532,44 @@
             0
           ],
           "scale": [
-            0.5,
-            0.5,
-            1
-          ]
-        },
-        {
-          "tick": 42,
-          "scale": [
-            1.6,
-            1.6,
+            1,
+            1,
             1
           ]
         }
       ]
     },
     {
-      "id": "hit3_spikes",
+      "id": "hit3_ring2",
       "frames": [
-        "spike_0.png",
-        "spike_1.png",
-        "spike_2.png",
-        "spike_3.png",
-        "spike_4.png",
-        "spike_5.png",
-        "spike_6.png",
-        "spike_7.png",
-        "spike_fade_0.png",
-        "spike_fade_1.png",
-        "spike_fade_2.png"
+        "ring_0.png",
+        "ring_1.png",
+        "ring_2.png",
+        "ring_3.png",
+        "ring_4.png",
+        "ring_5.png",
+        "ring_6.png",
+        "ring_7.png"
       ],
       "ticks_per_frame": 2,
-      "start_tick": 27,
-      "end_tick": 49,
+      "start_tick": 29,
+      "end_tick": 44,
       "size": [
-        2.6,
-        3.9
+        3.6,
+        3.6
       ],
-      "billboard": "vertical",
       "keys": [
         {
-          "tick": 27,
+          "tick": 29,
           "translation": [
             0,
-            1.95,
-            -2.7
+            0.06,
+            -2.4
+          ],
+          "rotation": [
+            -90,
+            0,
+            40
           ],
           "scale": [
             1,
@@ -488,32 +580,203 @@
       ]
     },
     {
-      "id": "hit3_splat",
+      "id": "hit3_burst",
       "frames": [
-        "splat_0.png",
-        "splat_1.png",
-        "splat_2.png",
-        "splat_3.png",
-        "splat_4.png",
-        "splat_5.png",
-        "splat_fade_0.png",
-        "splat_fade_1.png"
+        "burstB_0.png",
+        "burstB_1.png",
+        "burstB_2.png",
+        "burstB_3.png",
+        "burstB_4.png",
+        "burstB_5.png",
+        "burstB_6.png",
+        "burstB_7.png",
+        "burstB_8.png"
       ],
       "ticks_per_frame": 2,
-      "start_tick": 27,
+      "start_tick": 26,
       "end_tick": 43,
       "size": [
-        2.4,
-        2.4
+        4.2,
+        4.2
       ],
       "billboard": "center",
       "keys": [
         {
-          "tick": 27,
+          "tick": 26,
           "translation": [
             0,
-            0.9,
-            -2.6
+            1.2,
+            -2.4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_pillar0",
+      "frames": [
+        "pillar_0.png",
+        "pillar_1.png",
+        "pillar_2.png",
+        "pillar_3.png",
+        "pillar_4.png",
+        "pillar_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 26,
+      "end_tick": 31,
+      "size": [
+        1.2,
+        2.6
+      ],
+      "billboard": "vertical",
+      "keys": [
+        {
+          "tick": 26,
+          "translation": [
+            1.0131670934031738,
+            1.2,
+            -1.9716398234604844
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_pillar1",
+      "frames": [
+        "pillar_0.png",
+        "pillar_1.png",
+        "pillar_2.png",
+        "pillar_3.png",
+        "pillar_4.png",
+        "pillar_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 27,
+      "end_tick": 32,
+      "size": [
+        1.2,
+        3.6
+      ],
+      "billboard": "vertical",
+      "keys": [
+        {
+          "tick": 27,
+          "translation": [
+            -0.13717656322356095,
+            1.2,
+            -0.8058912864857137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_pillar2",
+      "frames": [
+        "pillar_0.png",
+        "pillar_1.png",
+        "pillar_2.png",
+        "pillar_3.png",
+        "pillar_4.png",
+        "pillar_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 28,
+      "end_tick": 33,
+      "size": [
+        1.2,
+        2.6
+      ],
+      "billboard": "vertical",
+      "keys": [
+        {
+          "tick": 28,
+          "translation": [
+            -1.0714531911439646,
+            1.2,
+            -2.1510259869235044
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_pillar3",
+      "frames": [
+        "pillar_0.png",
+        "pillar_1.png",
+        "pillar_2.png",
+        "pillar_3.png",
+        "pillar_4.png",
+        "pillar_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 26,
+      "end_tick": 31,
+      "size": [
+        1.2,
+        3.6
+      ],
+      "billboard": "vertical",
+      "keys": [
+        {
+          "tick": 26,
+          "translation": [
+            -0.8260154214768138,
+            1.2,
+            -3.7702914009372175
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_pillar4",
+      "frames": [
+        "pillar_0.png",
+        "pillar_1.png",
+        "pillar_2.png",
+        "pillar_3.png",
+        "pillar_4.png",
+        "pillar_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 27,
+      "end_tick": 32,
+      "size": [
+        1.2,
+        2.6
+      ],
+      "billboard": "vertical",
+      "keys": [
+        {
+          "tick": 27,
+          "translation": [
+            0.7204805872222991,
+            1.2,
+            -3.2312085920127456
           ],
           "scale": [
             1,
@@ -578,7 +841,7 @@
       ]
     },
     {
-      "tick": 21,
+      "tick": 20,
       "arm_r": [
         -175,
         0,
@@ -591,7 +854,7 @@
       ]
     },
     {
-      "tick": 26,
+      "tick": 25,
       "arm_r": [
         -35,
         0,

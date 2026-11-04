@@ -15,7 +15,26 @@ const handle = P((w, h, face) => {
 // v2: 날이 가늘고 짧아 갈고리처럼 보였음 → 더 넓고(8→2) 길게(총 33), 날 등에 뼈 가시로 위협적인 실루엣
 const SEG = [[8, 8], [7, 7], [7, 6], [6, 4], [5, 2]]; // [길이, 높이]
 
-export default function () {
+// v4: 사용자 레퍼런스(고해상도 복셀 무기)를 따라 '고해상도 스프라이트 → 레이어별 두께 돌출' 방식으로 교체.
+// v3(재질 칠한 큐브 13개)는 git 기록에 남김. 레이어 깊이: 자루 4px, 코등이 6px, 날 등 2.5px, 날 1px, 가시 2px, 보석 7px
+import { extrude } from '../../../atelier/mc/voxel.js';
+import * as SP from './scythe_sprite.mjs';
+export function defaultV4() {
+  const px = 0.42;                                            // 스프라이트 1px = 0.42 유닛 → 총 높이 ≈ 52 유닛
+  const { tex, cubes } = extrude([
+    { name: 'shaft', bone: 'scythe', canvas: SP.shaftLayer(), z: 0, depth: 5 * px },
+    { name: 'blade', bone: 'blade', canvas: SP.bladeLayer(), z: 0, depth: 1 * px },
+    { name: 'spine', bone: 'blade', canvas: SP.bladeLayer({ spineOnly: true }), z: 0, depth: 2.5 * px },
+    { name: 'spike', bone: 'blade', canvas: SP.spikeLayer(), z: 0, depth: 2 * px },
+    { name: 'collar', bone: 'scythe', canvas: SP.collarLayer(), z: 0, depth: 6 * px },
+    { name: 'gem', bone: 'scythe', canvas: SP.gemLayer(), z: 0, depth: 7 * px },
+  ], { px, grip: [47.5, 92] });
+  const bones = [{ name: 'scythe', pivot: [0, 0, 0] }, { name: 'blade', pivot: [0, 30, 0], parent: 'scythe' }];
+  return { name: 'blood_scythe', type: 'entity', texture: tex, bones, cubes: cubes.map(c => ({ ...c, light: c.name.startsWith('gem') ? 15 : undefined })), animations: {} };
+}
+
+export default defaultV4;
+export function defaultV3() {
   const bones = [{ name: 'scythe', pivot: [0, 0, 0] }, { name: 'head', pivot: [0, 34, 0], parent: 'scythe' }];
   const cubes = [
     { name: 'shaft', bone: 'scythe', from: [-1, -6, -1], to: [1, 34, 1], material: handle },
