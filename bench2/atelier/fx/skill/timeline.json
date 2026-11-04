@@ -1,91 +1,7 @@
 {
-  "name": "혈화난무(血花亂舞) — 핏빛 꽃잎을 끌어모아 리본 여섯 가닥으로 몸을 휘감은 뒤, 앞으로 X자 대참격을 날려 혈화를 터뜨린다",
+  "name": "군주의 만찬 — 사방의 땅에서 피 여섯 줄기를 빨아들여 몸을 휘감는 피의 리본으로 두른 뒤, 앞으로 X자 대참격을 날려 박쥐 떼와 핏방울을 터뜨린다",
   "duration_ticks": 60,
   "tracks": [
-    {
-      "id": "gather",
-      "frames": [
-        "gather_0.png",
-        "gather_1.png",
-        "gather_2.png",
-        "gather_3.png",
-        "gather_4.png",
-        "gather_5.png",
-        "gather_6.png",
-        "gather_7.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 0,
-      "end_tick": 7,
-      "size": [
-        5,
-        5
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 0,
-          "translation": [
-            0,
-            1.2,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "gather2",
-      "frames": [
-        "gather_0.png",
-        "gather_1.png",
-        "gather_2.png",
-        "gather_3.png",
-        "gather_4.png",
-        "gather_5.png",
-        "gather_6.png",
-        "gather_7.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 4,
-      "end_tick": 11,
-      "size": [
-        4,
-        4
-      ],
-      "keys": [
-        {
-          "tick": 4,
-          "translation": [
-            0,
-            0.1,
-            0
-          ],
-          "rotation": [
-            -90,
-            0,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        },
-        {
-          "tick": 11,
-          "rotation": [
-            -90,
-            0,
-            90
-          ]
-        }
-      ]
-    },
     {
       "id": "ringIn",
       "frames": [
@@ -99,15 +15,15 @@
         "ringIn_7.png"
       ],
       "ticks_per_frame": 1,
-      "start_tick": 4,
-      "end_tick": 11,
+      "start_tick": 0,
+      "end_tick": 7,
       "size": [
-        5,
-        5
+        6.5,
+        6.5
       ],
       "keys": [
         {
-          "tick": 4,
+          "tick": 0,
           "translation": [
             0,
             0.05,
@@ -116,6 +32,246 @@
           "rotation": [
             -90,
             0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stream0",
+      "frames": [
+        "stream_0.png",
+        "stream_1.png",
+        "stream_2.png",
+        "stream_3.png",
+        "stream_4.png",
+        "stream_5.png",
+        "stream_6.png",
+        "stream_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 2,
+      "end_tick": 9,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "keys": [
+        {
+          "tick": 2,
+          "translation": [
+            1.5454813220625094,
+            0.9,
+            0.4141104721640332
+          ],
+          "rotation": [
+            0,
+            165,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stream1",
+      "frames": [
+        "stream_0.png",
+        "stream_1.png",
+        "stream_2.png",
+        "stream_3.png",
+        "stream_4.png",
+        "stream_5.png",
+        "stream_6.png",
+        "stream_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 4,
+      "end_tick": 11,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "keys": [
+        {
+          "tick": 4,
+          "translation": [
+            0.4141104721640332,
+            0.9,
+            1.5454813220625094
+          ],
+          "rotation": [
+            0,
+            105,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stream2",
+      "frames": [
+        "stream_0.png",
+        "stream_1.png",
+        "stream_2.png",
+        "stream_3.png",
+        "stream_4.png",
+        "stream_5.png",
+        "stream_6.png",
+        "stream_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 6,
+      "end_tick": 13,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "keys": [
+        {
+          "tick": 6,
+          "translation": [
+            -1.131370849898476,
+            0.9,
+            1.1313708498984762
+          ],
+          "rotation": [
+            0,
+            45,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stream3",
+      "frames": [
+        "stream_0.png",
+        "stream_1.png",
+        "stream_2.png",
+        "stream_3.png",
+        "stream_4.png",
+        "stream_5.png",
+        "stream_6.png",
+        "stream_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 2,
+      "end_tick": 9,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "keys": [
+        {
+          "tick": 2,
+          "translation": [
+            -1.5454813220625097,
+            0.9,
+            -0.4141104721640326
+          ],
+          "rotation": [
+            0,
+            -15,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stream4",
+      "frames": [
+        "stream_0.png",
+        "stream_1.png",
+        "stream_2.png",
+        "stream_3.png",
+        "stream_4.png",
+        "stream_5.png",
+        "stream_6.png",
+        "stream_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 4,
+      "end_tick": 11,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "keys": [
+        {
+          "tick": 4,
+          "translation": [
+            -0.414110472164033,
+            0.9,
+            -1.5454813220625094
+          ],
+          "rotation": [
+            0,
+            -75,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stream5",
+      "frames": [
+        "stream_0.png",
+        "stream_1.png",
+        "stream_2.png",
+        "stream_3.png",
+        "stream_4.png",
+        "stream_5.png",
+        "stream_6.png",
+        "stream_7.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 6,
+      "end_tick": 13,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "keys": [
+        {
+          "tick": 6,
+          "translation": [
+            1.1313708498984758,
+            0.9,
+            -1.1313708498984762
+          ],
+          "rotation": [
+            0,
+            -135,
             0
           ],
           "scale": [
@@ -666,8 +822,47 @@
       "start_tick": 34,
       "end_tick": 37,
       "size": [
-        3,
-        3
+        2.4,
+        2.4
+      ],
+      "billboard": "center",
+      "tint": "#ff9b84",
+      "keys": [
+        {
+          "tick": 34,
+          "translation": [
+            0,
+            1.4,
+            -2.2
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "drops",
+      "frames": [
+        "drops_0.png",
+        "drops_1.png",
+        "drops_2.png",
+        "drops_3.png",
+        "drops_4.png",
+        "drops_5.png",
+        "drops_6.png",
+        "drops_7.png",
+        "drops_8.png",
+        "drops_9.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 34,
+      "end_tick": 53,
+      "size": [
+        6,
+        6
       ],
       "billboard": "center",
       "keys": [
@@ -687,38 +882,53 @@
       ]
     },
     {
-      "id": "burst",
+      "id": "bats",
       "frames": [
-        "burst_0.png",
-        "burst_1.png",
-        "burst_2.png",
-        "burst_3.png",
-        "burst_4.png",
-        "burst_5.png",
-        "burst_6.png",
-        "burst_7.png",
-        "burst_8.png",
-        "burst_9.png"
+        "bats_0.png",
+        "bats_1.png",
+        "bats_2.png",
+        "bats_3.png",
+        "bats_4.png",
+        "bats_5.png",
+        "bats_6.png",
+        "bats_7.png",
+        "bats_8.png",
+        "bats_9.png",
+        "bats_10.png",
+        "bats_11.png"
       ],
       "ticks_per_frame": 2,
-      "start_tick": 34,
-      "end_tick": 53,
+      "start_tick": 35,
+      "end_tick": 58,
       "size": [
-        6.5,
-        6.5
+        4.8,
+        4.8
       ],
       "billboard": "center",
       "keys": [
         {
-          "tick": 34,
+          "tick": 35,
           "translation": [
             0,
-            1.4,
-            -2.2
+            1.6,
+            -1.6
           ],
           "scale": [
-            1,
-            1,
+            0.8,
+            0.8,
+            1
+          ]
+        },
+        {
+          "tick": 58,
+          "translation": [
+            0,
+            3.2,
+            -1.6
+          ],
+          "scale": [
+            1.2,
+            1.2,
             1
           ]
         }
@@ -820,30 +1030,53 @@
       ]
     },
     {
-      "tick": 10,
+      "tick": 8,
       "arm_r": [
-        -30,
+        -40,
         0,
-        40
+        50
       ],
       "arm_l": [
-        -20,
+        -40,
         0,
-        -40
+        -50
       ],
       "body": [
-        8,
+        -8,
         0,
         0
       ],
       "head": [
-        10,
+        -15,
         0,
         0
       ]
     },
     {
-      "tick": 13,
+      "tick": 12,
+      "arm_r": [
+        -40,
+        0,
+        50
+      ],
+      "arm_l": [
+        -40,
+        0,
+        -50
+      ],
+      "body": [
+        -8,
+        0,
+        0
+      ],
+      "head": [
+        -15,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 14,
       "arm_r": [
         -90,
         0,
@@ -866,7 +1099,7 @@
       ]
     },
     {
-      "tick": 20,
+      "tick": 21,
       "arm_r": [
         -90,
         0,

@@ -28,7 +28,7 @@ if (want('weapon') || want('fx') || want('armor')) {
   weaponBB = model({ ...w.default(), role: 'item' }, 'weapon/blood_scythe.bbmodel');
   write('weapon/blood_scythe.png', w.icon().toPNG());
   if (want('weapon')) sections.push({ id: 'weapon', title: '무기', panes: [
-    { label: '혈월낫', kind: 'model', model: weaponBB, yaw: -70, pitch: 10 },
+    { label: '혈익낫', kind: 'model', model: weaponBB, yaw: -70, pitch: 10 },
     { label: '손에 든 모습', kind: 'player', weapon: weaponBB, yaw: -40 },
     { label: '아이콘', kind: 'textures', textures: [{ name: '16×16', src: w.icon().scale(12).toDataURL(), w: 192 }] },
   ] });

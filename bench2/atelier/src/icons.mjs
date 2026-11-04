@@ -88,24 +88,29 @@ export function boots() {
   return c;
 }
 
-/** 피의 낫 아이콘 v4: 3D 모델(v4 스프라이트)과 같은 팔레트·문법 — 흑철 자루, 붉은 감개, 가시 코등이의 혈석, 초승달 날의 흰 하이라이트 선 */
+/** 피의 낫 아이콘 v5(혈익낫): 날개뼈 발톱이 솟은 막, 크림 날선, 왕관의 심장 혈석, 와인 감개, 핏방울 폼멜. 외곽선은 자동 */
 import { C as SC } from './scythe_sprite.mjs';
-const L4 = { o: SC.K1, k: SC.G1, g: SC.G3, G: SC.G4, s: SC.G5, r: SC.R1, m: SC.R2, R: SC.R3, e: SC.R5, E: SC.R6, p: SC.P1, P: SC.P2, W: SC.WH };
-export const scythe = () => new PixelCanvas(16).chars(0, 0, [
-  '............o...',
-  '....oooooo.ogo..',
-  '..oommRRRmoeEgo.',
-  '.omRReeeeoeWeeGo',
-  'omReeWWWPooeEego',
-  'omeWPPoo..ogkgo.',
-  'oeWPoo...okgo.o.',
-  'oWPo....okgo....',
-  'oPo....okgo.....',
-  'oo....okgo......',
-  '.....oreEo......',
-  '....oeRmo.......',
-  '...oRemo........',
-  '..okgo..........',
-  '.okGo...........',
-  '.ooo............',
-], L4);
+const L5 = { M: SC.V4, m: SC.V3, n: SC.V2, v: SC.V1, b: SC.B1, w: SC.B2, r: SC.B3, R: SC.B4, e: SC.B5, g: SC.G1, p: SC.G2, c: SC.G3 };
+export function scythe() {
+  const c = new PixelCanvas(16).chars(0, 0, [
+    '..M...M....M.M..',
+    '..mw..mw...mMm..',
+    '.bmrw.mrww.ngpn.',
+    '.bRRRwRRRwngcgn.',
+    'bReeeeeeeRnggg..',
+    'beccccRRe.nmv...',
+    'becc.....nmv....',
+    'ec......nmv.....',
+    'ec.....nmv......',
+    'c.....nmv.......',
+    '.....bRw........',
+    '....eRw.........',
+    '...RRb..........',
+    '..nmv...........',
+    '.Mmv............',
+    '.gg.............',
+  ], L5);
+  const add = []; c.each((x, y) => { if (!c.alpha(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => c.alpha(x + dx, y + dy))) add.push([x, y]); });
+  for (const [x, y] of add) c.set(x, y, SC.K0);
+  return c;
+}

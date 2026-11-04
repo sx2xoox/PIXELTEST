@@ -1,169 +1,164 @@
-// 피의 낫 v4 — 사용자 레퍼런스(고해상도 복셀 검 3종)에서 배운 문법으로 다시 그린 고해상도 스프라이트
-//  1) 색: 한 색 계열 안에서 거의 검정 → 진홍 → 분홍 → 흰색까지 '전 명도'를 다 쓴다(이전 판은 중간 명도 3~4단에 갇혀 단조로웠음)
-//  2) 날: 톱니(앞으로 기운 비대칭 이빨) + 날 경사면 경계를 따라가는 1px 흰 하이라이트 선 + 홈(fuller)의 어두운 선/밝은 턱
-//  3) 대비: 붉은 날을 '거의 검정 금속'의 가시 돋친 코등이·가시 등날로 감싸 실루엣과 명도 대비를 만든다
-//  4) 길이 방향 그라데이션: 뿌리는 어둡고 끝으로 갈수록 밝아진다(빛을 받는 끝)
-// 좌표: 64×124 스프라이트, 왼쪽 = 날이 뻗는 쪽(모델 -Z), 위 = 모델 +Y. 레이어별 캔버스를 따로 만들어 깊이를 다르게 돌출한다.
+// 피의 낫 v5 "혈익낫(血翼낫)" — 레퍼런스의 '원리'(docs/research/reference-principles.md)를 피의 군주 고유 콘셉트에 적용
+//  콘셉트: 흡혈 귀족. 모티프 = 박쥐 날개 · 혈맥 · 왕관 · 핏방울
+//  1차 실루엣: 초승달 낫. 2차 장식: 날개 손가락뼈(금속 뼈대)와 부채꼴 막, 왕관 코등이, 심장 혈석. 3차: 막 속 혈맥, 날 하이라이트 선
+//  명도: 흑자색 금속 틀(어두움)이 피 결정 막(중간)을 감싸고, 초점은 심장 혈석 + 날 끝 반사선 두 곳만 가장 밝게
+//  흐름: 자루의 혈맥이 나선으로 감아 올라가 심장 → 날개뼈 → 막 속 혈맥으로 이어져 날 끝까지 흐른다
+// 좌표: 64×124, 왼쪽 = 날 방향(모델 -Z), 위 = +Y
 import { PixelCanvas } from '../../../atelier/pixel.js';
 
 export const W = 64, H = 124;
 export const C = {
-  K0: '#050204', K1: '#140709',                                   // 외곽선
-  G1: '#1f1a1c', G2: '#352f31', G3: '#474244', G4: '#6b6467', G5: '#a39ca0', // 흑철
-  R0: '#3b0a10', R1: '#5e1219', R2: '#872227', R3: '#9a2629', R4: '#b52b2f', R5: '#c62c30', R6: '#d04d51',
-  P1: '#df787b', P2: '#e3a1a5', P3: '#efcece', WH: '#f8f3eb',
+  K0: '#07040a',                                                                 // 외곽선(보랏빛 검정)
+  V1: '#1a1120', V2: '#2c1d33', V3: '#46324f', V4: '#715a7b', V5: '#b4a1bb',     // 흑자색 금속 → 라일락 은빛 반사
+  B0: '#20040b', B1: '#3a0715', B2: '#590b1e', B3: '#7e1027', B4: '#a3162f', B5: '#cc2238', // 와인 → 진홍
+  G1: '#ff4b46', G2: '#ff9b84', G3: '#ffe4d0',                                   // 동맥빛 주홍 → 크림(빛나는 부분 전용)
 };
-const R = [C.R0, C.R1, C.R2, C.R3, C.R4, C.R5, C.R6, C.P1, C.P2, C.P3, C.WH];
-const clampI = (v, a, b) => Math.max(a, Math.min(b, Math.round(v)));
-const bayer2 = (x, y) => [0, 0.5, 0.75, 0.25][(y & 1) * 2 + (x & 1)];
+// 하위 호환(아이콘 등에서 쓰던 이름)
+Object.assign(C, { K1: C.K0, G4: C.V4, G5: C.V5, R1: C.B1, R2: C.B2, R3: C.B3, R5: C.B5, R6: C.G1, P1: C.G2, P2: C.G3, WH: C.G3 });
 
-/** 바깥쪽에 1px 외곽선(4방향) */
-function outline(c, col = C.K1) {
+const rng = s => () => ((s = (s + 0x6d2b79f5) | 0), (((s ^ (s >>> 15)) * (1 | s)) >>> 0) / 4294967296);
+function outline(c, col = C.K0) {
   const add = [];
-  c.each((x, y) => { if (c.alpha(x, y)) return; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => c.alpha(x + dx, y + dy))) add.push([x, y]); });
+  c.each((x, y) => { if (!c.alpha(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => c.alpha(x + dx, y + dy))) add.push([x, y]); });
   for (const [x, y] of add) c.set(x, y, col);
   return c;
 }
 
-// ── 날 기하: 바깥 원(등) − 안쪽 원(날) = 초승달
-const O = { x: 42, y: 54, r: 40 };      // 등
-const I = { x: 44, y: 70, r: 38 };      // 날(안쪽)
-const ROOT_X = 46;                       // 이보다 오른쪽은 자루/코등이
-const ang = (x, y) => Math.atan2(y - O.y, x - O.x); // 위(-π/2) → 왼쪽(±π)
-/** 톱니: 날 안쪽 반지름을 각도에 따라 바꿈. 이빨은 끝(왼쪽 아래) 쪽으로 기울어진 비대칭 톱니 */
-function tooth(x, y) {
-  const a = Math.atan2(y - I.y, x - I.x);        // 뿌리 쪽 ≈ -1.45, 끝 쪽 ≈ -3.0
-  const s = (-a - 1.5) * I.r;                    // 뿌리부터 날을 따라 잰 거리(px)
-  if (s < 3 || s > 40) return 0;                 // 뿌리 근처·끝 1/3은 매끈한 날
-  const ph = (s % 7) / 7;                        // 7px 주기
-  const fade = Math.min(1, (40 - s) / 10);
-  return (ph < 0.72 ? ph / 0.72 : (1 - ph) / 0.28) * 2.6 * fade; // 완만히 올라가고 급히 떨어짐
+// ── 날 기하
+const O = { x: 42, y: 54, r: 40 }, I = { x: 44, y: 70, r: 38 };
+const ROOT = [42, 32];                               // 날개뼈가 뻗어 나가는 점(왕관 중심)
+const RIBS = [-1.7, -2.12, -2.55, -2.95];           // 날개뼈 끝이 닿는 바깥 원 위의 각도(뿌리 → 끝)
+const angO = (x, y) => Math.atan2(y - O.y, x - O.x);
+/** 등 가장자리: 날개뼈 사이가 오목하게 파인 박쥐 날개 막 */
+function scallop(a) {
+  for (let i = 0; i < RIBS.length - 1; i++) {
+    const a0 = RIBS[i], a1 = RIBS[i + 1];
+    if (a <= a0 && a >= a1) { const f = (a0 - a) / (a0 - a1); return 6.5 * Math.sin(Math.PI * f) ** 0.9 * (1 - i * 0.18); }
+  }
+  return 0;
 }
 
-export function bladeLayer({ spineOnly = false } = {}) {
+/** 피 결정 막(날 본체) */
+export function bladeLayer() {
   const c = new PixelCanvas(W, H);
-  for (let y = 0; y < H; y++) for (let x = 0; x < ROOT_X; x++) {
-    const px = x + 0.5, py = y + 0.5;
-    const dO = O.r - Math.hypot(px - O.x, py - O.y);          // 등에서 안쪽으로
-    const dIs = Math.hypot(px - I.x, py - I.y) - I.r;          // 날에서 바깥쪽으로(매끈)
-    const dI = dIs - tooth(px, py);                            // 톱니 포함
-    if (dO < 0 || dI < 0) continue;
-    if (py > O.y + 20) continue;                               // 아래로 너무 내려가지 않게
-    const wdt = dO + dIs, t = dO / Math.max(wdt, 0.001);       // t: 0 = 등, 1 = 날
-    if (spineOnly && t > 0.42) continue;
-    // 길이 방향 위치: 뿌리 0 → 끝 1
-    const along = Math.min(1, Math.max(0, (-ang(px, py) - 1.55) / 1.75));
-    let k;                                                     // R 램프 인덱스
-    // 폭이 좁아지는 끝에서도 선이 끊기지 않도록 '날에서의 거리'로 경사면·하이라이트를 정한다(비율 t만 쓰면 계단처럼 끊김)
-    const bev = Math.min(3.2, wdt * 0.28);                     // 날 경사면 폭
-    const ful = wdt * 0.36;                                    // 홈 위치(등에서)
-    if (dO < 1.1) k = 2 + along * 1.4;                         // 등 테두리
-    else if (dIs < 1.15) k = 9;                                // 날 끝 1px: 가장 밝은 분홍
-    else if (dIs < bev) k = 7 + along * 0.9;                   // 날 경사면
-    else if (dIs < bev + 1) k = 10;                            // 흰 하이라이트 선
-    else if (Math.abs(dO - ful) < 0.55 && wdt > 7) k = 0.4;    // 홈(fuller) 어두운 선
-    else if (dO > ful && dO < ful + 1.1 && wdt > 7) k = 5.7;   // 홈 아래 밝은 턱
-    else if (dO < ful) k = 1.2 + along * 1.7 + (dO < 2.2 ? 0.7 : 0); // 어두운 등판
-    else k = 3.5 + along * 1.8 + bayer2(x, y) * 0.9;           // 몸통
-    if (dI < 1.15 && tooth(px, py) > 1.6) k = 8;               // 톱니 이빨 끝은 한 단 낮게(이빨 모양이 읽히게)
-    c.set(x, y, R[clampI(k, 0, 10)]);
+  for (let y = 0; y < H; y++) for (let x = 0; x < 46; x++) {
+    const px = x + 0.5, py = y + 0.5, a = angO(px, py);
+    const dO = O.r - Math.hypot(px - O.x, py - O.y) - scallop(a);
+    const dI = Math.hypot(px - I.x, py - I.y) - I.r;
+    if (dO < 0 || dI < 0 || py > O.y + 20) continue;
+    const along = Math.min(1, Math.max(0, (-a - 1.55) / 1.75)); // 뿌리 0 → 끝 1
+    let col;
+    if (dI < 1.1) col = along > 0.55 ? C.G2 : C.G1;            // 날 끝 1px: 빛나는 주홍(끝으로 갈수록 밝게 → 초점)
+    else if (dI < 2.1) col = C.G3;                              // 크림 반사선(끊기지 않게 '날에서의 거리'로)
+    else if (dI < 4.2) col = C.B5;                              // 날 경사면
+    else if (dO < 1.2) col = C.B1;                              // 막 가장자리(어두움)
+    else {                                                      // 막: 뿌리·등 쪽 어둡고 날 쪽으로 밝아지는 결정
+      const t = dO / (dO + dI);
+      const v = t * 2.6 + along * 0.8 + ((x + y) % 2) * 0.35;
+      col = [C.B1, C.B2, C.B3, C.B4][Math.max(0, Math.min(3, Math.floor(v)))];
+    }
+    c.set(x, y, col);
   }
-  // 날 끝(가장 왼쪽 아래)의 반짝임: 흰 점 + 십자 잔광은 이펙트가 담당, 여기선 1px만
+  // 막 속 혈맥: 날개뼈 사이에서 시작해 날 쪽으로 흐르는 가는 선(무작위 걷기, 끝으로 갈수록 밝게)
+  const R = rng(7);
+  for (let i = 0; i < RIBS.length - 1; i++) {
+    const am = (RIBS[i] + RIBS[i + 1]) / 2;
+    let x = ROOT[0] + (O.x + Math.cos(am) * (O.r - 8) - ROOT[0]) * 0.55, y = ROOT[1] + (O.y + Math.sin(am) * (O.r - 8) - ROOT[1]) * 0.55;
+    for (let s = 0; s < 22; s++) {
+      const dI = Math.hypot(x - I.x, y - I.y) - I.r; if (dI < 4.5) break;
+      const ix = Math.floor(x), iy = Math.floor(y);
+      if (c.alpha(ix, iy)) c.set(ix, iy, s > 12 ? C.G1 : C.B5);
+      const dx = I.x - x, dy = I.y - y, L = Math.hypot(dx, dy);
+      x += (dx / L) * 0.9 + (R() - 0.5) * 0.9; y += (dy / L) * 0.9 + (R() - 0.5) * 0.9;
+      if (R() < 0.12) { const bx = ix + (R() < 0.5 ? -1 : 1), by = iy + 1; if (c.alpha(bx, by)) c.set(bx, by, C.B4); } // 잔가지
+    }
+  }
   return outline(c);
 }
 
-/** 등날 가시: 바깥 원 위에 바깥쪽으로 솟은 검은 삼각 가시 4개(뿌리 쪽이 크고 끝으로 갈수록 작게) */
-export function spikeLayer() {
+/** 날개 손가락뼈: 뿌리에서 바깥 원의 RIBS 각도까지 뻗는 흑자색 금속 뼈 + 가운데 관절 마디 */
+export function ribLayer() {
   const c = new PixelCanvas(W, H);
-  const list = [[-1.72, 9, 3.4], [-2.12, 7, 3], [-2.5, 5, 2.4]]; // [각도, 길이, 반폭]
-  for (const [a0, len, hw] of list) {
-    const bx = O.x + Math.cos(a0) * (O.r - 2), by = O.y + Math.sin(a0) * (O.r - 2);
-    const nx = Math.cos(a0), ny = Math.sin(a0);       // 바깥 법선
-    const tx = -ny, ty = nx;                           // 접선(끝 쪽)
-    // 가시는 뿌리(오른쪽 위) 방향으로 젖혀진다: 끝점 = 법선*len − 접선*len*0.55
-    const ex = bx + nx * len - tx * len * 0.55, ey = by + ny * len - ty * len * 0.55;
-    const p1 = [bx + tx * hw, by + ty * hw], p2 = [bx - tx * hw, by - ty * hw];
+  RIBS.forEach((a, i) => {
+    const ex = O.x + Math.cos(a) * (O.r + 2.5), ey = O.y + Math.sin(a) * (O.r + 2.5);
+    const dx = ex - ROOT[0], dy = ey - ROOT[1], L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+    const w0 = 1.7 - i * 0.2;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const px = x + 0.5, py = y + 0.5;
-      // 삼각형 내부 판정
-      const s = (ax, ay, bx2, by2) => (bx2 - ax) * (py - ay) - (by2 - ay) * (px - ax);
-      const d1 = s(p1[0], p1[1], p2[0], p2[1]), d2 = s(p2[0], p2[1], ex, ey), d3 = s(ex, ey, p1[0], p1[1]);
-      if (!((d1 >= 0 && d2 >= 0 && d3 >= 0) || (d1 <= 0 && d2 <= 0 && d3 <= 0))) continue;
-      // 명암: 왼쪽 위 빛 → 가시의 한쪽 면은 G3, 반대쪽 G1, 중심선 G4
-      const side = (px - bx) * tx + (py - by) * ty;
-      const along = ((px - bx) * nx + (py - by) * ny) / len;
-      c.set(x, y, side > 0.6 ? C.G1 : side < -0.6 ? C.G3 : along > 0.55 ? C.G5 : C.G4);
+      const px = x + 0.5 - ROOT[0], py = y + 0.5 - ROOT[1];
+      const t = (px * dx + py * dy) / (L * L), s = px * nx + py * ny;
+      if (t < 0 || t > 1) continue;
+      const half = w0 * (1 - t * 0.6) + (Math.abs(t - 0.5) < 0.05 ? 0.8 : 0);
+      if (Math.abs(s) > half) continue;
+      c.set(x, y, s < -half * 0.35 ? C.V4 : s > half * 0.4 ? C.V1 : t > 0.88 ? C.V5 : C.V3);
     }
-  }
-  return outline(c, C.K0);
+  });
+  return outline(c);
 }
+export const spikeLayer = ribLayer; // 이전 이름 호환
 
-/** 자루: 흑철 + 핏빛 홈 + 손잡이 감개(사선 붉은 가죽) + 금속 고리 + 아래 가시 폼멜 */
+/** 자루: 흑자색 금속 + 날 쪽으로 감아 올라가는 혈맥 나선 + 와인 가죽 X자 감개 + 폼멜 금속 갓 */
 export function shaftLayer() {
   const c = new PixelCanvas(W, H);
-  const X0 = 45, X1 = 49, TOP = 22, BOT = 112;
-  const col = [C.G3, C.G4, C.G2, C.G2, C.G1];             // 왼쪽 빛
+  const X0 = 45, X1 = 49, TOP = 26, BOT = 110;
+  const col = [C.V3, C.V4, C.V2, C.V2, C.V1];
   for (let y = TOP; y <= BOT; y++) for (let x = X0; x <= X1; x++) c.set(x, y, col[x - X0]);
-  for (let y = TOP + 4; y < 64; y++) if (y % 9 !== 0) c.set(47, y, (y % 9) < 3 ? C.R5 : C.R1); // 핏빛 홈(맥박처럼 밝아지는 마디)
-  // 손잡이(68~100): 사선 감개
-  for (let y = 68; y <= 100; y++) for (let x = X0; x <= X1; x++) {
-    const ph = (y + (x - X0)) % 5;
-    c.set(x, y, ph === 0 ? C.R1 : ph === 1 ? (x === X0 + 1 ? C.P1 : C.R5) : ph === 2 ? C.R4 : ph === 3 ? C.R2 : C.R1);
+  for (let y = TOP; y < 66; y++) { const x = X0 + Math.round(2 + 2 * Math.sin(y * 0.55)); c.set(x, y, y < 40 ? C.G1 : y < 54 ? C.B5 : C.B4); }
+  for (let y = 70; y <= 98; y++) for (let x = X0; x <= X1; x++) {
+    const k = x - X0, a = (y + k) % 6, b = (y - k + 60) % 6;
+    c.set(x, y, a === 0 || b === 0 ? C.B1 : k === 1 ? C.B4 : k < 3 ? C.B3 : C.B2);
   }
-  const ring = y => { c.hline(X0 - 1, X1 + 1, y, C.G4); c.hline(X0 - 1, X1 + 1, y + 1, C.G2); c.set(X0, y, C.G5); };
-  ring(64); ring(101); ring(40);
-  // 폼멜: 아래로 뾰족한 가시 + 붉은 보석 자리(보석은 gem 레이어)
-  for (let y = 113; y <= 121; y++) { const hw = Math.max(0, Math.round((121 - y) * 0.45)); for (let x = 47 - hw; x <= 47 + hw; x++) c.set(x, y, x < 47 ? C.G3 : x === 47 ? C.G4 : C.G1); }
-  c.hline(43, 51, 112, C.G4); c.hline(43, 51, 113, C.G2);
-  return outline(c, C.K0);
+  const ring = y => { c.hline(X0 - 1, X1 + 1, y, C.V4); c.hline(X0 - 1, X1 + 1, y + 1, C.V2); c.set(X0, y, C.V5); };
+  ring(67); ring(99);
+  c.hline(44, 50, 110, C.V4); c.hline(44, 50, 111, C.V2); c.hline(45, 49, 112, C.V2);
+  return outline(c);
 }
 
-/** 코등이(날과 자루가 만나는 곳): 위·뒤·아래로 뻗는 검은 가시 왕관 */
+/** 왕관 코등이: 자루를 감싼 띠 + 위로 솟은 세 갈래 관(가운데가 가장 높음) + 아래로 늘어진 두 송곳 */
 export function collarLayer() {
   const c = new PixelCanvas(W, H);
-  const cx = 47.5, cy = 20;
-  // 몸체: 둥근 마름모
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const px = x + 0.5, py = y + 0.5, dx = px - cx, dy = py - cy;
-    if (Math.abs(dx) / 6.5 + Math.abs(dy) / 8.5 > 1) continue;
-    const lit = -dx * 0.6 - dy * 0.8;                            // 왼쪽 위 빛
-    c.set(x, y, lit > 4 ? C.G5 : lit > 1 ? C.G4 : lit > -2 ? C.G3 : lit > -5 ? C.G2 : C.G1);
+  for (let y = 18; y <= 27; y++) for (let x = 40; x <= 54; x++) {
+    const e = Math.abs(x - 47) / 7.5 + Math.abs(y - 22.5) / 9; if (e > 1) continue;
+    const lit = -(x - 47) * 0.5 - (y - 22.5) * 0.7;
+    c.set(x, y, lit > 3 ? C.V5 : lit > 0.5 ? C.V4 : lit > -2.5 ? C.V3 : C.V2);
   }
-  // 가시: [끝점, 밑변 반폭]
-  const spikes = [[[46, 2], 2.5], [[60, 9], 2.5], [[59, 30], 2.2], [[52, 35], 2], [[36, 31], 2]];
-  for (const [[ex, ey], hw] of spikes) {
-    const dx = ex - cx, dy = ey - cy, L = Math.hypot(dx, dy), nx = dx / L, ny = dy / L;
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const px = x + 0.5 - cx, py = y + 0.5 - cy;
-      const a = px * nx + py * ny, s = px * -ny + py * nx;
-      if (a < 3 || a > L) continue;
-      const half = hw * (1 - (a - 3) / (L - 3));
-      if (Math.abs(s) > half) continue;
-      c.set(x, y, s < -0.3 ? C.G4 : s > 0.6 ? C.G1 : a > L - 2.5 ? C.G5 : C.G3);
+  for (const [ex, ey, hw, by] of [[47, 4, 2.6, 19], [40, 11, 2, 20], [54, 11, 2, 20], [43, 34, 1.6, 26], [51, 34, 1.6, 26]]) {
+    for (let y = Math.min(ey, by); y <= Math.max(ey, by); y++) {
+      const t = (y - by) / (ey - by), half = hw * (1 - t);
+      const cx = 47 + (ex - 47) * t;
+      for (let x = Math.floor(cx - half); x <= Math.ceil(cx + half); x++) { const s = x + 0.5 - cx; if (Math.abs(s) > half + 0.2) continue; c.set(x, y, s < -0.4 ? C.V4 : s > 0.6 ? C.V1 : t > 0.8 ? C.V5 : C.V3); }
     }
+    if (ey < by) c.set(ex, ey - 1, C.G1); // 위로 솟은 갈래 끝: 작은 핏방울 보석
   }
-  return outline(c, C.K0);
+  return outline(c);
 }
 
-/** 혈석: 코등이 중앙(큰 것)과 폼멜(작은 것). 진홍 → 밝은 중심 + 흰 반사점 */
+/** 혈석: 왕관 중심의 심장(가장 밝은 초점) + 폼멜 아래 거꾸로 맺힌 핏방울 */
 export function gemLayer() {
   const c = new PixelCanvas(W, H);
-  const gem = (cx, cy, r) => {
+  const heart = (cx, cy, s) => {
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const dx = x + 0.5 - cx, dy = y + 0.5 - cy, d = Math.hypot(dx, dy) / r;
-      if (d > 1) continue;
-      const lit = (-dx - dy) / r;
-      c.set(x, y, d > 0.8 ? C.R1 : lit > 0.55 ? C.P2 : lit > 0.1 ? C.R6 : lit > -0.4 ? C.R5 : C.R3);
+      const u = (x + 0.5 - cx) / s, v = -(y + 0.5 - cy) / s + 0.25;
+      const f = (u * u + v * v - 1) ** 3 - u * u * v * v * v;
+      if (f > 0) continue;
+      const lit = (-u + v) * 0.5 - 0.1, r = Math.hypot(u, v - 0.2);
+      c.set(x, y, r > 0.95 ? C.B2 : lit > 0.35 ? C.G2 : lit > 0 ? C.G1 : lit > -0.4 ? C.B5 : C.B4);
     }
-    c.set(Math.floor(cx - r * 0.4), Math.floor(cy - r * 0.45), C.WH);
+    c.set(Math.floor(cx - s * 0.45), Math.floor(cy - s * 0.35), C.G3);
   };
-  gem(47.5, 20, 3.6); gem(47.5, 116, 1.9);
-  return outline(c, C.K0);
+  heart(47.5, 22.5, 3.4);
+  for (let y = 112; y <= 121; y++) for (let x = 43; x <= 52; x++) {
+    const dx = x + 0.5 - 47.5, dy = y + 0.5 - 115.5;
+    const inside = dy <= 0 ? Math.hypot(dx, dy * 1.2) <= 3.2 : Math.abs(dx) <= 3.2 * (1 - dy / 6);
+    if (!inside) continue;
+    const lit = -dx - dy * 0.6;
+    c.set(x, y, lit > 2 ? C.G2 : lit > 0 ? C.G1 : lit > -2 ? C.B5 : C.B3);
+  }
+  c.set(46, 114, C.G3);
+  return outline(c);
 }
 
-/** 미리보기용 합성(평면) */
 export function flat() {
   const c = new PixelCanvas(W, H);
-  for (const l of [shaftLayer(), bladeLayer(), spikeLayer(), collarLayer(), gemLayer()]) c.paste(l);
+  for (const l of [shaftLayer(), bladeLayer(), ribLayer(), collarLayer(), gemLayer()]) c.paste(l);
   return c;
 }
