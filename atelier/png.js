@@ -6,7 +6,7 @@ const CRC = new Uint32Array(256).map((_, n) => {
   for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
   return c >>> 0;
 });
-const crc32 = buf => {
+export const crc32 = buf => {
   let c = 0xffffffff;
   for (const b of buf) c = CRC[(c ^ b) & 255] ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;

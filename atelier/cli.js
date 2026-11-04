@@ -5,16 +5,19 @@
 //   palette <#hex> [harmony]      [--out dir]                → 토큰 + 스와치
 //   mc      <model.mjs|json> ...  [--out dir]                → .bbmodel, Java JSON, 텍스처, 3D 미리보기 시트
 //   sprite  <sprites.mjs> ...     [--out dir]                → 16×16 픽셀 텍스처/아이템 png, 아이템 JSON, 검수 시트
+//   pack    <model/sprite 파일...> [--out dir] [--ns atelier] [--pack-format 46] → Java 리소스팩 폴더 + zip
 
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { render, sheet, compareSheet, close } from './render.js';
+import { FORMATS } from './layout.js';
 import { palette, contrast } from './color.js';
 import { compileModel } from './mc/model.js';
 import { toBBModel, toJavaBlockModel, itemModel } from './mc/export.js';
 import { modelSheet } from './mc/render3d.js';
 import { critiqueSprite, spriteSheet } from './mc/sprite.js';
+import { buildPack } from './mc/pack.js';
 
 const args = process.argv.slice(2);
 const cmd = args.shift();
@@ -27,13 +30,17 @@ const opt = (name, def) => {
 };
 const outDir = opt('out', 'out');
 const scale = +opt('scale', 1);
+const formats = opt('formats', null); // 예: square,portrait,story,landscape
+const ns = opt('ns', 'atelier');
+const packFormat = +opt('pack-format', 46);
+const packName = opt('name', 'atelier_pack');
 fs.mkdirSync(outDir, { recursive: true });
 
-async function loadScene(file) {
+async function loadScene(file, ctx = {}) {
   if (/\.(mjs|js)$/.test(file)) {
     const mod = await import(pathToFileURL(path.resolve(file)).href);
     const s = mod.default;
-    return typeof s === 'function' ? await s() : s;
+    return typeof s === 'function' ? await s(ctx) : s;
   }
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
@@ -41,7 +48,25 @@ async function loadScene(file) {
 const base = f => path.basename(f).replace(/\.(json|mjs|js)$/, '');
 
 async function main() {
-  if (cmd === 'render') {
+  if (cmd === 'render' && formats) {
+    // 반응형: 장면 함수가 ({ width, height, format })를 받아 규격별 레이아웃을 만든다
+    for (const file of args) {
+      const items = [];
+      for (const f of formats.split(',')) {
+        const [width, height] = FORMATS[f] ?? f.split('x').map(Number);
+        const scene = await loadScene(file, { width, height, format: f });
+        const result = await render(scene, { scale });
+        const name = `${base(file)}.${f}`;
+        fs.writeFileSync(path.join(outDir, name + '.png'), result.png);
+        fs.writeFileSync(path.join(outDir, name + '.sheet.png'), await sheet(result, { title: name }));
+        items.push({ name: f, result });
+        console.log(`■ ${name} ${width}×${height} score ${result.report.score}`);
+        for (const i of result.report.issues) console.log(`  [${i.severity}] ${i.msg}`);
+      }
+      fs.writeFileSync(path.join(outDir, base(file) + '.formats.png'), await compareSheet(items));
+      console.log(`→ ${outDir}/${base(file)}.formats.png`);
+    }
+  } else if (cmd === 'render') {
     for (const file of args) {
       const scene = await loadScene(file);
       const name = base(file);
@@ -65,6 +90,7 @@ async function main() {
   } else if (cmd === 'mc') {
     for (const file of args) {
       const spec = await loadScene(file);
+      if (!spec || !spec.cubes) { console.log(`  건너뜀: ${file}은 큐브 모델이 아님(스프라이트면 sprite 명령)`); continue; }
       const m = compileModel(spec);
       const name = spec.name ?? base(file);
       fs.writeFileSync(path.join(outDir, name + '.bbmodel'), JSON.stringify(toBBModel(m)));
@@ -94,6 +120,21 @@ async function main() {
       fs.writeFileSync(path.join(outDir, sheetName), await spriteSheet(items.slice(-list.length)));
       console.log(`  sheet: ${outDir}/${sheetName}`);
     }
+  } else if (cmd === 'pack') {
+    const blocks = [], items = [];
+    for (const file of args) {
+      const loaded = await loadScene(file);
+      if (loaded && loaded.cubes) {
+        const m = compileModel(loaded);
+        if (m.type !== 'block') { console.log(`  건너뜀: ${loaded.name}은 entity(리소스팩 블록 모델이 아님 — .bbmodel을 쓰세요)`); continue; }
+        blocks.push({ name: loaded.name, model: toJavaBlockModel(m), texture: m.atlas });
+      } else for (const it of [].concat(loaded)) {
+        if ((it.kind ?? 'item') === 'item') items.push({ name: it.name, texture: it.canvas });
+        else blocks.push({ name: it.name, model: { parent: 'minecraft:block/cube_all' }, texture: it.canvas });
+      }
+    }
+    const r = buildPack(outDir, { name: packName, ns, packFormat, blocks, items });
+    console.log(`리소스팩: 블록 ${blocks.length} · 아이템 ${items.length} · 파일 ${r.count}개\n  ${r.root}/\n  ${r.zipPath}`);
   } else if (cmd === 'palette') {
     const [seed, harmony = 'complementary'] = args;
     const t = palette(seed, harmony);

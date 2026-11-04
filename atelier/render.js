@@ -3,6 +3,7 @@
 import { createRequire } from 'module';
 import { compile } from './scene.js';
 import { critique } from './critic.js';
+import { resolveLayout, makeMeasurer } from './layout.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -12,9 +13,15 @@ export async function browser() {
   browserP ??= chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   return browserP;
 }
+let measurerP;
+async function measurer() {
+  measurerP ??= browser().then(makeMeasurer);
+  return measurerP;
+}
 export async function close() {
   if (browserP) (await browserP).close();
   browserP = undefined;
+  measurerP = undefined;
 }
 
 const html = (body, css = '') =>
@@ -143,6 +150,7 @@ async function analyze(page, fullB64, bgB64, W, H, textMeta) {
 
 /** 장면 → { svg, png(Buffer), metrics, report } */
 export async function render(scene, { scale = 1 } = {}) {
+  scene = await resolveLayout(scene, await measurer());
   const { svg, width: W, height: H, texts } = compile(scene);
   const b = await browser();
   const page = await b.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: scale });

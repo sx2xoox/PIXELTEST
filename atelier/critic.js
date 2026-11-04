@@ -34,7 +34,9 @@ export function critique(metrics, scene = {}) {
   const T = metrics.texts;
   for (let i = 0; i < T.length; i++)
     for (let j = i + 1; j < T.length; j++) {
-      const a = T[i].box, b = T[j].box;
+      // 브라우저 상자는 줄 높이 여백을 포함하므로 실제 글자 영역(위 15%, 아래 20% 제외)으로 줄여서 비교
+      const tight = t => ({ x: t.box.x, w: t.box.w, y: t.box.y + t.size * 0.15, h: Math.max(1, t.box.h - t.size * 0.35) });
+      const a = tight(T[i]), b = tight(T[j]);
       const ix = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
       const iy = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
       if (ix * iy > 0.08 * Math.min(a.w * a.h, b.w * b.h))

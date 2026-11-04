@@ -76,6 +76,17 @@ node atelier/cli.js palette "#e8590c" split --out out     # 토큰 확인
 - `scatter{count, seed, area{x,y,w,h}, child(또는 배열), scale[a,b], rotate[a,b], opacity[a,b], sortY}` → 별, 풀, 꽃잎, 군중
 - `repeat{count, child, dx, dy, drot, origin, fade}` → 리듬, 패턴, 방사형
 
+## 3.5 레이아웃 엔진 (텍스트가 있는 디자인은 이것을 쓴다)
+- **실측 줄바꿈:** `text`에 `maxWidth`를 주면 실제 폰트로 재서 어절 단위로 끊는다. 줄머리 금칙(. , ) 」 등)과 고아 단어 방지가 자동으로 적용된다.
+- **`balance: true`:** 제목을 고른 길이로 끊는다. 2줄이면 `— , · :` 뒤에서 끊는 것을 강하게 선호하고, 필요하면 글자 크기를 최대 15% 줄인다. 원치 않으면 `semantic:false`.
+- **`fit: { maxLines, minSize }`:** 줄 수나 너비를 넘으면 글자 크기를 자동으로 줄인다.
+- **`stack`:** `{ type:'stack', x, y, w, gap, align:'left|center|right', anchor:'top|bottom|middle', children }`
+  자식은 `text`(maxWidth=w 자동), `rect`(h, w 기본=w), `space{h}`이고, 자식마다 `gapBefore`를 줄 수 있다.
+  `anchor:'bottom'`이면 y가 블록의 아래 끝이 된다(포스터 하단 정보 블록).
+- **반응형:** `.mjs` 장면 함수는 `({ width, height, format })`를 받는다.
+  `render x.mjs --formats square,portrait,story,landscape`(또는 `1500x500`)로 규격별 결과와 비교 시트(`x.formats.png`)를 만든다.
+  짧은 변의 1%를 단위 `u`로 잡고, 가로형이면 좌우 배치, 세로형이면 상하 배치로 분기한다(`examples/market.mjs`).
+
 ## 4. 디자인 기본기 (빠른 참조)
 - **타입 스케일:** 기준 크기 × 1.25ⁿ(차분함) 또는 1.333ⁿ / 1.5ⁿ(극적). 제목은 부제의 1.5배 이상. 글자 크기는 3~4단계만 쓴다.
 - **큰 제목:** 자간을 -2~-3%로 좁힌다(엔진이 48px 이상에서 자동 적용). 대문자 라벨은 자간을 +5~10% 넓힌다.

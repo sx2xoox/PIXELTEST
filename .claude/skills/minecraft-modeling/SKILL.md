@@ -15,6 +15,11 @@ node atelier/cli.js mc examples/mc/mossling.mjs --out out/mc     # .bbmodel(+Jav
 ```
 - `sprite` 출력: `<name>.png`, `<name>@8x.png`, (아이템이면) `<name>.item.json`, `<file>.sheet.png`
 - `mc` 출력: `<name>.bbmodel`(Blockbench 5.0 형식, 텍스처 내장), `<name>.texture.png`, `<name>.sheet.png`, 블록이면 `<name>.java.json`
+- 리소스팩: `node atelier/cli.js pack examples/mc/lantern_post.mjs examples/mc/blocks.mjs examples/mc/items.mjs --out out/pack --ns atelier --pack-format 46`
+  → `pack.mcmeta`, `assets/<ns>/{blockstates,models/block,models/item,items,textures}`, `.zip`.
+  pack_format 46은 Java 1.21.4다. 다른 버전이면 바꾼다.
+  리소스팩은 모습만 바꾼다. 새 블록을 실제로 등록하려면 모드나 데이터팩이 필요하다. 바닐라 블록을 다시 입히려면 `--ns minecraft`를 쓰고 이름을 바닐라 ID로 맞춘다.
+  엔티티는 리소스팩 블록 모델이 아니므로 `.bbmodel`을 Blockbench에서 열어 bedrock geometry 등으로 내보낸다.
 
 ## 1. 단위와 좌표
 - 1블록 = 16유닛 = 16텍셀. **텍셀 밀도는 모델 전체에서 하나**로 둔다(믹셀 금지). 큐브 크기는 정수 유닛으로 한다(비평기가 검사).
