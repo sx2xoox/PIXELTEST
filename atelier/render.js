@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 let browserP;
 export async function browser() {
-  browserP ??= chromium.launch();
+  browserP ??= chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   return browserP;
 }
 export async function close() {

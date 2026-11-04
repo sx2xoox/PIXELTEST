@@ -3,12 +3,18 @@
 //   render  <scene.json|scene.mjs> [--out dir] [--scale 2]   → svg, png, 비평 시트, 리포트
 //   compare <a> <b> ...           [--out dir]                → 시안 비교 시트
 //   palette <#hex> [harmony]      [--out dir]                → 토큰 + 스와치
+//   mc      <model.mjs|json> ...  [--out dir]                → .bbmodel, Java JSON, 텍스처, 3D 미리보기 시트
+//   sprite  <sprites.mjs> ...     [--out dir]                → 16×16 픽셀 텍스처/아이템 png, 아이템 JSON, 검수 시트
 
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { render, sheet, compareSheet, close } from './render.js';
 import { palette, contrast } from './color.js';
+import { compileModel } from './mc/model.js';
+import { toBBModel, toJavaBlockModel, itemModel } from './mc/export.js';
+import { modelSheet } from './mc/render3d.js';
+import { critiqueSprite, spriteSheet } from './mc/sprite.js';
 
 const args = process.argv.slice(2);
 const cmd = args.shift();
@@ -56,6 +62,38 @@ async function main() {
     fs.writeFileSync(path.join(outDir, 'compare.png'), await compareSheet(items));
     items.forEach(i => console.log(`${i.name}\t${i.result.report.score}`));
     console.log(`→ ${outDir}/compare.png`);
+  } else if (cmd === 'mc') {
+    for (const file of args) {
+      const spec = await loadScene(file);
+      const m = compileModel(spec);
+      const name = spec.name ?? base(file);
+      fs.writeFileSync(path.join(outDir, name + '.bbmodel'), JSON.stringify(toBBModel(m)));
+      fs.writeFileSync(path.join(outDir, name + '.texture.png'), m.atlas.toPNG());
+      if (m.type === 'block') fs.writeFileSync(path.join(outDir, name + '.java.json'), JSON.stringify(toJavaBlockModel(m), null, 2));
+      fs.writeFileSync(path.join(outDir, name + '.sheet.png'), await modelSheet(m, m.issues, { title: name }));
+      const score = Math.max(0, 100 - m.issues.reduce((s, i) => s + { error: 15, warn: 7, info: 2 }[i.severity], 0));
+      console.log(`\n■ ${name}  [${m.type}] cubes ${m.cubes.length} · atlas ${m.atlasW}×${m.atlasH} · score ${score}`);
+      for (const i of m.issues) console.log(`  [${i.severity}] ${i.msg}${i.fix ? `\n          → ${i.fix}` : ''}`);
+      console.log(`  files: ${outDir}/${name}.{bbmodel,texture.png,sheet.png${m.type === 'block' ? ',java.json' : ''}}`);
+    }
+  } else if (cmd === 'sprite') {
+    const items = [];
+    for (const file of args) {
+      let list = await loadScene(file);
+      if (!Array.isArray(list)) list = [list];
+      for (const it of list) {
+        const report = critiqueSprite(it.canvas, { kind: it.kind ?? 'item', tile: it.tile ?? 'xy' });
+        items.push({ ...it, kind: it.kind ?? 'item', report });
+        fs.writeFileSync(path.join(outDir, it.name + '.png'), it.canvas.toPNG());
+        fs.writeFileSync(path.join(outDir, it.name + '@8x.png'), it.canvas.scale(8).toPNG());
+        if ((it.kind ?? 'item') === 'item') fs.writeFileSync(path.join(outDir, it.name + '.item.json'), JSON.stringify(itemModel(it.name), null, 2));
+        console.log(`■ ${it.name} [${it.kind ?? 'item'}] score ${report.score} · colors ${report.stats.colors}`);
+        for (const i of report.issues) console.log(`  [${i.severity}] ${i.msg}${i.fix ? `\n          → ${i.fix}` : ''}`);
+      }
+      const sheetName = base(file) + '.sheet.png';
+      fs.writeFileSync(path.join(outDir, sheetName), await spriteSheet(items.slice(-list.length)));
+      console.log(`  sheet: ${outDir}/${sheetName}`);
+    }
   } else if (cmd === 'palette') {
     const [seed, harmony = 'complementary'] = args;
     const t = palette(seed, harmony);

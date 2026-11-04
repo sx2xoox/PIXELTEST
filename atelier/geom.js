@@ -1,12 +1,14 @@
 // 형태 엔진: Claude가 좌표 몇 개만 정하면 매끄러운 곡선, 유기적 형태, 붓 획이 나오게 한다.
 
 export function rng(seed = 1) {
-  let s = (seed >>> 0) || 1;
+  // mulberry32: 작은 시드에서도 첫 값부터 고르게 분포한다
+  let a = (Math.imul(seed >>> 0 || 1, 0x9e3779b1) ^ 0x85ebca6b) >>> 0;
   return () => {
-    s ^= s << 13; s >>>= 0;
-    s ^= s >> 17;
-    s ^= s << 5; s >>>= 0;
-    return s / 4294967296;
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
 
