@@ -206,7 +206,7 @@
       for (let i = 0; i < kk.length - 1; i++) if (tick >= kk[i].tick && tick <= kk[i + 1].tick) { const u = (tick - kk[i].tick) / Math.max(1e-6, kk[i + 1].tick - kk[i].tick); v = kk[i][p].map((x, j) => x + (kk[i + 1][p][j] - x) * u); }
       if (tick > kk[kk.length - 1].tick) v = kk[kk.length - 1][p];
       const g = m.groupsByName.get(p);
-      if (g) { g.rotation.order = 'ZYX'; g.rotation.set(rad(v[0]), rad(v[1]), rad(v[2])); }
+      if (g) { g.rotation.order = 'ZYX'; g.rotation.set(rad(-v[0]), rad(v[1]), rad(v[2])); } // 마인크래프트 규약: x가 음수면 팔이 '앞으로' 들림. three.js(앞 = -Z)에서는 부호가 반대라 뒤로 휘저었음 → x 부호 반전
     }
   }
 
