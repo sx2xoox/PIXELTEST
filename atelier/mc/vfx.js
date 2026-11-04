@@ -7,7 +7,7 @@
 //  - 아이템 모델 정의(items/*.json)의 range_dispatch 속성과 tint 소스에 "custom_model_data"가 등록되어 있음
 //    → 흑백 텍스처 1장을 서버가 colors로 원소별 색을 입히고, floats로 프레임을 고른다
 // 모든 생성기는 기본이 "틴트용 흑백"(흰색 = 최대 밝기, 틴트는 곱연산). 투명 픽셀 RGB는 이웃 색으로 채워 밉맵 번짐을 막는다.
-import { PixelCanvas } from '../pixel.js';
+import { PixelCanvas, bayer } from '../pixel.js';
 import { rng } from '../geom.js';
 import { hexToRgb, rgbToHex } from '../color.js';
 
@@ -331,5 +331,145 @@ export function bloodVortex({ size = 64, frames = 8, arms = 3, seed = 2 } = {}) 
     }));
   }
   void seed;
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// v2 연출용: 컬러 램프 스프라이트(흰빛 심 하이라이트), 디더 소멸, 결정 가시 다발, 핏빛 달, 웅덩이, 섬광
+// (흑백 + tint는 곱연산이라 흰 하이라이트를 못 낸다 → 연출 핵심 스프라이트는 피 램프로 직접 칠한다)
+// ---------------------------------------------------------------------------
+export const BLOOD_FX = ['#3a0a12', '#7a1220', '#c41e2c', '#ff4b4f', '#ffd6cc'];
+
+/** 디더 소멸: 프레임 하나를 n단계에 걸쳐 Bayer 순서로 지워 간다(끝이 뚝 끊기지 않게) */
+export function dissolve(frame, n = 4) {
+  const out = [];
+  for (let k = 1; k <= n; k++) {
+    const c = frame.clone(), th = k / (n + 1);
+    c.each((x, y) => { const b = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5][(y & 3) * 4 + (x & 3)] / 16; if (b < th) c.set(x, y, null); });
+    out.push(c);
+  }
+  return out;
+}
+
+/** 핏방울(위가 뾰족, 왼쪽 위 하이라이트) */
+export function bloodDrop(size = 8) {
+  return fieldToCanvas(size, (x, y) => {
+    const cx = size / 2, t = y / size;
+    const half = t < 0.45 ? (t / 0.45) * size * 0.22 : Math.sqrt(Math.max(0, 1 - ((t - 0.68) / 0.32) ** 2)) * size * 0.34;
+    const d = Math.abs(x - cx);
+    if (d > half) return 0;
+    return 0.55 + 0.45 * (1 - d / Math.max(0.5, half)) * (x < cx ? 1 : 0.5) * (t > 0.5 && t < 0.75 ? 1 : 0.6);
+  }, { ramp: BLOOD_FX, cut: 0.1 });
+}
+
+/** 핏빛 달 v2: 개기월식처럼 검붉은 원판 + 왼쪽 위 가장자리만 빛나는 테 + 은은한 무늬 + 부드러운 코로나(디더). frames는 코로나 일렁임 */
+export function bloodMoon({ size = 64, frames = 4, seed = 3 } = {}) {
+  const R = rng(seed);
+  const maria = Array.from({ length: 5 }, () => [(R() - 0.5) * 0.7, (R() - 0.5) * 0.7, 0.12 + R() * 0.14]);
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const c = new PixelCanvas(size);
+    for (let y = 0; y < size; y++)
+      for (let x = 0; x < size; x++) {
+        const nx = (x + 0.5 - size / 2) / (size / 2), ny = (y + 0.5 - size / 2) / (size / 2), r = Math.hypot(nx, ny);
+        if (r < 0.74) {
+          const limb = (-nx * 0.7 - ny * 0.7) / Math.max(0.01, r);               // 왼쪽 위 방향 성분
+          const edge = r / 0.74;
+          let v = 1.4 + (edge > 0.82 && limb > 0.2 ? 2 : edge > 0.88 ? 1 : 0) + (limb > 0.4 && edge > 0.6 ? 0.6 : 0);
+          if (maria.some(([mx, my, mr]) => Math.hypot(nx - mx, ny - my) < mr)) v -= 0.8;
+          v += (bayer(x, y) - 0.5) * 0.5;
+          c.set(x, y, BLOOD_FX[Math.max(0, Math.min(4, Math.floor(v)))]);
+        } else if (r < 0.98) {
+          const t = (r - 0.74) / 0.24, wob = 0.85 + 0.15 * Math.sin(Math.atan2(ny, nx) * 5 + k * 1.5);
+          if (bayer(x + k, y) < (1 - t) * 0.75 * wob) c.set(x, y, t < 0.35 ? BLOOD_FX[2] : BLOOD_FX[1]);
+        }
+      }
+    out.push(bleedRGB(c));
+  }
+  return out;
+}
+
+/** 피 웅덩이: 불규칙한 가장자리로 번져 나감(frames), 가운데 어둡고 가장자리 반짝임 */
+export function bloodPool({ size = 64, frames = 6, seed = 6 } = {}) {
+  const R = rng(seed);
+  const lobes = Array.from({ length: 9 }, () => 0.62 + R() * 0.55); // v2: 더 불규칙하게
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const g = 0.25 + 0.75 * (1 - (1 - k / Math.max(1, frames - 1)) ** 2);
+    out.push(fieldToCanvas(size, (x, y) => {
+      const nx = (x - size / 2) / (size / 2), ny = (y - size / 2) / (size / 2);
+      const a = Math.atan2(ny, nx), i = ((a / (2 * Math.PI)) * 9 + 9) % 9;
+      const lob = lobes[Math.floor(i)] * (1 - (i % 1)) + lobes[(Math.floor(i) + 1) % 9] * (i % 1);
+      const r = Math.hypot(nx, ny) / (0.92 * g * lob);
+      if (r > 1) return 0;
+      // v2: 가운데 밝은 점(달걀처럼 보임) 제거 — 안쪽은 고른 어두운 피, 반사광은 왼쪽 위 가장자리에만
+      const sheen = r > 0.84 && nx + ny < -0.3 ? 0.75 : r > 0.9 ? 0.5 : 0.36;
+      return sheen;
+    }, { ramp: BLOOD_FX, cut: 0.1 }));
+  }
+  return out;
+}
+
+/** 초승달 칼날(정지 스프라이트, 회전 키로 돌린다): 앞쪽 머리가 흰빛 심, 꼬리로 갈수록 가늘고 어둡게 + 디더 잔상 */
+export function crescentBlade({ size = 64, span = 160, width = 0.16, ramp = BLOOD_FX } = {}) {
+  const cx = size / 2, cy = size / 2, R = size * 0.4;
+  return fieldToCanvas(size, (x, y) => {
+    const a = ((Math.atan2(y - cy, x - cx) * 180) / Math.PI + 360) % 360;   // 0..360, 머리 = 0°
+    if (a > span) return 0;
+    const u = 1 - a / span;                                                   // 1 머리 → 0 꼬리
+    const w = size * width * (0.15 + 0.85 * u ** 0.8);
+    const off = Math.hypot(x - cx, y - cy) - R;
+    if (off < -w * 0.4 || off > w * 0.6) return 0;
+    const core = 1 - Math.abs(off) / w;
+    const v = core * (0.3 + 0.7 * u);
+    return u < 0.35 && bayer(Math.floor(x), Math.floor(y)) > u * 2.4 ? 0 : v * 1.35;  // 꼬리 디더 잔상
+  }, { ramp, cut: 0.1 });
+}
+
+/** 결정 가시 다발: 가운데 큰 가시 + 양옆 기울어진 작은 가시. 깎인 면(왼쪽 밝음/오른쪽 어둠) + 능선 하이라이트 + 깨진 끝 */
+export function spikeCluster({ w = 32, h = 48, frames = 8 } = {}) {
+  const spikes = [[0.5, 1.0, 0.21, 0], [0.25, 0.6, 0.15, -0.26], [0.76, 0.68, 0.15, 0.24]];   // [x, 높이, 반폭, 기울기] v2: 바늘처럼 가늘어 두껍게
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const p = k / Math.max(1, frames - 1);
+    const rise = p < 0.3 ? smooth(0, 1, p / 0.3) : p < 0.75 ? 1 : 1 - smooth(0, 1, (p - 0.75) / 0.25);
+    const c = new PixelCanvas(w, h);
+    for (const [sx, sh, hw, lean] of spikes) {
+      const H = sh * rise * (h - 2);
+      for (let y = 0; y < h; y++) {
+        const fromBase = h - 1 - y;
+        if (fromBase > H) continue;
+        const t = fromBase / Math.max(1, H);                 // 0 바닥 → 1 끝
+        const cxp = w * sx + lean * fromBase;
+        const half = w * hw * (1 - t) ** 0.9 + 0.3;
+        for (let x = 0; x < w; x++) {
+          const d = x + 0.5 - cxp;
+          if (Math.abs(d) > half) continue;
+          // v2: 흰 능선이 끝까지 그어져 유리 바늘처럼 보임 → 능선은 위 40%만 밝게, 흰빛은 끝 몇 픽셀만
+          const ridge = Math.abs(d) < 0.7 && t > 0.6;
+          const col = ridge ? (t > 0.88 ? BLOOD_FX[4] : BLOOD_FX[3]) : d < 0 ? (t > 0.7 ? BLOOD_FX[3] : BLOOD_FX[2]) : (t > 0.7 ? BLOOD_FX[2] : BLOOD_FX[1]);
+          c.set(x, y, Math.abs(d) > half - 0.8 ? BLOOD_FX[0] : col);
+        }
+      }
+    }
+    // 바닥 튐
+    if (rise > 0.3) for (let x = 2; x < w - 2; x++) if ((x * 7) % 5 < 2) c.set(x, h - 1, BLOOD_FX[1]);
+    out.push(bleedRGB(c));
+  }
+  return out;
+}
+
+/** 섬광: 가운데 흰빛 + 8방향 광선, 빠르게 수축 */
+export function flashBurst({ size = 32, frames = 3 } = {}) {
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const p = k / Math.max(1, frames - 1), L = size * (0.5 - 0.25 * p);
+    out.push(fieldToCanvas(size, (x, y) => {
+      const dx = x - size / 2, dy = y - size / 2, r = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
+      const ray = Math.abs(Math.cos(a * 4)) ** 12 * (1 - r / L);
+      const core = 1 - r / (size * (0.18 - 0.08 * p));
+      return Math.max(ray, core) * (1 - 0.3 * p) * 1.3;
+    }, { ramp: BLOOD_FX, cut: 0.15 }));
+  }
   return out;
 }
