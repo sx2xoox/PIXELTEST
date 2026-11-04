@@ -1,0 +1,32 @@
+{
+  "width": 1024, "height": 1024,
+  "palette": { "seed": "#3b5bdb", "harmony": "complementary" },
+  "tokens": { "warm": "#ffb347", "ember": "#ff7a1a" },
+  "background": "#ffffff",
+  "critic": { "safeMargin": 0.02 },
+  "children": [
+    { "type": "group",
+      "clip": { "type": "squircle", "x": 64, "y": 64, "w": 896, "h": 896, "n": 5 },
+      "children": [
+        { "type": "rect", "x": 0, "y": 0, "w": 1024, "h": 1024,
+          "fill": { "linear": { "angle": 90, "stops": [[0, "$primary.950"], [0.55, "$primary.700"], [0.8, "$primary.400"]] } } },
+        { "type": "scatter", "seed": 4, "count": 26, "area": { "x": 90, "y": 90, "w": 840, "h": 380 },
+          "scale": [0.5, 1.4], "opacity": [0.35, 0.95],
+          "child": { "type": "star", "cx": 0, "cy": 0, "r": 7, "inner": 0.35, "points": 4, "fill": "#ffffff" } },
+        { "type": "circle", "cx": 700, "cy": 300, "r": 105, "fill": "$secondary.100",
+          "shade": { "light": 300, "strength": 0.6, "spec": 0.25 },
+          "effects": [{ "type": "glow", "blur": 60, "color": "$secondary.200", "opacity": 0.45 }] },
+        { "type": "ridge", "w": 1024, "y": 560, "bottom": 1024, "amp": 90, "freq": 1.1, "seed": 5, "fill": "$primary.500", "opacity": 0.9 },
+        { "type": "ridge", "w": 1024, "y": 650, "bottom": 1024, "amp": 60, "freq": 1.6, "seed": 2, "fill": "$primary.700" },
+        { "type": "ridge", "w": 1024, "y": 790, "bottom": 1024, "amp": 18, "freq": 1.0, "seed": 9, "fill": "$primary.950" },
+        { "type": "ellipse", "cx": 470, "cy": 800, "rx": 300, "ry": 70, "fill": { "radial": { "stops": [[0, "$warm", 0.55], [1, "$warm", 0]] } }, "blend": "screen" },
+        { "type": "path", "d": "M470,470 L660,800 L280,800 Z", "fill": "$warm",
+          "shade": { "light": 210, "strength": 0.9, "spec": 0, "shadow": "#5a2a00" },
+          "effects": [{ "type": "glow", "blur": 40, "color": "$ember", "opacity": 0.45 }] },
+        { "type": "path", "d": "M470,470 L520,800 L420,800 Z", "fill": "#fff3c4",
+          "effects": [{ "type": "glow", "blur": 18, "color": "#ffe08a", "opacity": 0.9 }] },
+        { "type": "brush", "points": [[470, 470], [470, 430]], "width": 10, "taper": 0.3, "fill": "$primary.950" }
+      ]
+    }
+  ]
+}

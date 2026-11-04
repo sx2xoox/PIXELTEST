@@ -1,0 +1,9 @@
+{
+  "name": "atelier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Claude가 스스로 디자인하는 로컬 엔진: 디자인 DSL → 렌더 → 비평 → 반복",
+  "bin": { "atelier": "atelier/cli.js" },
+  "scripts": { "setup": "bash scripts/setup.sh" }
+}
