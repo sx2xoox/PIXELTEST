@@ -1,0 +1,26 @@
+===== baseline
+weapon/blood_scythe {'cubes': 36, 'me_rot_violations': 14, 'tex': ['128x64'], 'colors': 38, 'hitbox': False, 'anims': [], 'height': 51.0, 'fmt': 'free'}
+pet/pet {'cubes': 36, 'me_rot_violations': 8, 'tex': ['128x32'], 'colors': 37, 'hitbox': False, 'anims': ['idle', 'walk', 'attack'], 'height': 13.8, 'fmt': 'free'}
+boss/boss {'cubes': 99, 'me_rot_violations': 25, 'tex': ['512x128'], 'colors': 56, 'hitbox': False, 'anims': ['idle', 'walk', 'attack'], 'height': 87.4, 'fmt': 'free'}
+armor/humanoid 64x32 colors 12
+armor/humanoid_leggings 64x32 colors 10
+armor/icons/helmet 16x16 colors 10
+armor/icons/chestplate 16x16 colors 10
+armor/icons/leggings 16x16 colors 8
+armor/icons/boots 16x16 colors 10
+weapon/blood_scythe 16x16 colors 15
+basic_attack ticks 46 tracks 9 frame refs 50 tinted tracks 0 player keys 9
+skill ticks 58 tracks 12 frame refs 100 tinted tracks 0 player keys 9
+===== atelier
+weapon/blood_scythe {'cubes': 16, 'me_rot_violations': 0, 'tex': ['64x64'], 'colors': 12, 'hitbox': False, 'anims': [], 'height': 49, 'fmt': 'free'}
+pet/pet {'cubes': 10, 'me_rot_violations': 0, 'tex': ['32x32'], 'colors': 9, 'hitbox': False, 'anims': ['idle', 'walk'], 'height': 10, 'fmt': 'free'}
+boss/boss {'cubes': 40, 'me_rot_violations': 0, 'tex': ['256x128'], 'colors': 14, 'hitbox': True, 'anims': ['idle', 'walk', 'attack'], 'height': 74, 'fmt': 'free'}
+armor/humanoid 64x32 colors 11
+armor/humanoid_leggings 64x32 colors 9
+armor/icons/helmet 16x16 colors 7
+armor/icons/chestplate 16x16 colors 7
+armor/icons/leggings 16x16 colors 7
+armor/icons/boots 16x16 colors 6
+weapon/blood_scythe 16x16 colors 9
+basic_attack ticks 46 tracks 11 frame refs 67 tinted tracks 11 player keys 8
+skill ticks 56 tracks 13 frame refs 82 tinted tracks 13 player keys 7
