@@ -1,0 +1,547 @@
+{
+  "name": "기본 공격 3연타 — 1타 수평 베기 · 2타 역사선 올려베기 · 3타 내려찍기(충격파+혈창)",
+  "duration_ticks": 46,
+  "tracks": [
+    {
+      "id": "hit1_slash",
+      "frames": [
+        "hit1_0.png",
+        "hit1_1.png",
+        "hit1_2.png",
+        "hit1_3.png",
+        "hit1_4.png",
+        "hit1_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 2,
+      "end_tick": 8,
+      "size": [
+        3.4,
+        3.4
+      ],
+      "tint": "#c41e2c",
+      "keys": [
+        {
+          "tick": 2,
+          "translation": [
+            0,
+            1.25,
+            -0.9
+          ],
+          "rotation": [
+            -38,
+            0,
+            0
+          ],
+          "scale": [
+            1.1,
+            1.1,
+            1
+          ]
+        },
+        {
+          "tick": 8,
+          "scale": [
+            1.3,
+            1.3,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit1_splat",
+      "frames": [
+        "splat_0.png",
+        "splat_1.png",
+        "splat_2.png",
+        "splat_3.png",
+        "splat_4.png",
+        "splat_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 5,
+      "end_tick": 10,
+      "size": [
+        1.3,
+        1.3
+      ],
+      "billboard": "center",
+      "tint": "#a8162a",
+      "keys": [
+        {
+          "tick": 5,
+          "translation": [
+            -0.4,
+            1.35,
+            -1.9
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit2_slash",
+      "frames": [
+        "hit2_0.png",
+        "hit2_1.png",
+        "hit2_2.png",
+        "hit2_3.png",
+        "hit2_4.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 11,
+      "end_tick": 16,
+      "size": [
+        3.2,
+        3.2
+      ],
+      "tint": "#ff4a52",
+      "keys": [
+        {
+          "tick": 11,
+          "translation": [
+            0.1,
+            1.4,
+            -1.3
+          ],
+          "rotation": [
+            0,
+            0,
+            -35
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "tick": 16,
+          "rotation": [
+            0,
+            0,
+            -45
+          ],
+          "scale": [
+            1.1,
+            1.1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit2_splat",
+      "frames": [
+        "splat_0.png",
+        "splat_1.png",
+        "splat_2.png",
+        "splat_3.png",
+        "splat_4.png",
+        "splat_5.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 13,
+      "end_tick": 18,
+      "size": [
+        1.1,
+        1.1
+      ],
+      "billboard": "center",
+      "tint": "#d22b38",
+      "keys": [
+        {
+          "tick": 13,
+          "translation": [
+            0.5,
+            1.8,
+            -1.9
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_slash",
+      "frames": [
+        "hit3_0.png",
+        "hit3_1.png",
+        "hit3_2.png",
+        "hit3_3.png",
+        "hit3_4.png",
+        "hit3_5.png",
+        "hit3_6.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 22,
+      "end_tick": 29,
+      "size": [
+        4.6,
+        4.6
+      ],
+      "tint": "#8c1626",
+      "keys": [
+        {
+          "tick": 22,
+          "translation": [
+            0,
+            1.6,
+            -1.4
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_core",
+      "frames": [
+        "hit3_0.png",
+        "hit3_1.png",
+        "hit3_2.png",
+        "hit3_3.png",
+        "hit3_4.png",
+        "hit3_5.png",
+        "hit3_6.png"
+      ],
+      "ticks_per_frame": 1,
+      "start_tick": 22,
+      "end_tick": 29,
+      "size": [
+        4.2,
+        4.2
+      ],
+      "tint": "#ff8a7a",
+      "keys": [
+        {
+          "tick": 22,
+          "translation": [
+            0.02,
+            1.6,
+            -1.4
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "scale": [
+            0.92,
+            0.92,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_ring",
+      "frames": [
+        "ring_0.png",
+        "ring_1.png",
+        "ring_2.png",
+        "ring_3.png",
+        "ring_4.png",
+        "ring_5.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 27,
+      "end_tick": 38,
+      "size": [
+        4,
+        4
+      ],
+      "tint": "#b0202e",
+      "keys": [
+        {
+          "tick": 27,
+          "translation": [
+            0,
+            0.06,
+            -2.6
+          ],
+          "rotation": [
+            -90,
+            0,
+            0
+          ],
+          "scale": [
+            0.5,
+            0.5,
+            1
+          ]
+        },
+        {
+          "tick": 38,
+          "scale": [
+            1.5,
+            1.5,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_spike0",
+      "frames": [
+        "spike_0.png",
+        "spike_1.png",
+        "spike_2.png",
+        "spike_3.png",
+        "spike_4.png",
+        "spike_5.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 27,
+      "end_tick": 38,
+      "size": [
+        0.9,
+        1.8
+      ],
+      "billboard": "vertical",
+      "tint": "#a8162a",
+      "keys": [
+        {
+          "tick": 27,
+          "translation": [
+            -0.9,
+            0.9,
+            -2.5
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_spike1",
+      "frames": [
+        "spike_0.png",
+        "spike_1.png",
+        "spike_2.png",
+        "spike_3.png",
+        "spike_4.png",
+        "spike_5.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 28,
+      "end_tick": 39,
+      "size": [
+        0.9,
+        1.8
+      ],
+      "billboard": "vertical",
+      "tint": "#a8162a",
+      "keys": [
+        {
+          "tick": 28,
+          "translation": [
+            0,
+            0.9,
+            -3.3
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_spike2",
+      "frames": [
+        "spike_0.png",
+        "spike_1.png",
+        "spike_2.png",
+        "spike_3.png",
+        "spike_4.png",
+        "spike_5.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 29,
+      "end_tick": 40,
+      "size": [
+        0.9,
+        1.8
+      ],
+      "billboard": "vertical",
+      "tint": "#a8162a",
+      "keys": [
+        {
+          "tick": 29,
+          "translation": [
+            0.9,
+            0.9,
+            -2.5
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit3_splat",
+      "frames": [
+        "splat_0.png",
+        "splat_1.png",
+        "splat_2.png",
+        "splat_3.png",
+        "splat_4.png",
+        "splat_5.png"
+      ],
+      "ticks_per_frame": 2,
+      "start_tick": 27,
+      "end_tick": 38,
+      "size": [
+        2.4,
+        2.4
+      ],
+      "billboard": "center",
+      "tint": "#8c1626",
+      "keys": [
+        {
+          "tick": 27,
+          "translation": [
+            0,
+            0.9,
+            -2.6
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "player": [
+    {
+      "tick": 0,
+      "arm_r": [
+        -70,
+        70,
+        0
+      ],
+      "body": [
+        0,
+        -35,
+        0
+      ]
+    },
+    {
+      "tick": 5,
+      "arm_r": [
+        -80,
+        -60,
+        0
+      ],
+      "body": [
+        0,
+        35,
+        0
+      ]
+    },
+    {
+      "tick": 10,
+      "arm_r": [
+        -20,
+        -40,
+        0
+      ],
+      "body": [
+        0,
+        20,
+        0
+      ]
+    },
+    {
+      "tick": 14,
+      "arm_r": [
+        -165,
+        40,
+        0
+      ],
+      "body": [
+        0,
+        -25,
+        0
+      ]
+    },
+    {
+      "tick": 21,
+      "arm_r": [
+        -175,
+        0,
+        0
+      ],
+      "body": [
+        -12,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 26,
+      "arm_r": [
+        -35,
+        0,
+        0
+      ],
+      "body": [
+        22,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 36,
+      "arm_r": [
+        -30,
+        0,
+        0
+      ],
+      "body": [
+        12,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 44,
+      "arm_r": [
+        0,
+        0,
+        0
+      ],
+      "body": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

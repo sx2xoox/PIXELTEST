@@ -270,3 +270,68 @@ export function toBlockstate(m) {
   if (bs.variants) return { variants: Object.fromEntries(Object.entries(bs.variants).map(([k, v]) => [k, fix(v)])) };
   return { multipart: bs.multipart.map(p => ({ ...(p.when ? { when: p.when } : {}), apply: fix(p.apply) })) };
 }
+
+// ---------------------------------------------------------------------------
+// ModelEngine(R4) 호환: Generic(free) 형식 + 규칙 린트
+// 규칙 출처: ModelEngine 위키(Creating-a-Model, Bone-Behaviors, Animating-a-Model) — docs/research/mc-rpg-effects.md 2.3
+// ---------------------------------------------------------------------------
+export function toModelEngine(m) {
+  const bb = toBBModel(m);
+  bb.meta.model_format = 'free';
+  bb.model_identifier = '';
+  return bb;
+}
+
+export function lintModelEngine(m) {
+  const issues = [];
+  const add = (severity, msg, fix = '') => issues.push({ severity, code: 'me', msg, fix });
+  for (const c of m.cubes) {
+    const nz = c.rot.angles.filter(Boolean);
+    if (nz.length > 1) add('error', `ME: ${c.name} 큐브가 두 축 이상 회전`, '큐브 회전은 한 축만. 여러 축은 본(bone) 회전으로 처리하세요.');
+    if (nz.some(a => ![22.5, 45].includes(Math.abs(a)))) add('error', `ME: ${c.name} 큐브 회전 ${nz}° (0/±22.5/±45만)`, '큐브를 본으로 감싸고 본을 회전시키세요.');
+  }
+  const hb = m.bones.find(b => b.name === 'hitbox');
+  if (m.type === 'entity') {
+    if (!hb) add('warn', 'ME: hitbox 본 없음 → 기본 히트박스 사용', '큐브 1개짜리 hitbox 본(X=Z)을 두세요. 피벗 Y = 눈높이.');
+    else {
+      const hc = m.cubes.filter(c => c.bone === 'hitbox');
+      if (hc.length !== 1) add('error', `ME: hitbox 본 큐브 ${hc.length}개(1개여야 함)`);
+      else if (Math.abs(hc[0].size[0] - hc[0].size[2]) > 1e-6) add('info', 'ME: hitbox는 X=Z로 읽힘(넓은 쪽 기준)', '');
+      for (const a of Object.values(m.animations)) if (a.bones.hitbox) add('error', 'ME: hitbox 본은 애니메이션 불가(로드 시 제거)');
+    }
+    for (const [n, a] of Object.entries(m.animations)) if (a.interpolation && !['linear', 'catmullrom', 'step'].includes(a.interpolation)) add('warn', `ME: ${n} 보간 ${a.interpolation} → linear로 처리됨`);
+  }
+  return issues;
+}
+
+/**
+ * 3D 손무기 → Java 아이템 모델. 요소를 -16~32 범위로 옮기고, 바닐라 handheld 표시값(26.3 jar의 models/item/handheld.json)을
+ * 기준으로 크기만 맞춘다. grip: 모델 좌표의 쥐는 점(기본 원점).
+ */
+export function toJavaItemModel(m, { grip = [0, 0, 0], scale = 1 } = {}) {
+  const ns = m.spec.namespace ?? 'atelier', name = m.spec.name;
+  const off = [8 - grip[0], 8 - grip[1], 8 - grip[2]]; // 쥐는 점을 블록 중심(8,8,8)으로
+  const k = 16 / m.atlasW, kv = 16 / m.atlasH;
+  const issues = [];
+  const elements = m.cubes.map(c => {
+    const from = c.from.map((v, i) => num(v + off[i])), to = c.to.map((v, i) => num(v + off[i]));
+    if ([...from, ...to].some(v => v < -16 || v > 32)) issues.push({ severity: 'error', msg: `${c.name}: 아이템 모델 범위(-16~32) 밖`, fix: '모델을 줄이고 display scale을 키우세요.' });
+    const el = { name: c.name, from, to, faces: {} };
+    const ai = c.rot.angles.findIndex(Boolean);
+    if (ai >= 0) el.rotation = { angle: c.rot.angles[ai], axis: 'xyz'[ai], origin: c.rot.origin.map((v, i) => num(v + off[i])) };
+    for (const f of FACES) { const r = c.faceRects[f]; if (r) el.faces[f] = { uv: [r.uv[0] * k, r.uv[1] * kv, r.uv[2] * k, r.uv[3] * kv].map(num), texture: '#0' }; }
+    if (c.light) el.light_emission = c.light;
+    return el;
+  });
+  const s = v => v.map(x => num(x * scale));
+  const display = {
+    thirdperson_righthand: { rotation: [0, -90, 55], translation: [0, 4, 0.5], scale: s([0.85, 0.85, 0.85]) },
+    thirdperson_lefthand: { rotation: [0, 90, -55], translation: [0, 4, 0.5], scale: s([0.85, 0.85, 0.85]) },
+    firstperson_righthand: { rotation: [0, -90, 25], translation: [1.13, 3.2, 1.13], scale: s([0.68, 0.68, 0.68]) },
+    firstperson_lefthand: { rotation: [0, 90, -25], translation: [1.13, 3.2, 1.13], scale: s([0.68, 0.68, 0.68]) },
+    gui: { rotation: [0, 0, -45], translation: [0, 0, 0], scale: s([0.5, 0.5, 0.5]) },
+    ground: { rotation: [0, 0, 0], translation: [0, 2, 0], scale: s([0.4, 0.4, 0.4]) },
+    fixed: { rotation: [0, 90, 0], scale: s([0.6, 0.6, 0.6]) },
+  };
+  return { model: { credit: 'Made with Atelier', texture_size: [m.atlasW, m.atlasH], textures: { 0: `${ns}:item/${name}`, particle: `${ns}:item/${name}` }, elements, display }, issues };
+}

@@ -232,3 +232,104 @@ export function critiqueFrames(name, frames, { use = 'item' } = {}) {
   if (use === 'particle' && w > 32) add('info', `${name}: 파티클 ${w}px — 바닐라는 8~32px`, '화면 크기는 텍스처가 아니라 파티클 코드가 정한다.');
   return issues;
 }
+
+// ---------------------------------------------------------------------------
+// 피(액체) 계열 이펙트
+// ---------------------------------------------------------------------------
+/** 피 베기: slashArc + 바깥 가장자리 톱니(찢김) + 꼬리에서 떨어지는 방울. 방향(sweep 부호)으로 1·2타를 구분한다 */
+export function bloodSlash({ size = 32, frames = 6, start = -150, sweep = 200, radius = 0.4, width = 0.17, seed = 1, drops = 6 } = {}) {
+  const R = rng(seed);
+  const jag = Array.from({ length: 24 }, () => 0.75 + R() * 0.5);
+  const dr = Array.from({ length: drops }, () => [R(), 0.6 + R() * 0.8]);
+  const out = [];
+  const cx = size / 2, cy = size / 2, Rr = size * radius;
+  const dir = Math.sign(sweep) || 1, sw = Math.abs(sweep);
+  for (let k = 0; k < frames; k++) {
+    const p = frames === 1 ? 0.6 : k / (frames - 1);
+    const headU = Math.min(1, 0.2 + p * 1.15), tailU = Math.max(0, (p - 0.4) * 1.7), fade = 1 - smooth(0.72, 1, p);
+    const c = fieldToCanvas(size, (x, y) => {
+      const dx = x - cx, dy = y - cy, r = Math.hypot(dx, dy);
+      let a = (Math.atan2(dy, dx) * 180) / Math.PI;
+      const rel = (((a - start) * dir) % 360 + 360) % 360;   // 시작각부터 진행 방향으로 잰 각도
+      const u = rel / sw;
+      if (u < tailU || u > headU) return 0;
+      const lu = (u - tailU) / Math.max(1e-3, headU - tailU);
+      const w = size * width * (0.2 + 0.8 * lu ** 0.6) * jag[Math.floor(u * 23)];
+      const off = r - Rr;
+      if (off < -w * 0.3 || off > w) return 0;
+      return Math.max(0, 1 - Math.abs(off - w * 0.08) / w) * (0.4 + 0.6 * lu) * fade * 1.3;
+    });
+    // 꼬리 쪽에서 아래로 떨어지는 방울(중력)
+    if (p > 0.3) for (const [ru, sp] of dr) {
+      const ang = ((start + dir * sw * Math.max(tailU, ru * headU)) * Math.PI) / 180;
+      const x = Math.round(cx + Math.cos(ang) * Rr), y = Math.round(cy + Math.sin(ang) * Rr + (p - 0.3) * size * 0.35 * sp);
+      if (y < size && p < 0.98) { c.set(x, y, GRAY[3]); if (sp > 1) c.set(x, y - 1, GRAY[2]); }
+    }
+    out.push(bleedRGB(c));
+  }
+  return out;
+}
+
+/** 핏방울 비산: 중심에서 방사형으로 튀고 아래로 떨어지며 작아진다 */
+export function bloodSplatter({ size = 32, frames = 6, count = 14, seed = 4 } = {}) {
+  const R = rng(seed);
+  const ps = Array.from({ length: count }, () => { const a = R() * Math.PI * 2; return { a, v: 0.25 + R() * 0.5, s: 1 + Math.floor(R() * 3) }; });
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const p = k / Math.max(1, frames - 1);
+    const c = new PixelCanvas(size);
+    // 중심 폭발(초반)
+    if (p < 0.45) { const rr = size * (0.1 + p * 0.35); for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) { const d = Math.hypot(x + 0.5 - size / 2, y + 0.5 - size / 2); if (d < rr) c.set(x, y, GRAY[d < rr * 0.5 ? 4 : 3 - Math.floor(p * 4)] ?? GRAY[1]); } }
+    for (const q of ps) {
+      const d = q.v * size * 0.5 * (1 - (1 - p) ** 2);
+      const x = Math.round(size / 2 + Math.cos(q.a) * d), y = Math.round(size / 2 + Math.sin(q.a) * d + p * p * size * 0.25);
+      const s = Math.max(1, Math.round(q.s * (1 - p * 0.7)));
+      if (p < 0.97) c.rect(x, y, s, s, GRAY[s > 1 ? 4 : 3]);
+    }
+    out.push(bleedRGB(c));
+  }
+  return out;
+}
+
+/** 혈창: 바닥에서 솟아오르는 뾰족한 가시(세로 스프라이트). 솟음 → 정지 → 가라앉음 */
+export function bloodSpike({ w = 16, h = 32, frames = 6 } = {}) {
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const p = k / Math.max(1, frames - 1);
+    const rise = p < 0.35 ? p / 0.35 : p < 0.7 ? 1 : 1 - (p - 0.7) / 0.3;
+    const top = h - Math.round(h * 0.95 * rise);
+    out.push((() => {
+      const c = new PixelCanvas(w, h);
+      for (let y = top; y < h; y++) {
+        const t = (y - top) / Math.max(1, h - top);          // 0 끝 → 1 바닥
+        const half = (w / 2) * (0.12 + 0.88 * t ** 0.9);
+        for (let x = 0; x < w; x++) {
+          const d = Math.abs(x + 0.5 - w / 2);
+          if (d > half) continue;
+          const edge = d / half;
+          const v = edge > 0.75 ? 1 : t < 0.15 ? 4 : x + 0.5 < w / 2 ? 3 : 2;  // 왼쪽(빛)이 밝고 가장자리 어둡게
+          c.set(x, y, GRAY[v]);
+        }
+      }
+      return bleedRGB(c);
+    })());
+  }
+  return out;
+}
+
+/** 피의 소용돌이(반복): 나선 팔 n개가 회전. 회전량이 팔 간격과 같아 끊김 없이 반복된다 */
+export function bloodVortex({ size = 64, frames = 8, arms = 3, seed = 2 } = {}) {
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const rot = (k / frames) * (2 * Math.PI / arms);
+    out.push(fieldToCanvas(size, (x, y) => {
+      const dx = x - size / 2, dy = y - size / 2, r = Math.hypot(dx, dy) / (size / 2);
+      if (r > 1) return 0;
+      const a = Math.atan2(dy, dx) - rot + r * 4.2;
+      const arm = Math.cos(a * arms) * 0.5 + 0.5;
+      return arm ** 3 * (1 - r ** 2) * 1.6 + (r < 0.15 ? 0.9 : 0);
+    }));
+  }
+  void seed;
+  return out;
+}

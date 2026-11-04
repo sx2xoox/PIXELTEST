@@ -192,13 +192,20 @@ export function compileModel(spec) {
     if (!bones.length) add('error', 'no-bones', '엔티티에 bone이 없음', '최소 root/body/head bone을 두세요(애니메이션 피벗).');
     for (const c of cubes) if (!bones.find(b => b.name === c.bone)) add('error', 'bone-missing', `${c.name}의 bone "${c.bone}"이 정의되지 않음`, 'bones에 추가하세요.');
     for (const b of bones) if (b.parent && !bones.find(p => p.name === b.parent)) add('error', 'parent-missing', `${b.name}의 parent "${b.parent}" 없음`, '');
-    // 대칭 검사: _l/_r, left/right 쌍
+    // 대칭 검사: 이름의 _r/_l(또는 _right/_left)만 바꾼 정확한 짝끼리 피벗 x 부호 비교
+    const swap = n => n.replace(/(^|_)(r|l|right|left)(?=_|$)/, (m, a, s) => a + ({ r: 'l', l: 'r', right: 'left', left: 'right' })[s]);
     for (const b of bones) {
-      const m = b.name.match(/(.*?)(_l|_left|Left|_r|_right|Right)$/);
-      if (!m) continue;
-      const twin = bones.find(o => o !== b && o.name.startsWith(m[1]) && o.name !== b.name);
+      const twinName = swap(b.name);
+      if (twinName === b.name || b.name > twinName) continue;
+      const twin = bones.find(o => o.name === twinName);
       if (twin && Math.abs(b.pivot[0] + twin.pivot[0]) > 1e-6) add('warn', 'asym', `${b.name}/${twin.name} 피벗이 좌우 대칭이 아님`, 'x 좌표 부호만 반대로 맞추세요.');
     }
+  }
+  // 색 절제(바닐라 실측: 아이템 7~13색, 갑옷 64×32 9~10색, 워든 128² 18색 · 래비저 24색 · 위더 18색)
+  if (!spec.texture) {
+    const nColors = atlas.colors().size;
+    const limit = spec.colorBudget ?? (type === 'block' ? 24 : 32);
+    if (nColors > limit) add('warn', 'palette', `텍스처 색 ${nColors}개(예산 ${limit}) → 바닐라 대비 산만`, '재질 수를 줄이고 같은 램프를 공유하세요(바닐라 보스 18~24색).');
   }
   return { spec, type, cubes, bones, atlas, atlasSize, atlasW, atlasH, density, issues, animations: spec.animations ?? {} };
 }
