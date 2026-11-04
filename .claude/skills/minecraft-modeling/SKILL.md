@@ -81,6 +81,32 @@ node atelier/cli.js mc examples/mc/mossling.mjs --out out/mc     # .bbmodel(+Jav
   - `playerSpec(skin, { armor })`로 착용 모습을 미리 본다. 미리보기 텍스처는 64×128로 합친 것이고, 실제 파일은 `extraFiles`로 따로 저장된다.
   - 장비 텍스처 경로(`textures/entity/equipment/humanoid/…`)와 정의 JSON 위치는 버전마다 다르다(1.21.2 이후 변경). 쓰기 전에 대상 버전을 확인한다.
 
+## 5.6 RPG 이펙트(VFX)
+조사 보고서는 `docs/research/mc-rpg-effects.md`, jar로 직접 확인한 사실은 `docs/research/verification.md`에 있다.
+```bash
+node atelier/cli.js vfx examples/mc/rpg_vfx.mjs --out out/vfx
+```
+```bash
+node atelier/cli.js pack examples/mc/rpg_vfx.mjs --out out/pack --name atelier_rpg
+```
+- **생성기**(`atelier/mc/vfx.js`): `slashArc` `shockRing` `hitSpark` `magicCircle` `beam`. 모두 흑백(흰색 = 최대 밝기)으로 만든다. 서버가 원소 색을 곱해서 입힌다.
+- **용도(use)별 방식:**
+  - `item`(일회성 연출): 프레임별 양면 평면 모델 + `items/vfx_<name>.json`. `range_dispatch`로 `custom_model_data.floats[0]` = 프레임 번호, `tints`로 `colors[0]` = 원소 색.
+  - `loop`(마법진, 빔 등 반복): 세로 스트립 + `.png.mcmeta`. 프레임이 정사각형이 아니면 `width`/`height`를 반드시 넣는다.
+  - `particle`: 바닐라 파티클을 재텍스처한다. 그 파티클 **전체가 바뀐다.** `generic_*`를 공유하는 25종(연기, 구름, 포탈, dust…)은 건드리지 않는다. 프레임 수와 크기는 바닐라와 같게 한다(sweep_attack은 32×32 × 8).
+- **감각:**
+  - 일회성 연출은 "커짐 → 정점 → 꼬리부터 소멸" 순서로 진행한다. 인접 프레임의 변화가 35%를 넘으면 깜빡이는 것처럼 보인다.
+  - 반복 효과는 대칭을 이용해 마지막 프레임과 첫 프레임이 이어지게 한다(마법진은 룬 한 칸 간격만큼 회전).
+  - 빛기둥처럼 흐르는 효과는 **형태를 바꾸지 말고**, 위로 흐르는 입자로만 움직임을 준다. 폭을 출렁이게 하면 꽃병처럼 보인다.
+  - 흰 하이라이트는 틴트(곱연산)를 넘을 수 없다. 더 밝은 심이 필요하면 별도 요소나 레이어로 분리한다.
+- **실서버 확인이 필요한 항목:** 파티클 프레임 선택 방식과 렌더 타입, `.mcmeta`의 전역 시계 여부, 디스플레이 반투명 정렬, `/summon` SNBT 세부 문법.
+
+## 5.7 블라인드 평가에서 배운 디테일 규칙 (`bench/RESULTS.md`)
+- **아이템:** 외곽선 색을 하나로 통일하고, 캔버스 가장자리에 1px 여백을 둔다(비평기가 검사). 실루엣 밖에 떠 있는 반짝임 픽셀은 지운다.
+- **아이템 결정·보석:** 자동 음영 램프의 가장 어두운 단계(남색)는 가장자리 노이즈가 된다. 밝은 4단만 쓴다. 넓은 결정 묶음은 도끼날처럼 보이므로 진행 방향으로 길쭉하게 만든다.
+- **블록:** 구조(줄눈)를 먼저 확정하고 끝까지 연속시킨다. 이끼나 때는 구조를 덮지 말고 어두운 톤으로 얹는다. 큰 덩어리 하나는 타일링에서 대각선 반복으로 보이므로 작은 덩어리로 분산한다.
+- **엔티티:** 2단 갓·지붕은 케이크처럼 보이므로 3단 이상 돔으로 만든다. 다리 사이를 띄워 실루엣을 분리한다. 디더 재질은 큐브 면에서 체크 노이즈가 된다. 텍스처 밀도는 부위마다 고르게 한다.
+
 ## 6. DSL 요약 (`atelier/mc/model.js`)
 ```js
 export default {

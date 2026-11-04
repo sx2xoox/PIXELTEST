@@ -5,6 +5,7 @@
 //   palette <#hex> [harmony]      [--out dir]                → 토큰 + 스와치
 //   mc      <model.mjs|json> ...  [--out dir]                → .bbmodel, Java JSON, 텍스처, 3D 미리보기 시트
 //   sprite  <sprites.mjs> ...     [--out dir]                → 16×16 픽셀 텍스처/아이템 png, 아이템 JSON, 검수 시트
+//   vfx     <vfx.mjs> ...         [--out dir]                → RPG 이펙트 프레임·스트립·틴트 시트
 //   addon   <entity 모델...>      [--out dir] [--ns atelier]  → Bedrock .mcaddon(RP+BP, 소환 가능한 몹)
 //   pack    <model/sprite 파일...> [--out dir] [--ns atelier] [--pack-format 46] → Java 리소스팩 폴더 + zip
 
@@ -19,6 +20,8 @@ import { toBBModel, toJavaBlockModel, itemModel, toBedrockGeometry, toBedrockAni
 import { modelSheet } from './mc/render3d.js';
 import { critiqueSprite, spriteSheet } from './mc/sprite.js';
 import { buildPack, buildBedrockAddon } from './mc/pack.js';
+import { critiqueFrames, strip } from './mc/vfx.js';
+import { vfxSheet } from './mc/vfxsheet.js';
 
 const args = process.argv.slice(2);
 const cmd = args.shift();
@@ -132,7 +135,7 @@ async function main() {
       console.log(`  sheet: ${outDir}/${sheetName}`);
     }
   } else if (cmd === 'pack') {
-    const blocks = [], items = [];
+    const blocks = [], items = [], vfx = {};
     for (const file of args) {
       const loaded = await loadScene(file);
       if (loaded && (loaded.cubes || loaded.parts)) {
@@ -140,12 +143,32 @@ async function main() {
         if (m.type !== 'block') { console.log(`  건너뜀: ${loaded.name}은 entity(리소스팩 블록 모델이 아님 — .bbmodel을 쓰세요)`); continue; }
         blocks.push({ name: loaded.name, models: toJavaPartModels(m), blockstate: toBlockstate(m), texture: m.atlas });
       } else for (const it of [].concat(loaded)) {
+        if (it.frames) {
+          vfx.particles ??= []; vfx.vfxItems ??= []; vfx.loops ??= [];
+          if (it.use === 'particle') vfx.particles.push({ id: it.particle, texture: it.name, frames: it.frames });
+          else if (it.use === 'loop') vfx.loops.push({ name: it.name, strip: strip(it.frames), frametime: it.frametime, frameW: it.frames[0].w, frameH: it.frames[0].h });
+          else vfx.vfxItems.push({ name: it.name, frames: it.frames });
+          continue;
+        }
         if ((it.kind ?? 'item') === 'item') items.push({ name: it.name, texture: it.canvas });
         else blocks.push({ name: it.name, model: { parent: 'minecraft:block/cube_all' }, texture: it.canvas });
       }
     }
-    const r = buildPack(outDir, { name: packName, ns, packFormat, blocks, items });
+    const r = buildPack(outDir, { name: packName, ns, packFormat, blocks, items, vfx: Object.keys(vfx).length ? vfx : null });
     console.log(`리소스팩: 블록 ${blocks.length} · 아이템 ${items.length} · 파일 ${r.count}개\n  ${r.root}/\n  ${r.zipPath}`);
+  } else if (cmd === 'vfx') {
+    for (const file of args) {
+      const list = [].concat(await loadScene(file));
+      for (const e of list) {
+        e.issues = critiqueFrames(e.name, e.frames, { use: e.use });
+        e.frames.forEach((f, i) => fs.writeFileSync(path.join(outDir, `${e.name}_${i}.png`), f.toPNG()));
+        if (e.use === 'loop') fs.writeFileSync(path.join(outDir, `${e.name}.strip.png`), strip(e.frames).toPNG());
+        console.log(`■ ${e.name} [${e.use}] ${e.frames[0].w}×${e.frames[0].h} × ${e.frames.length}`);
+        for (const i of e.issues) console.log(`  [${i.severity}] ${i.msg}`);
+      }
+      fs.writeFileSync(path.join(outDir, base(file) + '.sheet.png'), await vfxSheet(list));
+      console.log(`  sheet: ${outDir}/${base(file)}.sheet.png`);
+    }
   } else if (cmd === 'addon') {
     const entities = [];
     for (const file of args) {

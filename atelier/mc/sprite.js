@@ -32,6 +32,8 @@ export function critiqueSprite(c, { kind = 'item', tile = 'xy' } = {}) {
   if (kind === 'item') {
     if (opaque && orphan / opaque > 0.05) add('warn', 'orphans', `고립 픽셀 ${orphan}개(${((orphan / opaque) * 100).toFixed(0)}%) → 지저분함`, '1px 점은 의도한 반짝임(하이라이트)만 남기세요.');
     const bw = maxX - minX + 1, bh = maxY - minY + 1;
+    // 블라인드 평가에서 배운 규칙: 아이템이 캔버스 가장자리에 닿으면 여백 없이 꽉 차 보이고, 손에 든 모습에서 잘린 느낌
+    if (minX === 0 || minY === 0 || maxX === c.w - 1 || maxY === c.h - 1) add('info', 'edge', '실루엣이 캔버스 가장자리에 닿음', '외곽선 포함 1px 여백을 두세요(바닐라 아이템 관례).');
     if (Math.max(bw, bh) < c.w * 0.7) add('info', 'small', `실루엣 ${bw}×${bh} → 손에 들었을 때 작아 보임`, '캔버스를 75% 이상 쓰세요(대각선 배치 활용).');
     // 외곽선: 가장자리 픽셀이 내부보다 어두운가
     let edge = 0, dark = 0;

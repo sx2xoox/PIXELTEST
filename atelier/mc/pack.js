@@ -40,7 +40,7 @@ export function zip(files, when = new Date()) {
  * pack: { name, description, ns, packFormat, blocks:[{ name, model(Java JSON), texture(PixelCanvas) }], items:[{ name, texture }] }
  * packFormat 기본 46 = Java 1.21.4. 다른 버전이면 --pack-format으로 바꾼다.
  */
-export function buildPack(outDir, { name = 'atelier_pack', description = 'Made with Atelier', ns = 'atelier', packFormat = 46, blocks = [], items = [] }) {
+export function buildPack(outDir, { name = 'atelier_pack', description = 'Made with Atelier', ns = 'atelier', packFormat = 46, blocks = [], items = [], vfx = null }) {
   const files = [];
   const add = (p, data) => files.push([p, data]);
   const json = o => JSON.stringify(o, null, 2);
@@ -65,6 +65,7 @@ export function buildPack(outDir, { name = 'atelier_pack', description = 'Made w
     add(`assets/${ns}/models/item/${it.name}.json`, json({ parent: 'minecraft:item/generated', textures: { layer0: `${ns}:item/${it.name}` } }));
     add(`assets/${ns}/items/${it.name}.json`, json({ model: { type: 'minecraft:model', model: `${ns}:item/${it.name}` } }));
   }
+  if (vfx) for (const f of vfxFiles(ns, vfx)) files.push(f);
   const root = path.join(outDir, name);
   for (const [p, d] of files) {
     fs.mkdirSync(path.dirname(path.join(root, p)), { recursive: true });
@@ -157,4 +158,46 @@ export function buildBedrockAddon(outDir, { name = 'atelier_addon', ns = 'atelie
   const addonPath = path.join(outDir, name + '.mcaddon');
   fs.writeFileSync(addonPath, zip(files));
   return { root: path.join(outDir, name), addonPath, count: files.length };
+}
+
+// ---------------------------------------------------------------------------
+// VFX 리소스: 파티클 재텍스처 / 프레임 선택형 VFX 아이템(range_dispatch + tint) / 반복 애니메이션 텍스처(.mcmeta)
+// 아이템 모델 정의(items/*.json) 형식은 1.21.4+ (custom_model_data range 속성·tint 소스는 jar에서 확인)
+// ---------------------------------------------------------------------------
+const planeModel = (tex, { light = 15 } = {}) => ({
+  textures: { 0: tex, particle: tex },
+  elements: [{
+    from: [0, 0, 8], to: [16, 16, 8], light_emission: light,
+    faces: { north: { uv: [16, 0, 0, 16], texture: '#0', tintindex: 0 }, south: { uv: [0, 0, 16, 16], texture: '#0', tintindex: 0 } }, // 양면
+  }],
+  display: { fixed: { rotation: [0, 0, 0], translation: [0, 0, 0], scale: [1, 1, 1] }, head: { rotation: [0, 0, 0], scale: [1, 1, 1] } },
+});
+
+export function vfxFiles(ns, { particles = [], vfxItems = [], loops = [] }) {
+  const files = [];
+  const add = (p, d) => files.push([p, d]);
+  const json = o => JSON.stringify(o, null, 2);
+  for (const p of particles) {
+    // 바닐라 파티클 재정의: ns는 반드시 minecraft
+    p.frames.forEach((f, i) => add(`assets/minecraft/textures/particle/${p.texture ?? p.id}_${i}.png`, f.toPNG()));
+    add(`assets/minecraft/particles/${p.id}.json`, json({ textures: p.frames.map((_, i) => `minecraft:${p.texture ?? p.id}_${i}`) }));
+  }
+  for (const v of vfxItems) {
+    const entries = v.frames.map((f, i) => {
+      add(`assets/${ns}/textures/item/vfx/${v.name}_${i}.png`, f.toPNG());
+      add(`assets/${ns}/models/item/vfx/${v.name}_${i}.json`, json(planeModel(`${ns}:item/vfx/${v.name}_${i}`, v)));
+      return { threshold: i, model: { type: 'minecraft:model', model: `${ns}:item/vfx/${v.name}_${i}`, tints: [{ type: 'minecraft:custom_model_data', index: 0, default: 16777215 }] } };
+    });
+    add(`assets/${ns}/items/vfx_${v.name}.json`, json({ model: { type: 'minecraft:range_dispatch', property: 'minecraft:custom_model_data', index: 0, entries, fallback: entries[0].model } }));
+  }
+  for (const l of loops) {
+    add(`assets/${ns}/textures/item/vfx/${l.name}.png`, l.strip.toPNG());
+    // 프레임이 정사각형이 아니면 width/height를 명시해야 한다(기본은 '가로폭 = 프레임 높이'로 해석)
+    const anim = { frametime: l.frametime ?? 2, interpolate: false };
+    if (l.frameW !== l.frameH) Object.assign(anim, { width: l.frameW, height: l.frameH });
+    add(`assets/${ns}/textures/item/vfx/${l.name}.png.mcmeta`, json({ animation: anim }));
+    add(`assets/${ns}/models/item/vfx/${l.name}.json`, json(planeModel(`${ns}:item/vfx/${l.name}`, l)));
+    add(`assets/${ns}/items/vfx_${l.name}.json`, json({ model: { type: 'minecraft:model', model: `${ns}:item/vfx/${l.name}`, tints: [{ type: 'minecraft:custom_model_data', index: 0, default: 16777215 }] } }));
+  }
+  return files;
 }
