@@ -11,29 +11,36 @@ const loop = (list, n) => Array.from({ length: n }, (_, i) => list[i % list.leng
 const withFade = (F, name, frames, n = 4) => [...reg(F, name, frames), ...reg(F, name + '_fade', V.dissolve(frames[frames.length - 1].clone(), n))];
 
 export function basic_attack() {
+  // v3: 사용자 지적("2010년대 블라디미르 같음") → 단색 초승달 한 장 대신 4층 v3 베기(피안개·그라디언트 본체·흰빛 칼날선·불꽃 줄기)
+  //     + 매 타격 섬광. 1→2→3타로 크기·밝기·여운이 커진다
   const F = {};
-  const s1 = withFade(F, 'hit1', V.bloodSlash({ size: 32, frames: 6, start: -20, sweep: -200, seed: 1 }), 2);
-  const s2 = withFade(F, 'hit2', V.bloodSlash({ size: 32, frames: 5, start: 160, sweep: -190, width: 0.17, seed: 2 }), 2);
-  const s3 = withFade(F, 'hit3', V.bloodSlash({ size: 64, frames: 7, start: -100, sweep: 190, width: 0.2, seed: 3, drops: 10 }), 3);
+  const s1 = withFade(F, 'hit1', V.slashV3({ size: 64, frames: 6, start: -20, sweep: -210, seed: 1, sparks: 8 }), 2);
+  const s2 = withFade(F, 'hit2', V.slashV3({ size: 64, frames: 6, start: 160, sweep: -200, width: 0.2, seed: 2, sparks: 11 }), 2);
+  const s3 = withFade(F, 'hit3', V.slashV3({ size: 64, frames: 7, start: -100, sweep: 200, width: 0.24, seed: 3, sparks: 16 }), 3);
+  const star = reg(F, 'star', V.impactStar({ size: 32, frames: 4 }));
   const sp = withFade(F, 'splat', V.bloodSplatter({ size: 32, frames: 6, seed: 5 }), 2);
+  const crack = withFade(F, 'crack', V.groundCrack({ size: 64, frames: 6 }), 3);
   const ring = withFade(F, 'ring', V.shockRing({ size: 32, frames: 6, width: 0.16 }), 2);
   const spikes = withFade(F, 'spike', V.spikeCluster({ w: 32, h: 48, frames: 8 }), 3);
-  const pool = reg(F, 'pool', [...hold(V.bloodPool({ size: 32, frames: 4, seed: 9 }), 5)]);
-  const poolFade = reg(F, 'pool_fade', V.dissolve(V.bloodPool({ size: 32, frames: 4, seed: 9 })[3], 4));
+  const poolG = V.bloodPool({ size: 32, frames: 4, seed: 9 });
+  const pool = [...reg(F, 'pool', hold(poolG, 5)), ...reg(F, 'pool_fade', V.dissolve(poolG[3].clone(), 4))];
   const T = [
-    // 1타: 수평 베기(어두운 진홍) — 3인칭에서 보이도록 앞으로 세운 평면
-    { id: 'hit1_slash', frames: s1, ticks_per_frame: 1, start_tick: 2, end_tick: 10, size: [3.4, 3.4], tint: '#c41e2c', keys: [{ tick: 2, translation: [0, 1.25, -0.9], rotation: [-38, 0, 0], scale: [1.1, 1.1, 1] }, { tick: 8, scale: [1.3, 1.3, 1] }] },
-    { id: 'hit1_splat', frames: sp, ticks_per_frame: 1, start_tick: 5, end_tick: 13, size: [1.3, 1.3], billboard: 'center', tint: '#a8162a', keys: [{ tick: 5, translation: [-0.4, 1.35, -1.9], scale: [1, 1, 1] }] },
-    // 2타: 역사선 올려베기(밝은 진홍, v2: 연어색 제거) — 더 빠르고 크게
-    { id: 'hit2_slash', frames: s2, ticks_per_frame: 1, start_tick: 11, end_tick: 18, size: [3.6, 3.6], tint: '#e0283a', keys: [{ tick: 11, translation: [0.1, 1.4, -1.3], rotation: [0, 0, -35], scale: [1, 1, 1] }, { tick: 16, rotation: [0, 0, -45], scale: [1.15, 1.15, 1] }] },
-    { id: 'hit2_splat', frames: sp, ticks_per_frame: 1, start_tick: 13, end_tick: 21, size: [1.1, 1.1], billboard: 'center', tint: '#c41e2c', keys: [{ tick: 13, translation: [0.5, 1.8, -1.9], scale: [1, 1, 1] }] },
-    // 3타: 내려찍기 — 세로 궤적 → 착지: 충격파 + 결정 가시 다발(v2) + 피웅덩이 여운(v2)
-    { id: 'hit3_slash', frames: s3, ticks_per_frame: 1, start_tick: 22, end_tick: 32, size: [4.6, 4.6], tint: '#8c1626', keys: [{ tick: 22, translation: [0, 1.6, -1.4], rotation: [0, 90, 0], scale: [1, 1, 1] }] },
-    { id: 'hit3_core', frames: s3, ticks_per_frame: 1, start_tick: 22, end_tick: 32, size: [4.2, 4.2], tint: '#e0283a', keys: [{ tick: 22, translation: [0.02, 1.6, -1.4], rotation: [0, 90, 0], scale: [0.92, 0.92, 1] }] },
-    { id: 'hit3_pool', frames: [...pool, ...poolFade], ticks_per_frame: 2, start_tick: 27, end_tick: 52, size: [2.6, 2.6], keys: [{ tick: 27, translation: [0, 0.03, -2.6], rotation: [-90, 0, 20], scale: [1, 1, 1] }] },
-    { id: 'hit3_ring', frames: ring, ticks_per_frame: 2, start_tick: 27, end_tick: 42, size: [4, 4], tint: '#b0202e', keys: [{ tick: 27, translation: [0, 0.06, -2.6], rotation: [-90, 0, 0], scale: [0.5, 0.5, 1] }, { tick: 42, scale: [1.6, 1.6, 1] }] },
+    // 1타
+    { id: 'hit1_slash', frames: s1, ticks_per_frame: 1, start_tick: 2, end_tick: 10, size: [3.6, 3.6], keys: [{ tick: 2, translation: [0, 1.25, -0.9], rotation: [-38, 0, 0], scale: [1.05, 1.05, 1] }, { tick: 9, scale: [1.25, 1.25, 1] }] },
+    { id: 'hit1_star', frames: star, ticks_per_frame: 1, start_tick: 4, end_tick: 7, size: [1.2, 1.2], billboard: 'center', keys: [{ tick: 4, translation: [-0.5, 1.3, -1.9], scale: [1, 1, 1] }] },
+    { id: 'hit1_splat', frames: sp, ticks_per_frame: 1, start_tick: 5, end_tick: 13, size: [1.2, 1.2], billboard: 'center', keys: [{ tick: 5, translation: [-0.5, 1.3, -2], scale: [1, 1, 1] }] },
+    // 2타
+    { id: 'hit2_slash', frames: s2, ticks_per_frame: 1, start_tick: 11, end_tick: 19, size: [4, 4], keys: [{ tick: 11, translation: [0.1, 1.4, -1.3], rotation: [0, 0, -35], scale: [1, 1, 1] }, { tick: 17, rotation: [0, 0, -48], scale: [1.18, 1.18, 1] }] },
+    { id: 'hit2_star', frames: star, ticks_per_frame: 1, start_tick: 13, end_tick: 16, size: [1.5, 1.5], billboard: 'center', keys: [{ tick: 13, translation: [0.5, 1.8, -1.9], scale: [1, 1, 1] }] },
+    { id: 'hit2_splat', frames: sp, ticks_per_frame: 1, start_tick: 14, end_tick: 22, size: [1.3, 1.3], billboard: 'center', keys: [{ tick: 14, translation: [0.6, 1.8, -2], scale: [1, 1, 1] }] },
+    // 3타
+    { id: 'hit3_slash', frames: s3, ticks_per_frame: 1, start_tick: 22, end_tick: 32, size: [5, 5], keys: [{ tick: 22, translation: [0, 1.6, -1.4], rotation: [0, 90, 0], scale: [1, 1, 1] }] },
+    { id: 'hit3_star', frames: star, ticks_per_frame: 1, start_tick: 26, end_tick: 29, size: [2.6, 2.6], billboard: 'center', keys: [{ tick: 26, translation: [0, 0.6, -2.6], scale: [1, 1, 1] }] },
+    { id: 'hit3_crack', frames: crack, ticks_per_frame: 2, start_tick: 26, end_tick: 26 + crack.length * 2 - 1, size: [4.2, 4.2], keys: [{ tick: 26, translation: [0, 0.04, -2.6], rotation: [-90, 0, 0], scale: [1, 1, 1] }] },
+    { id: 'hit3_pool', frames: pool, ticks_per_frame: 2, start_tick: 28, end_tick: 28 + pool.length * 2 - 1, size: [2.4, 2.4], keys: [{ tick: 28, translation: [0, 0.03, -2.6], rotation: [-90, 0, 20], scale: [1, 1, 1] }] },
+    { id: 'hit3_ring', frames: ring, ticks_per_frame: 2, start_tick: 27, end_tick: 42, size: [4.4, 4.4], tint: '#c42a2e', keys: [{ tick: 27, translation: [0, 0.06, -2.6], rotation: [-90, 0, 0], scale: [0.5, 0.5, 1] }, { tick: 42, scale: [1.6, 1.6, 1] }] },
     { id: 'hit3_spikes', frames: spikes, ticks_per_frame: 2, start_tick: 27, end_tick: 49, size: [2.6, 3.9], billboard: 'vertical', keys: [{ tick: 27, translation: [0, 1.95, -2.7], scale: [1, 1, 1] }] },
-    { id: 'hit3_splat', frames: sp, ticks_per_frame: 2, start_tick: 27, end_tick: 43, size: [2.4, 2.4], billboard: 'center', tint: '#8c1626', keys: [{ tick: 27, translation: [0, 0.9, -2.6], scale: [1, 1, 1] }] },
+    { id: 'hit3_splat', frames: sp, ticks_per_frame: 2, start_tick: 27, end_tick: 43, size: [2.4, 2.4], billboard: 'center', keys: [{ tick: 27, translation: [0, 0.9, -2.6], scale: [1, 1, 1] }] },
   ];
   const player = [
     { tick: 0, arm_r: [-70, 70, 0], body: [0, -35, 0] },
@@ -45,7 +52,7 @@ export function basic_attack() {
     { tick: 36, arm_r: [-30, 0, 0], body: [12, 0, 0] },
     { tick: 48, arm_r: [0, 0, 0], body: [0, 0, 0] },
   ];
-  return { timeline: { name: '기본 공격 3연타 — 1타 수평 베기 · 2타 역사선 올려베기 · 3타 내려찍기(충격파 + 결정 가시 다발 + 피웅덩이)', duration_ticks: 54, tracks: T, player }, frames: F };
+  return { timeline: { name: '기본 공격 3연타 — 1타 수평 베기 · 2타 역사선 올려베기 · 3타 내려찍기(바닥 균열 + 충격파 + 결정 가시 다발 + 피웅덩이)', duration_ticks: 54, tracks: T, player }, frames: F };
 }
 
 export function skill() {
@@ -59,7 +66,8 @@ export function skill() {
   const poolG = V.bloodPool({ size: 64, frames: 6, seed: 6 });
   const poolSeq = [...reg(F, 'pool', hold(poolG, 14)), ...reg(F, 'pool_fade', V.dissolve(poolG[5].clone(), 4))];
   const flash = reg(F, 'flash', V.flashBurst({ size: 32, frames: 3 }));
-  const blade = V.crescentBlade({ size: 64, span: 170, width: 0.17 });
+  // v3: 회전베기도 4층 v3 베기로(기본 공격과 스타일 통일)
+  const blade = V.slashV3({ size: 64, frames: 1, start: 0, sweep: -300, radius: 0.36, width: 0.15, seed: 7, sparks: 14 })[0];
   const bladeDark = V.crescentBlade({ size: 64, span: 200, width: 0.22, ramp: ['#1e0509', '#3a0a12', '#5a0d1a', '#7a1220', '#8c1626'] });
   const bladeSeq = [...reg(F, 'blade', Array(8).fill(blade)), ...reg(F, 'blade_fade', V.dissolve(blade.clone(), 3))];
   const bladeDarkSeq = [...reg(F, 'bladeD', Array(8).fill(bladeDark)), ...reg(F, 'bladeD_fade', V.dissolve(bladeDark.clone(), 3))];

@@ -9,6 +9,7 @@ export const L = {
   r: BLOOD[1], R: BLOOD[3], h: BLOOD[4],                      // 피 3단
   b: BONE[0], B: BONE[1], W: BONE[2],                         // 뼈 3단
   e: '#ff3b46', E: '#ffd9cc',                                 // 발광
+  u: '#8a5a18', y: '#dcb04a', Y: '#fff4c0',                   // 금(갑옷 v3와 같은 램프)
 };
 
 export function draw(rows, { symmetric = false, name = '' } = {}) {
@@ -22,14 +23,15 @@ export function draw(rows, { symmetric = false, name = '' } = {}) {
   return new PixelCanvas(16).chars(0, 0, rows, L);
 }
 
+// v3: 모델과 일치 — 뿔 제거(갑옷은 텍스처라 뿔을 만들 수 없음), 금 볏 + 금 이마 테 + 정렬된 눈 틈
 export const helmet = () => draw([
-  '.o............o.',
-  'oWo..........oBo',
-  'oWo..........oBo',
-  '.oWooooooooooBo.',
-  '..oo54444333oo..',
+  '................',
+  '.......oo.......',
+  '......oYyo......',
+  '....oooyuooo....',
+  '...o54yuy333o...',
   '..o4433333322o..',
-  '..o43RRRRRR32o..',
+  '..oyYyyyyyyyuo..',
   '..o3oeEooEeo2o..',
   '..o3322oo2233o..',
   '..o32o2oo2o23o..',
@@ -45,10 +47,10 @@ export const chestplate = () => draw([
   '................',
   '.oooo......oooo.',
   'o5443o....o3332o',
-  'o443RRooooRR332o',
-  'o43oo3WEEW3oo22o',
+  'o44yYyooooyYy32o',
+  'o43oouyWWyuoo22o',
   '.oo.o4BeeB2o.oo.',
-  '....o3WWWW2o....',
+  '....o3WEEW2o....',
   '....oB3BB3Bo....',
   '....o3BWWB2o....',
   '....oB3223Bo....',
@@ -65,11 +67,11 @@ export const leggings = () => draw([
   '................',
   '...ooooooooooo..',
   '...o544433332o..',
-  '...oRRRRWRRRRo..',
+  '...oRRRRYRRRRo..',
   '...o4332o2332o..',
-  '...ohR32o23rRo..',
-  '...oRr3o.o3rRo..',
-  '...or32o.o23ro..',
+  '...o532o.o232o..',
+  '...o432o.o232o..',
+  '...oWBbo.oWBbo..',
   '...o432o.o232o..',
   '...o321o.o122o..',
   '...o221o.o121o..',
@@ -80,7 +82,7 @@ export const leggings = () => draw([
 ], { name: 'leggings' });
 
 export function boots() {
-  const boot = ['.ooo..', 'oR4o..', 'o43o..', 'o32o..', 'o32oo.', 'o3WWWo', 'o21BBo', '.ooooo'];
+  const boot = ['.ooo..', 'oy4o..', 'o43o..', 'o32o..', 'o32oo.', 'o3WWWo', 'o21BBo', '.ooooo']; // v3: 위 테를 금으로(모델과 일치)
   const c = new PixelCanvas(16);
   c.chars(1, 5, boot, L); c.chars(8, 5, boot, L);
   return c;

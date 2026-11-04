@@ -473,3 +473,112 @@ export function flashBurst({ size = 32, frames = 3 } = {}) {
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------
+// v3 현대식 베기(4층): ① 피안개(바깥, 어둡고 넓게, 디더) ② 본체(진홍→주황 그라디언트) ③ 칼날선(안쪽 앞 가장자리 흰빛) ④ 불꽃 줄기(접선 방향으로 튐)
+// 2010년대식 '단색 초승달 한 장'과의 차이: 층마다 색·두께·속도가 달라 부피와 속도감이 생긴다
+// ---------------------------------------------------------------------------
+const MIST = ['#14050e', '#2a0818', '#46102a'];
+const BODY = ['#650f22', '#94182a', '#c42a2e', '#ec5a3c'];
+const EDGE = ['#ff9a6a', '#ffd2b8', '#ffffff'];
+
+export function slashV3({ size = 64, frames = 7, start = -150, sweep = 210, radius = 0.31, width = 0.18, seed = 1, sparks = 12 } = {}) {  // v3.1: 반지름을 줄여 잘림 방지
+  const R = rng(seed);
+  const sp = Array.from({ length: sparks }, () => ({ u: 0.45 + R() * 0.55, out: 0.4 + R() * 0.7, len: 3 + Math.floor(R() * 5), jit: (R() - 0.5) * 0.35 }));
+  const cx = size / 2, cy = size / 2, Rr = size * radius, dir = Math.sign(sweep) || 1, sw = Math.abs(sweep);
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const p = frames === 1 ? 0.5 : k / (frames - 1);
+    const headU = Math.min(1, 0.35 + p * 1.6);                 // 빠르게 펼침(앞 2~3프레임에 거의 완성)
+    const tailU = Math.max(0, (p - 0.3) * 1.45);                // 꼬리부터 소멸
+    const energy = 1 - smooth(0.55, 1, p);
+    const c = new PixelCanvas(size);
+    for (let y = 0; y < size; y++)
+      for (let x = 0; x < size; x++) {
+        const dx = x + 0.5 - cx, dy = y + 0.5 - cy, r = Math.hypot(dx, dy);
+        const a = (Math.atan2(dy, dx) * 180) / Math.PI;
+        const u = ((((a - start) * dir) % 360) + 360) % 360 / sw;
+        if (u > headU || u < tailU - 0.08) continue;
+        const lu = (u - tailU) / Math.max(1e-3, headU - tailU);  // 0 꼬리 → 1 머리
+        const w = size * width * (0.25 + 0.75 * Math.max(0, lu) ** 0.7);
+        const off = r - Rr;                                     // + 바깥 / - 안쪽
+        // ① 피안개: 바깥으로 넓게, 디더로 흐리게
+        const mistW = w * 1.9;
+        const inMist = off > -w * 0.2 && off < mistW && bayer(x, y) < (1 - off / mistW) * 0.75 * energy * (0.4 + lu);
+        // ② 본체
+        const inBody = off > -w * 0.35 && off < w * 0.7 && lu > 0;
+        // ③ 칼날선: 안쪽 가장자리(off≈-0.3w) 1~2px, 머리 쪽만
+        const edgeD = Math.abs(off + w * 0.28);
+        const inEdge = lu > 0.35 && edgeD < (lu > 0.8 ? 1.3 : 0.8) && energy > 0.25;
+        if (inEdge) c.set(x, y, EDGE[lu > 0.85 ? 2 : lu > 0.6 ? 1 : 0]);
+        else if (inBody) { const t = (off + w * 0.35) / (w * 1.05); const lvl = Math.floor((1 - t) * 3 * (0.4 + 0.6 * lu) * (0.5 + 0.5 * energy) + 0.5 + (bayer(x, y) - 0.5) * 0.9); c.set(x, y, BODY[Math.max(0, Math.min(3, lvl))]); }  // 디더로 단계 경계를 섞어 줄무늬 방지
+        else if (inMist) c.set(x, y, MIST[off < w ? 2 : off < w * 1.4 ? 1 : 0]);
+      }
+    // ④ 불꽃 줄기: 머리 근처에서 접선 방향으로 튀어나가 바깥으로 이동
+    for (const s of sp) {
+      if (s.u > headU || p < 0.08) continue;
+      const ang = ((start + dir * sw * s.u) * Math.PI) / 180;
+      const t = Math.min(1, (p - 0.08) * 1.6);
+      const base = Rr + size * width * 0.3 + t * size * 0.14 * s.out;
+      const tx = -Math.sin(ang) * dir, ty = Math.cos(ang) * dir;   // 진행 방향 접선
+      const ox = Math.cos(ang + s.jit), oy = Math.sin(ang + s.jit);
+      for (let i = 0; i < s.len; i++) {
+        const px = Math.round(cx + ox * base + tx * i * 0.9), py = Math.round(cy + oy * base + ty * i * 0.9);
+        if (px < 0 || py < 0 || px >= size || py >= size || p > 0.9) continue;
+        c.set(px, py, i === 0 ? EDGE[2] : i < 2 ? EDGE[1] : BODY[3]);
+      }
+    }
+    out.push(bleedRGB(c));
+  }
+  return out;
+}
+
+/** 타격 섬광: 흰 심 + 4방향 긴 광선 + 대각 짧은 광선 + 바깥 고리, 2~4프레임 */
+export function impactStar({ size = 32, frames = 4 } = {}) {
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const p = k / Math.max(1, frames - 1);
+    const c = new PixelCanvas(size), h = size / 2;
+    for (let y = 0; y < size; y++)
+      for (let x = 0; x < size; x++) {
+        const dx = Math.abs(x + 0.5 - h), dy = Math.abs(y + 0.5 - h), r = Math.hypot(dx, dy);
+        const L = size * (0.5 - 0.15 * p), Ld = L * 0.55;
+        const ray = (dx < 0.9 && dy < L * (1 - dx)) || (dy < 0.9 && dx < L * (1 - dy));
+        const diag = Math.abs(dx - dy) < 0.8 && r < Ld;
+        const ring = Math.abs(r - size * (0.18 + 0.25 * p)) < 0.9 && p > 0.2;
+        const core = r < size * (0.14 - 0.08 * p);
+        if (core) c.set(x, y, EDGE[2]);
+        else if (ray) c.set(x, y, r < L * 0.4 ? EDGE[1] : EDGE[0]);
+        else if (diag) c.set(x, y, BODY[3]);
+        else if (ring && bayer(x, y) < 0.7 - p * 0.5) c.set(x, y, BODY[2]);
+      }
+    out.push(bleedRGB(c));
+  }
+  return out;
+}
+
+/** 바닥 균열: 중심에서 갈라지는 틈(빛나는 심 + 어두운 테)이 퍼져 나가고, 마지막엔 빛이 식는다 */
+export function groundCrack({ size = 64, frames = 6, branches = 7, seed = 5 } = {}) {
+  const R = rng(seed);
+  const paths = Array.from({ length: branches }, (_, i) => {
+    let a = (i / branches) * Math.PI * 2 + R() * 0.5, x = size / 2, y = size / 2;
+    const pts = [[x, y]];
+    for (let s = 0; s < 26; s++) { a += (R() - 0.5) * 0.45; x += Math.cos(a); y += Math.sin(a); pts.push([x, y]); }  // v3.1: 1px 간격 → 이어진 선
+    return pts;
+  });
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    const p = k / Math.max(1, frames - 1), reach = Math.min(1, p * 2.2), cool = smooth(0.5, 1, p);
+    const c = new PixelCanvas(size);
+    for (const pts of paths) {
+      const n = Math.floor(pts.length * reach);
+      for (let i = 0; i < n; i++) {
+        const [x, y] = pts[i].map(Math.round);
+        for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!c.get(x + ox, y + oy)) c.set(x + ox, y + oy, MIST[1]);
+        c.set(x, y, cool > 0.6 ? BODY[1] : cool > 0.2 ? BODY[3] : i < 3 ? EDGE[1] : EDGE[0]);
+      }
+    }
+    out.push(bleedRGB(c));
+  }
+  return out;
+}
