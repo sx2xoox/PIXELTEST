@@ -27,3 +27,25 @@ export function outline(c, col) {
   for (const [x, y] of add) c.set(x, y, col);
   return c;
 }
+
+/**
+ * 공식 몹 텍스처 기준 램프(docs/research/minecraft-official-study.md §4): 단계 간 ΔL 3~8, 어두운→밝은 색상 이동 ±5~15°.
+ * base = 중간 색, steps = 단계 수(홀수 권장), dL = OKLab 명도 간격(0~1 척도, 0.05 ≈ CIELAB 5), hueShift = 전체 색상 이동(도, 밝은 쪽 +)
+ * 어두운 쪽은 채도를 약간 줄이고, 밝은 쪽은 아주 약간 줄인다(공식 텍스처의 채도 곡선).
+ */
+import { hexToOklch, oklch } from '../color.js';
+export function fineRamp(base, { steps = 7, dL = 0.05, hueShift = 10, chromaDark = 0.8, chromaLight = 0.9 } = {}) {
+  const { L, C, H } = hexToOklch(base);
+  const mid = (steps - 1) / 2;
+  return Array.from({ length: steps }, (_, i) => {
+    const t = (i - mid) / Math.max(1, mid);                  // -1 어둠 → +1 밝음
+    const c = C * (t < 0 ? 1 + (chromaDark - 1) * -t : 1 + (chromaLight - 1) * t);
+    return oklch(Math.max(0.05, Math.min(0.98, L + (i - mid) * dL)), c, (H + (hueShift / 2) * t + 360) % 360);
+  });
+}
+
+/** 공식 텍스처식 결: 고립 픽셀 비율 rate(5~15%)만큼 ±1단계 흔들기(결정적 해시) */
+export const grain = (rate = 0.1, seed = 1) => (x, y) => {
+  const h = (((x * 73856093) ^ (y * 19349663) ^ (seed * 83492791)) >>> 0) % 1000 / 1000;
+  return h < rate / 2 ? -1 : h > 1 - rate / 2 ? 1 : 0;
+};

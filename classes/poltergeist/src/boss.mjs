@@ -5,15 +5,19 @@
 //  명도: 마호가니·백랍(어두움) 틀 안에 아이보리 시계판(중간) → 민트 눈·진자·팔(가장 밝음)
 //  애니메이션: idle(둥실·진자·접시 공전) / walk(앞으로 기울어 미끄러짐) / attack(팔을 들어 올림 → 앞으로 덮치며 내려침, 바늘 급회전)
 import { PixelCanvas } from '../../../atelier/pixel.js';
-import { paintFace } from '../../../atelier/mc/shade.js';
+import { paintFace, fineRamp, grain } from '../../../atelier/mc/shade.js';
 import { PEW, ECT, IVO, VEL, MAH } from './palette.mjs';
 
 const P = paint => ({ paint });
+// v2: 공식 몹 텍스처 기준 램프(단계 간 ΔL 3~8, 색상 이동 ±5~15°) + 고립 픽셀 결 10% — v1은 ΔL 12~20, 색상 −27°로 줄무늬처럼 끊겼다
+const MAHf = fineRamp(MAH[4], { steps: 7, dL: 0.045, hueShift: 12 });
+const PEWf = fineRamp(PEW[3], { steps: 7, dL: 0.055, hueShift: 8, chromaLight: 0.8 });
+const GR = grain(0.12, 7);
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], bayer = (x, y) => B4[(y & 3) * 4 + (x & 3)] / 16;
 const hash = (x, y) => ((x * 73856093) ^ (y * 19349663)) >>> 0;
 // 마호가니: 세로 나뭇결(열마다 다른 밝기 + 옹이) + 판넬 몰딩(가장자리 2칸 테, 안쪽 한 단 어둡게)
-const WOOD = ({ base = 3, panel = true } = {}) => P((w, h, f) => paintFace(MAH, w, h, f, (x, y) => {
-  let v = base + ((hash(x, 7) % 5) - 2) * 0.25 + ((hash(x, y >> 2) % 9) === 0 ? -0.6 : 0);
+const WOOD = ({ base = 3, panel = true } = {}) => P((w, h, f) => paintFace(MAHf, w, h, f, (x, y) => {
+  let v = base + ((hash(x, 7) % 5) - 2) * 0.25 + ((hash(x, y >> 2) % 9) === 0 ? -0.6 : 0) + GR(x, y);
   if (panel && f !== 'up' && f !== 'down' && w > 6 && h > 6) {
     const e = Math.min(x, y, w - 1 - x, h - 1 - y);
     if (e === 1) v += x === 1 || y === 1 ? 1.3 : -1;      // 몰딩: 왼·위 밝음, 오른·아래 어두움
@@ -21,7 +25,7 @@ const WOOD = ({ base = 3, panel = true } = {}) => P((w, h, f) => paintFace(MAH, 
   }
   return v;
 }, { grad: 0.6 }));
-const METAL = (base = 3.4) => P((w, h, f) => paintFace(PEW, w, h, f, (x) => base + ((x + 0.5) / w < 0.3 ? 1.2 : 0)));
+const METAL = (base = 3.4) => P((w, h, f) => paintFace(PEWf, w, h, f, (x, y) => base + ((x + 0.5) / w < 0.3 ? 1 : 0) + GR(x, y)));
 const GLOWM = P((w, h) => { const c = new PixelCanvas(w, h).fill(ECT[5]); c.set(0, 0, ECT[7]); return c; });
 // 사슬 띠: 가로로 고리가 번갈아(세로 고리 = 밝음, 가로 고리 = 어두움)
 const CHAIN = P((w, h, f) => { const c = new PixelCanvas(w, h); for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) c.set(x, y, x % 3 === 0 ? PEW[5] : x % 3 === 1 ? PEW[3] : PEW[1]); return c; });
@@ -154,16 +158,17 @@ export default function () {
         orbit: { rotation: { 0: [0, 0, 0], 1.6: [0, 360, 0] } },
       } },
       // 공격: 팔을 머리 위로(0.6s) → 앞으로 덮치며 내려침(0.8s) → 정지(1.4s) → 복귀. 바늘 급회전, 진자 크게
-      attack: { length: 2, loop: true, bones: {
-        body: { rotation: { 0: [0, 0, 0], 0.6: [-14, 0, 0], 0.8: [26, 0, 0], 1.4: [22, 0, 0], 2: [0, 0, 0] }, position: { 0: [0, 0, 0], 0.6: [0, 4, 3], 0.8: [0, -2, -6], 1.4: [0, -2, -6], 2: [0, 0, 0] } },
-        arm_r: { rotation: { 0: [0, 0, 10], 0.6: [-170, 0, -10], 0.8: [-40, 0, 0], 1.4: [-40, 0, 0], 2: [0, 0, 10] } },
-        arm_l: { rotation: { 0: [0, 0, -10], 0.6: [-170, 0, 10], 0.8: [-40, 0, 0], 1.4: [-40, 0, 0], 2: [0, 0, -10] } },
-        forearm_r: { rotation: { 0: [0, 0, 0], 0.6: [-30, 0, 0], 0.8: [-60, 0, 0], 2: [0, 0, 0] } },
-        forearm_l: { rotation: { 0: [0, 0, 0], 0.6: [-30, 0, 0], 0.8: [-60, 0, 0], 2: [0, 0, 0] } },
-        hour: { rotation: { 0: [0, 0, 55], 0.8: [0, 0, 415], 2: [0, 0, 415] } },
-        minute: { rotation: { 0: [0, 0, -55], 0.8: [0, 0, -775], 2: [0, 0, -775] } },
-        pendulum: { rotation: { 0: [0, 0, 0], 0.6: [0, 0, -40], 0.8: [0, 0, 40], 1.2: [0, 0, -25], 2: [0, 0, 0] } },
-        orbit: { rotation: { 0: [0, 0, 0], 2: [0, 720, 0] } },
+      // v2: 공식 공격 0.33~0.7초 기준으로 2초 → 1초. 예비 0.3초(30%) → 타격 0.42 → 정지 0.65 → 복귀 1.0, 보간 catmullrom
+      attack: { length: 1, loop: true, bones: {
+        body: { rotation: { 0: [0, 0, 0], 0.3: [-16, 0, 0], 0.42: [28, 0, 0], 0.65: [22, 0, 0], 1: [0, 0, 0] }, position: { 0: [0, 0, 0], 0.3: [0, 4, 3], 0.42: [0, -2, -6], 0.65: [0, -2, -6], 1: [0, 0, 0] } },
+        arm_r: { rotation: { 0: [0, 0, 10], 0.3: [-170, 0, -10], 0.42: [-40, 0, 0], 0.65: [-40, 0, 0], 1: [0, 0, 10] } },
+        arm_l: { rotation: { 0: [0, 0, -10], 0.3: [-170, 0, 10], 0.42: [-40, 0, 0], 0.65: [-40, 0, 0], 1: [0, 0, -10] } },
+        forearm_r: { rotation: { 0: [0, 0, 0], 0.3: [-30, 0, 0], 0.42: [-60, 0, 0], 1: [0, 0, 0] } },
+        forearm_l: { rotation: { 0: [0, 0, 0], 0.3: [-30, 0, 0], 0.42: [-60, 0, 0], 1: [0, 0, 0] } },
+        hour: { rotation: { 0: [0, 0, 55], 0.42: [0, 0, 415], 1: [0, 0, 415] } },
+        minute: { rotation: { 0: [0, 0, -55], 0.42: [0, 0, -775], 1: [0, 0, -775] } },
+        pendulum: { rotation: { 0: [0, 0, 0], 0.3: [0, 0, -40], 0.42: [0, 0, 40], 0.7: [0, 0, -20], 1: [0, 0, 0] } },
+        orbit: { rotation: { 0: [0, 0, 0], 1: [0, 360, 0] } },
       } },
     },
   };
