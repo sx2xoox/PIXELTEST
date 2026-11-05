@@ -16,6 +16,7 @@
 //     스카이라인은 "회"에서 떼고(770~) 더 낮게 해서 별도 덩어리로 안 읽히게.
 // r5: (본 것) 수평선을 올리자 달이 "간"과 부딪힘 → 달을 "독서회" 오른쪽 빈 곳, 스카이라인 위로 내려 반영 기둥과 수직으로 잇는다
 //     (위쪽 하늘은 통째로 빈 공간). 수평선 근처 기둥의 사다리 계단 → 흔들림 진폭을 k²로 키워 위는 매끈, 아래는 부서지게.
+// r6: 달과 "간" 사이가 25px로 답답 → 달을 28px 내리고 r 46→44. 최종.
 export default function () {
   const W = 1080, H = 1350, AX = 72, HZ = 744, S = 250;
   const C = { night: '#0a1230', water: '#0d1940', ink: '#f2e7cc', amber: '#ffb347', refl: '#e8b46a', dim: '#8f9ec8', far: '#16234f' };
@@ -43,7 +44,7 @@ export default function () {
     return { type: 'brush', points: [[x, y], [x + len / 2, y - 1], [x + len, y]], width: 1.5 + rnd(i, 9) * 2.5, taper: 0.9, fill: '#22336b', opacity: 0.8 };
   });
   // 달(상현 — 2026.9.19 실제 월령) 반영: 불규칙 대시 기둥
-  const MX = 900, MY = HZ - 190, MR = 46;
+  const MX = 900, MY = HZ - 162, MR = 44;
   const moonRefl = Array.from({ length: 10 }, (_, i) => {
     const y = HZ + 10 + i * (12 + i * 3.4), len = (64 - i * 5) * (0.55 + rnd(i, 11) * 0.7), x = MX + 14 + (rnd(i, 13) - 0.5) * 24;
     return { type: 'brush', points: [[x - len / 2, y], [x, y - 1], [x + len / 2, y]], width: Math.max(1.5, 5.5 - i * 0.45), taper: 0.9, fill: C.amber, opacity: 0.95 - i * 0.05 };
