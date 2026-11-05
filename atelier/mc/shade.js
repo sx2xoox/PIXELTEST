@@ -34,8 +34,12 @@ export function outline(c, col) {
  * 어두운 쪽은 채도를 약간 줄이고, 밝은 쪽은 아주 약간 줄인다(공식 텍스처의 채도 곡선).
  */
 import { hexToOklch, oklch } from '../color.js';
-export function fineRamp(base, { steps = 7, dL = 0.05, hueShift = 10, chromaDark = 0.8, chromaLight = 0.9 } = {}) {
-  const { L, C, H } = hexToOklch(base);
+export function fineRamp(base, { steps = 7, dL = 0.05, hueShift = 10, chromaDark = 0.8, chromaLight = 0.9, chroma = null } = {}) {
+  const { L, C: C0, H } = hexToOklch(base);
+  // chroma(OKLCH C, 예 0.12)를 주면 중간 톤 채도를 직접 정한다 — 검증된 픽셀 팔레트(Endesga·Resurrect 등)는 중간 톤 채도가 가장 높고
+  // 어둠·밝음은 그 55~65% (docs/research/color-vividness.md). 기준색이 회색빛이라 램프 전체가 흐려지는 것을 막는다.
+  const C = chroma ?? C0;
+  if (chroma != null) { chromaDark = Math.min(chromaDark, 0.6); chromaLight = Math.min(chromaLight, 0.65); }
   const mid = (steps - 1) / 2;
   return Array.from({ length: steps }, (_, i) => {
     const t = (i - mid) / Math.max(1, mid);                  // -1 어둠 → +1 밝음

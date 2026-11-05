@@ -9,8 +9,8 @@ import { Armor, critiqueArmor } from '../../../atelier/mc/skin.js';
 import { paintFace, fineRamp, grain, outline } from '../../../atelier/mc/shade.js';
 
 // 팔레트(한 벌 10색): 금속 6단계(L 약 28~66) + 와인 3단계 + 혈석 1
-export const MET = fineRamp('#433752', { steps: 6, dL: 0.075, hueShift: 10, chromaLight: 0.85 });   // v4.1: 한 단계 어둡게(무게감), 밝은 끝은 L 약 60
-export const WIN = fineRamp('#701a2c', { steps: 3, dL: 0.08, hueShift: 8, chromaLight: 0.8 });
+export const MET = fineRamp('#5c2a48', { steps: 6, dL: 0.09, hueShift: 24, chroma: 0.12 });   // v4.5: 보라 → 핏빛 자두(폴터가이스트 보라와 구분)   // v4.4: 채도 5 → 12+(흐림 해소), 명도 폭 확대   // v4.1: 한 단계 어둡게(무게감), 밝은 끝은 L 약 60
+export const WIN = fineRamp('#9c1c38', { steps: 3, dL: 0.1, hueShift: 14, chroma: 0.19 });
 export const GEM = '#ff3a3a';
 const F4 = ['north', 'east', 'south', 'west'];
 const GR = grain(0.3, 11);

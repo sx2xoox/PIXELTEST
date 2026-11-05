@@ -105,6 +105,7 @@ node atelier/cli.js palette "#e8590c" split --out out     # 토큰 확인
 
 ## 4.2 레퍼런스 실측 규칙 (docs/research/ — 작업 전에 해당 분야 문서를 읽는다)
 분야별 문서: `graphic-design.md`(포스터·편집), `identity-icons.md`(로고·아이콘·UI), `illustration.md`(일러스트·빛·형태), `korean-typography.md`(한글 조판), `curve-craft.md`(곡선·캐릭터 마감).
+**색 선명함(color-vividness.md):** 검증된 팔레트는 중간 톤 채도가 가장 높고(14~25) 어둠·밝음은 그 55~65%, 램프 명도 폭 30~50, 밝은 쪽 색상 +10~35°. 기준색이 회색빛이면 램프 전체가 흐려진다 → `fineRamp(base,{chroma})`.
 **곡선 마감 핵심:** 앵커는 극값에만, 손잡이 ÷ 현 0.3~0.4, 이음 80% 이상 매끄럽게. 감은 눈은 호 하나(속눈썹 금지, 이모지 4종 공통). 캐릭터 몸에 `blob` 금지(직접 둔 점 + `curve` 장력 0.55~0.6). 점 4개로 원을 만들 때 장력 0.83.
 | 분야 | 꼭 지킬 숫자 |
 |---|---|

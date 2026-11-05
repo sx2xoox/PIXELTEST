@@ -7,7 +7,7 @@ import { Armor, critiqueArmor } from '../../../atelier/mc/skin.js';
 import { paintFace, fineRamp, grain, outline } from '../../../atelier/mc/shade.js';
 import { OUT } from './palette.mjs';
 
-export const VEL = fineRamp('#5a3b78', { steps: 5, dL: 0.075, hueShift: 12 });   // 벨벳 보라 5
+export const VEL = fineRamp('#6a42a2', { steps: 5, dL: 0.09, hueShift: 22, chroma: 0.17 });   // v2.1: 채도 9.6 → 14+, 명도 폭 확대   // 벨벳 보라 5
 export const POR = fineRamp('#e6dcc4', { steps: 3, dL: 0.07, hueShift: 6 });     // 도자기·크라바트 3
 export const PEW = ['#7d879c', '#c9d2e0'];                                         // 백랍 단추·버클 2
 export const MINT = '#3fe0b4';                                                     // 민트 솔기 1
