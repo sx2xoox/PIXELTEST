@@ -16,13 +16,14 @@
 // ROUND 4: zoom check — the ㅡ of 끝 now glints in paper colour just under the horizon (reads as 끝, and as light on
 //   water). Thumbnail (200px) title still reads. Added: faint warm afterglow in the sky toward the horizon (late
 //   afternoon, ΔL small so midtones stay <5%); small horizon-dash publisher mark above 파랑서가.
+//   B0 600→510: title block hugged the bottom edge (120px) while 25% sky sat empty; lifted 90px.
 //   Kept: gravity dy≈.25 is intentional (sea anchors the page; type & sun sit on the horizon).
 const W = 1200, H = 1800;
 const S = 185;                 // title size
 const P = Math.round(S * 0.95); // vertical pitch (Myeongjo advance 0.95em, tightened)
 const ASC = 0.79, DESC = 0.10;  // measured ink extents of NanumMyeongjo EB (em)
 const C1 = 820, C2 = C1 - Math.round(S * 1.18);
-const B0 = 600;                // baseline of 여
+const B0 = 510;                // baseline of 여
 const GAP = Math.round(P * 0.38);
 const col1 = ['여', '름', '의', null, '끝', '에', '서'];
 const pos1 = []; { let b = B0; for (const g of col1) { if (g === null) { b += GAP; continue; } pos1.push([g, b]); b += P; } }
