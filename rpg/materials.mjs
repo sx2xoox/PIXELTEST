@@ -24,6 +24,9 @@ export const REGIONS = [
       { id: 'lord_heart', name: '군주의 심장석', family: 'orb', color: 'primary', tier: 5, desc: ['피의 군주가 남긴 심장.', '전설 장비의 핵.'], source: '보스 · 피의 군주' },
       { id: 'blood_stone', name: '혈흔 강화석', family: 'stone', color: 'primary', tier: 3, type: '강화 재료', desc: ['장비 강화 +1 ~ +5.'], source: '상점 · 혈화 50' },
       { id: 'blood_coin', name: '혈화', family: 'coin', color: 'accent', tier: 2, type: '화폐', desc: ['피의 땅에서 통용되는 금화.'], source: '퀘스트 보상' },
+      { id: 'blood_potion', name: '선혈 물약', family: 'essence', color: 'primary', tier: 2, type: '소모품', desc: ['체력을 즉시 회복한다.'], source: '상점 · 혈화 5' },
+      { id: 'blood_scroll', name: '흡혈 주문서', family: 'scroll', color: 'secondary', tier: 3, type: '소모품', desc: ['30초 동안 공격의 5%를 흡혈.'], source: '혈마술사' },
+      { id: 'lord_tome', name: '군주의 비서', family: 'tome', color: 'secondary', tier: 4, type: '스킬북', desc: ['피의 군주 스킬 「혈월」을 배운다.'], source: '보스 · 피의 군주' },
     ],
   },
   {
@@ -41,6 +44,9 @@ export const REGIONS = [
       { id: 'clock_gear', name: '괘종시계 태엽 톱니', family: 'coin', color: 'accent', tier: 4, desc: ['아직 째깍거린다.'], source: '보스 · 저택의 괘종시계' },
       { id: 'phantom_gem', name: '망령의 눈물', family: 'gem', color: 'primary', tier: 5, desc: ['저택의 주인이 흘린 마지막 눈물.'], source: '보스 · 저택의 괘종시계' },
       { id: 'ecto_stone', name: '망령 강화석', family: 'stone', color: 'primary', tier: 4, type: '강화 재료', desc: ['장비 강화 +6 ~ +10.'], source: '엑토플라즘 10 + 영혼 결정 3' },
+      { id: 'ecto_potion', name: '엑토 물약', family: 'essence', color: 'primary', tier: 2, type: '소모품', desc: ['10초 동안 몸이 반투명해진다.'], source: '상점' },
+      { id: 'return_scroll', name: '귀환 주문서', family: 'scroll', color: 'secondary', tier: 2, type: '소모품', desc: ['저택 입구로 돌아간다.'], source: '집사의 망령' },
+      { id: 'butler_journal', name: '집사의 일지', family: 'tome', color: 'secondary', tier: 4, type: '스킬북', desc: ['폴터가이스트 스킬 「소란」을 배운다.'], source: '보스 · 저택의 괘종시계' },
     ],
   },
 ];
@@ -53,7 +59,7 @@ writePack('rpg/out/pack', NS, all, { description: 'RPG 재료 시연 — 피의 
 fs.writeFileSync('rpg/out/give.txt', all.map(d => `# ${d.name} (${d.id})\n[1.21.4]  ${d.give.v1_21_4}\n[1.21.5+] ${d.give.v1_21_5}\n`).join('\n'));
 fs.writeFileSync('rpg/out/preview.html', previewHTML('RPG 재료 시연 · Atelier', regions));
 // 아이콘 시트(4배)
-const sheet = new PixelCanvas(10 * 18, regions.length * 18); sheet.fill('#2a2a33');
+const sheet = new PixelCanvas(13 * 18, regions.length * 18); sheet.fill('#2a2a33');
 regions.forEach((r, j) => r.items.forEach((d, i) => sheet.paste(d.icon, i * 18 + 1, j * 18 + 1)));
 fs.writeFileSync('rpg/out/icons.png', sheet.scale(6).toPNG());
 console.log('items', all.length);

@@ -120,7 +120,7 @@ const F = {
 };
 export const FAMILIES = Object.keys(F);
 /** 형태 → 칸 맞춤 기준(slotfit.js FIT). nugget은 네더라이트 파편급 덩어리라 material */
-export const fitKind = f => f === 'rod' ? 'rod' : 'material';
+export const fitKind = f => f === 'rod' || f === 'scroll' ? 'rod' : 'material';
 
 const GLASS0 = ['#3a4450', '#6b7a86', '#a9bac4', '#dfe9ee'], CORK0 = ['#4a2e1c', '#7a5236', '#a8774f'];
 const ROCK0 = fineRamp('#77727c', { steps: 6, dL: 0.1, hueShift: 10, chroma: 0.015 });
@@ -138,7 +138,11 @@ export function icon(family, { color = '#c0283c', tier = 1, chroma, seed = 1, ra
   // v3: 손 픽셀 원본이 있으면 그것을 쓴다(itemart.js). 수식 형태(F)는 원본이 없는 형태의 예비용.
   if (ramp && ART[family]) {
     const G = pal.ramps.glass.R, K = pal.ramps.cork.R, Rk = pal.ramps.rock.R;
-    const map = { w: SPEC, a: G[0], b: G[2], c: G[3], d: G[5], k: K[0], K: K[3], o: Rk[0], p: Rk[1], q: Rk[2], r: Rk[3], s: Rk[4], t: Rk[5] };
+    const paper = ['scroll', 'tome'].includes(family);
+    const Pp = paper ? pal.ramp(pal.roles.bone ? 'bone' : 'ivory', { steps: 6 }) : null, Ac = paper ? pal.ramp('accent', { steps: 6 }) : null;
+    const map = paper
+      ? { w: SPEC, p: Pp[0], q: Pp[2], r: Pp[3], s: Pp[5], g: Ac[3], h: Ac[5] }
+      : { w: SPEC, a: G[4], b: G[2], c: G[3], d: G[5], k: K[0], K: K[3], o: Rk[0], p: Rk[1], q: Rk[2], r: Rk[3], s: Rk[4], t: Rk[5] };
     const h = new PixelCanvas(16);
     for (const [y, [x0, str]] of Object.entries(ART[family])) [...str].forEach((ch, i) => { if (ch !== '.') h.set(x0 + i, +y, /[0-5]/.test(ch) ? R[+ch] : map[ch]); });
     const out = placeInSlot(h, fitKind(family));
