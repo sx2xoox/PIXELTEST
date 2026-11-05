@@ -128,6 +128,37 @@ export class Armor {
   chars(part, face, x, y, rows, legend) { const r = this.region(part, face); this.canvas.chars(r.x + x, r.y + y, rows, legend); return this; }
   draw(part, face, fn) { fn(this.canvas, this.region(part, face)); return this; }
   band(part, y, h, color) { for (const f of ['north', 'east', 'south', 'west']) { const r = this.region(part, f); this.canvas.rect(r.x, r.y + y, r.w, h, color); } return this; }
+  /**
+   * 바닐라 갑옷 마스크로 오려내기(docs/research/minecraft-armor.md). 얼굴을 덮으면 '대두'가 되므로 투구 정면 눈 아래는 항상 비운다.
+   * helmet: 'light'(철·금·다이아 30/64) | 'heavy'(네더라이트 42/64, 볼 보호대) | 'open'(가죽 26/64, 코 보호대 없음) | 'domino'(눈 줄까지 눈가리개, 코 보호대 없음)
+   * chest: V자 목선 + 아래 사다리꼴, arms: 팔 위 몇 줄, boots: 다리 아래 몇 줄
+   */
+  cut({ helmet = 'light', chest = true, armRows = 6, bootRows = 6 } = {}) {
+    const M = {
+      light: ['########', '########', '########', '#..##..#', '...##...', '........', '........', '........'],
+      heavy: ['########', '########', '########', '#..##..#', '#..##..#', '#......#', '##....##', '##....##'],
+      open: ['########', '########', '########', '#......#', '........', '........', '........', '........'],
+      domino: ['########', '########', '########', '#..##..#', '#......#', '........', '........', '........'],
+    };
+    const SIDE = { light: ['########', '########', '########', '########', '####....', '........', '........', '........'], heavy: ['########', '########', '########', '########', '####..##', '.......#', '.......#', '.......#'] };
+    const BACK = ['########', '########', '########', '########', '########', '########', '..####..', '........'];
+    const apply = (part, face, mask, flip = false) => { const r = this.region(part, face); mask.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === '.') this.canvas.set(r.x + (flip ? r.w - 1 - x : x), r.y + y, null); })); };
+    if (this.layer === 'humanoid') {
+      if (helmet) {
+        apply('head', 'north', M[helmet]);
+        const side = SIDE[helmet === 'heavy' ? 'heavy' : 'light'];
+        apply('head', 'east', side); apply('head', 'west', side, true);   // 옆면: 뒤쪽(목덜미 방향)이 덮인 쪽이 되도록 좌우 반전
+        apply('head', 'south', BACK); apply('head', 'down', Array(8).fill('........'));
+      }
+      if (chest) {
+        apply('body', 'north', ['##....##', '###..###', ...Array(7).fill('########'), '.######.', '..####..', '........']);
+        apply('body', 'south', ['##....##', ...Array(8).fill('########'), '.######.', '........', '........']);
+      }
+      if (armRows != null) this.keepRows('arm_r', 0, armRows);
+      if (bootRows != null) this.keepRows('leg_r', 12 - bootRows, 12);
+    }
+    return this;
+  }
   /** 영역의 일부만 남기기(예: 부츠는 다리 아래 4줄만) */
   keepRows(part, y0, y1) {
     for (const f of ['north', 'east', 'south', 'west']) {
@@ -136,6 +167,21 @@ export class Armor {
     }
     return this;
   }
+}
+
+/** 갑옷 검사(바닐라 기준): 얼굴 노출, 색 수 7~10, 주 재질 명도, 결 25~35% */
+export function critiqueArmor(armor) {
+  const issues = [], c = armor.canvas;
+  if (armor.layer === 'humanoid') {
+    const r = armor.region('head', 'north');
+    let face = 0, cover = 0;
+    for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const on = !!c.get(r.x + x, r.y + y); cover += on; if (y >= 5 && x >= 2 && x <= 5 && on) face++; }
+    if (face) issues.push({ severity: 'error', code: 'bighead', msg: `투구가 입·얼굴 가운데를 ${face}px 덮음 → 대두`, fix: "Armor.cut({helmet:'light'|'heavy'|'domino'})로 눈 아래를 비우세요." });
+    if (cover > 42) issues.push({ severity: 'warn', code: 'helmet-cover', msg: `투구 정면 덮개 ${cover}/64(바닐라 26~42)`, fix: '이마 3줄 + 눈 줄 테두리만 칠하세요.' });
+  }
+  const cols = c.colors();
+  if (cols.size > 12) issues.push({ severity: 'warn', code: 'armor-colors', msg: `색 ${cols.size}개(바닐라 7~10)`, fix: '주 재질 램프 5~7단계 + 강조색 1~2개로 줄이세요.' });
+  return issues;
 }
 
 /** 스킨 검사: 기본 층은 불투명해야 한다(투명 픽셀은 게임에서 검게/불투명하게 보임) */
