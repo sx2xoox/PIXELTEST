@@ -4,7 +4,8 @@
 // 사용: icon('gem', { color:'#d0283c', tier:3, seed:1 }) → PixelCanvas(16)
 import { PixelCanvas } from '../pixel.js';
 import { fineRamp } from './shade.js';
-import { slotShift } from './slotfit.js';
+import { slotShift, placeInSlot } from './slotfit.js';
+import { ART } from './itemart.js';
 
 const W = '#ffffff';
 const rnd = s => () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
@@ -134,6 +135,19 @@ export function icon(family, { color = '#c0283c', tier = 1, chroma, seed = 1, ra
   const GLASS = pal ? pal.ramps.glass.R.filter((_, i) => i % 2 === 0 || i === 5).slice(0, 4) : GLASS0;
   const CORK = pal ? pal.ramps.cork.R.slice(0, 5).filter((_, i) => i === 0 || i === 2 || i === 4) : CORK0;
   const ROCK = pal ? pal.ramps.rock.R : ROCK0;
+  // v3: 손 픽셀 원본이 있으면 그것을 쓴다(itemart.js). 수식 형태(F)는 원본이 없는 형태의 예비용.
+  if (ramp && ART[family]) {
+    const G = pal.ramps.glass.R, K = pal.ramps.cork.R, Rk = pal.ramps.rock.R;
+    const map = { w: SPEC, a: G[0], b: G[2], c: G[3], d: G[5], k: K[0], K: K[3], o: Rk[0], p: Rk[1], q: Rk[2], r: Rk[3], s: Rk[4], t: Rk[5] };
+    const h = new PixelCanvas(16);
+    for (const [y, [x0, str]] of Object.entries(ART[family])) [...str].forEach((ch, i) => { if (ch !== '.') h.set(x0 + i, +y, /[0-5]/.test(ch) ? R[+ch] : map[ch]); });
+    const out = placeInSlot(h, fitKind(family));
+    const filled = (x, y) => x >= 0 && y >= 0 && x < 16 && y < 16 && !!out.get(x, y);
+    const star = (sx, sy) => { out.set(sx, sy, SPEC); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!filled(sx + dx, sy + dy)) out.set(sx + dx, sy + dy, R[4]); };
+    if (tier >= 4) { const sp = [[13, 2], [12, 2], [2, 2]].find(([x, y]) => !filled(x, y) && !filled(x + 1, y) && !filled(x - 1, y) && !filled(x, y + 1)); if (sp) star(...sp); }
+    if (tier >= 5) { const sp = [[2, 13], [3, 13], [13, 13]].find(([x, y]) => !filled(x, y) && !filled(x + 1, y) && !filled(x - 1, y) && !filled(x, y - 1)); if (sp) star(...sp); }
+    return out;
+  }
   const c = new PixelCanvas(16), rand = rnd(seed * 97 + tier);
   const val = new Map();
   for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
