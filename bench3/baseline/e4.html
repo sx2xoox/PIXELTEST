@@ -1,0 +1,257 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#141631}svg{display:block}</style></head>
+<body>
+<svg id="s" width="1600" height="1000" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#15183A"/>
+    <stop offset=".22" stop-color="#2B2A5A"/>
+    <stop offset=".36" stop-color="#6E5288"/>
+    <stop offset=".44" stop-color="#D98A8A"/>
+    <stop offset=".5" stop-color="#F7C79C"/>
+    <stop offset=".56" stop-color="#FCE3BE"/>
+  </linearGradient>
+  <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#6A5578"/>
+    <stop offset=".25" stop-color="#3E3858"/>
+    <stop offset="1" stop-color="#23223E"/>
+  </linearGradient>
+  <linearGradient id="lwall" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#3A2A3E"/>
+    <stop offset=".8" stop-color="#5E4256"/>
+    <stop offset="1" stop-color="#8A6070"/>
+  </linearGradient>
+  <linearGradient id="rwall" x1="1" y1="0" x2="0" y2="0">
+    <stop offset="0" stop-color="#2A2B4A"/>
+    <stop offset="1" stop-color="#5A5878"/>
+  </linearGradient>
+  <radialGradient id="lamp" cx="1130" cy="330" r="520" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFD58C" stop-opacity=".55"/>
+    <stop offset=".35" stop-color="#FFB86A" stop-opacity=".18"/>
+    <stop offset="1" stop-color="#FFB86A" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="pool" cx="980" cy="880" rx="300" r="300" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 600) scale(1 .32)">
+    <stop offset="0" stop-color="#FFD58C" stop-opacity=".45"/>
+    <stop offset="1" stop-color="#FFD58C" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="dawn" cx="816" cy="470" r="300" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFE2B8" stop-opacity=".7"/>
+    <stop offset="1" stop-color="#FFE2B8" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<rect width="1600" height="1000" fill="url(#sky)"/>
+<g id="stars"></g>
+<!-- crescent -->
+<path d="M560 120 a 34 34 0 1 0 30 52 a 27 27 0 1 1 -30 -52z" fill="#F7E7C6" opacity=".9"/>
+<circle cx="816" cy="470" r="300" fill="url(#dawn)"/>
+<g id="far"></g>
+<g id="world"></g>
+<g id="fg"></g>
+</svg>
+<script>
+const NS='http://www.w3.org/2000/svg';
+let seed=11;const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+const VX=820,VY=520;
+const P=(X,Y,s)=>[VX+X*s,VY+Y*s];
+function el(parent,tag,at){const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);(typeof parent==='string'?document.getElementById(parent):parent).appendChild(e);return e}
+const pts=a=>a.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ');
+const poly=(g,a,at)=>el(g,'polygon',Object.assign({points:pts(a)},at));
+const W='world';
+
+// stars
+for(let i=0;i<60;i++)el('stars','circle',{cx:rnd()*1600,cy:rnd()*300,r:.6+rnd()*1.4,fill:'#F4EAD8',opacity:(.2+rnd()*.6)*(1)});
+
+// far hill (daldongne) silhouette behind alley end
+(function(){
+  const g=el('far','g',{});
+  let x=560;
+  const base=640;
+  while(x<1080){const w=26+rnd()*40,h=30+rnd()*70+(x>760&&x<900?40:0);const y=560-h-((x-560)*0.04);
+    poly(g,[[x,base],[x,y],[x+w/2,y-8-rnd()*6],[x+w,y],[x+w,base]],{fill:'#5A4876'});
+    for(let k=0;k<3;k++)if(rnd()<.35)el(g,'rect',{x:x+4+rnd()*(w-10),y:y+6+rnd()*(h-16),width:4,height:4,fill:'#FFD58C',opacity:.8});
+    x+=w-3;}
+  // church cross
+  el(g,'rect',{x:931,y:396,width:3,height:26,fill:'#FF5A5A'});
+  el(g,'rect',{x:924,y:404,width:17,height:3,fill:'#FF5A5A'});
+  el(g,'circle',{cx:932,cy:408,r:16,fill:'#FF5A5A',opacity:.18});
+})();
+
+// FLOOR
+const fl=[P(-520,480,1.8),P(480,480,1.8),P(480,480,.22),P(-520,480,.22)];
+poly(W,fl,{fill:'url(#floor)'});
+// paving seams
+for(let s=.26;s<1.8;s*=1.18){el(W,'line',{x1:P(-520,480,s)[0],y1:P(-520,480,s)[1],x2:P(480,480,s)[0],y2:P(480,480,s)[1],stroke:'#1C1B33','stroke-width':Math.max(.6,1.6*s),opacity:.45})}
+// center drain
+poly(W,[P(-30,480,1.8),P(30,480,1.8),P(30,480,.22),P(-30,480,.22)],{fill:'#2A2944',opacity:.7});
+
+// FAR END HOUSE (facing)
+(function(){const s=.22;
+  poly(W,[P(-360,480,s),P(-360,-120,s),P(300,-120,s),P(300,480,s)],{fill:'#6E5370'});
+  poly(W,[P(-400,-120,s),P(-300,-200,s),P(240,-200,s),P(340,-120,s)],{fill:'#3B2E4A'});
+  // lit window
+  poly(W,[P(-260,-40,s),P(-260,140,s),P(-60,140,s),P(-60,-40,s)],{fill:'#FFCB7A'});
+  el(W,'line',{x1:P(-160,-40,s)[0],y1:P(0,-40,s)[1],x2:P(-160,140,s)[0],y2:P(0,140,s)[1],stroke:'#6E5370','stroke-width':2});
+  // door
+  poly(W,[P(60,60,s),P(60,480,s),P(220,480,s),P(220,60,s)],{fill:'#3D6E77'});
+})();
+
+// RIGHT WALL: low old house, plaster + blue gate
+(function(){
+  const X=480, top=-240;
+  poly(W,[P(X,480,1.8),P(X,top,1.8),P(X,top,.22),P(X,480,.22)],{fill:'url(#rwall)'});
+  // base stone band
+  poly(W,[P(X,480,1.8),P(X,400,1.8),P(X,400,.22),P(X,480,.22)],{fill:'#24243F',opacity:.6});
+  // roof eave: tile band jutting out
+  poly(W,[P(X,top,1.8),P(X-70,top-40,1.8),P(X-70,top-40,.22),P(X,top,.22)],{fill:'#26233F'});
+  poly(W,[P(X-70,top-40,1.8),P(X-70,top-62,1.8),P(X-70,top-62,.22),P(X-70,top-40,.22)],{fill:'#3A3558'});
+  // tile ridges
+  for(let s=.24;s<1.8;s*=1.07){el(W,'line',{x1:P(X,top,s)[0],y1:P(X,top,s)[1],x2:P(X-70,top-40,s)[0],y2:P(X-70,top-40,s)[1],stroke:'#3E3A5E','stroke-width':Math.max(.8,2.4*s)})}
+  // blue gate (daemun)
+  const g1=.62,g2=.82;
+  poly(W,[P(X,480,g1),P(X,-40,g1),P(X,-40,g2),P(X,480,g2)],{fill:'#2C5A78'});
+  poly(W,[P(X,470,g1+.01),P(X,-30,g1+.01),P(X,-30,(g1+g2)/2-.005),P(X,470,(g1+g2)/2-.005)],{fill:'none',stroke:'#3F7697','stroke-width':2});
+  poly(W,[P(X,470,(g1+g2)/2+.005),P(X,-30,(g1+g2)/2+.005),P(X,-30,g2-.01),P(X,470,g2-.01)],{fill:'none',stroke:'#3F7697','stroke-width':2});
+  el(W,'circle',{cx:P(X,170,(g1+g2)/2)[0]-6,cy:P(X,170,(g1+g2)/2)[1],r:3,fill:'#E6C46A'});
+  // house number plate
+  poly(W,[P(X,-120,.9),P(X,-70,.9),P(X,-70,.97),P(X,-120,.97)],{fill:'#2C4C86'});
+  // small window with grille further back
+  const w1=.36,w2=.46;
+  poly(W,[P(X,-120,w1),P(X,40,w1),P(X,40,w2),P(X,-120,w2)],{fill:'#FFC777'});
+  for(let k=1;k<5;k++){const s=w1+(w2-w1)*k/5;el(W,'line',{x1:P(X,-120,s)[0],y1:P(X,-120,s)[1],x2:P(X,40,s)[0],y2:P(X,40,s)[1],stroke:'#3B3456','stroke-width':1.5})}
+  // other side, front: concrete wall + gas meter
+})();
+
+// LEFT WALL: red brick villa with windows
+(function(){
+  const X=-520, top=-560;
+  poly(W,[P(X,480,1.8),P(X,top,1.8),P(X,top,.22),P(X,480,.22)],{fill:'url(#lwall)'});
+  // brick courses
+  for(let Y=top+20;Y<480;Y+=26){el(W,'line',{x1:P(X,Y,1.8)[0],y1:P(X,Y,1.8)[1],x2:P(X,Y,.22)[0],y2:P(X,Y,.22)[1],stroke:'#2E2034','stroke-width':1.3,opacity:.45})}
+  // floor slab band
+  poly(W,[P(X,-90,1.8),P(X,-60,1.8),P(X,-60,.22),P(X,-90,.22)],{fill:'#A88A8A',opacity:.55});
+  poly(W,[P(X,top,1.8),P(X,top+28,1.8),P(X,top+28,.22),P(X,top,.22)],{fill:'#A88A8A',opacity:.55});
+  // windows (2nd floor) w/ security grille
+  const win=(s1,s2,Y1,Y2,lit)=>{
+    poly(W,[P(X,Y1,s1),P(X,Y2,s1),P(X,Y2,s2),P(X,Y1,s2)],{fill:lit?'#FFCF7E':'#2A2240'});
+    for(let k=1;k<6;k++){const s=s1+(s2-s1)*k/6;el(W,'line',{x1:P(X,Y1,s)[0],y1:P(X,Y1,s)[1],x2:P(X,Y2,s)[0],y2:P(X,Y2,s)[1],stroke:'#1E1830','stroke-width':Math.max(1,2.4*s)})}
+    el(W,'line',{x1:P(X,(Y1+Y2)/2,s1)[0],y1:P(X,(Y1+Y2)/2,s1)[1],x2:P(X,(Y1+Y2)/2,s2)[0],y2:P(X,(Y1+Y2)/2,s2)[1],stroke:'#1E1830','stroke-width':2});
+  };
+  win(1.15,1.48,-430,-200,false);
+  win(.62,.8,-430,-200,true);
+  win(.34,.42,-430,-200,false);
+  win(.62,.8,-20,180,false);
+  // AC outdoor unit protruding
+  const a1=1.0,a2=1.12,Ya=60,Yb=200;
+  poly(W,[P(X,Ya,a1),P(X+90,Ya,a1),P(X+90,Yb,a1),P(X,Yb,a1)],{fill:'#D9D4C8'});
+  poly(W,[P(X+90,Ya,a1),P(X+90,Ya,a2),P(X+90,Yb,a2),P(X+90,Yb,a1)],{fill:'#B9B2A6'});
+  const c=P(X+90,(Ya+Yb)/2,(a1+a2)/2);
+  el(W,'ellipse',{cx:c[0],cy:c[1],rx:9,ry:44,fill:'#7A7468'});
+  // pipes
+  el(W,'line',{x1:P(X,-560,1.5)[0],y1:P(X,-560,1.5)[1],x2:P(X,480,1.5)[0],y2:P(X,480,1.5)[1],stroke:'#8B8070','stroke-width':10});
+  // flower pots at base (rubber basins)
+})();
+
+// UTILITY POLE + LAMP (right front)
+(function(){
+  const g=el('fg','g',{});
+  // light cone & pool
+  el(g,'rect',{x:0,y:0,width:1600,height:1000,fill:'url(#lamp)'});
+  el(g,'ellipse',{cx:1000,cy:880,rx:360,ry:110,fill:'url(#pool)'});
+  // pole
+  poly(g,[[1268,0],[1290,0],[1296,1000],[1262,1000]],{fill:'#2A2338'});
+  // pole tags
+  el(g,'rect',{x:1266,y:520,width:28,height:40,fill:'#E9D9A8'});
+  el(g,'rect',{x:1266,y:566,width:28,height:8,fill:'#C9524A'});
+  // crossarm
+  el(g,'rect',{x:1180,y:70,width:200,height:12,fill:'#2A2338'});
+  // lamp arm
+  el(g,'path',{d:'M1279 240 C 1240 236, 1180 250, 1150 300',stroke:'#2A2338','stroke-width':9,fill:'none'});
+  el(g,'path',{d:'M1118 300 L1182 300 L1170 318 L1130 318 Z',fill:'#2A2338'});
+  el(g,'ellipse',{cx:1150,cy:320,rx:18,ry:5,fill:'#FFF0C8'});
+  el(g,'circle',{cx:1150,cy:322,r:40,fill:'#FFE2A0',opacity:.35});
+  // transformer
+  el(g,'rect',{x:1294,y:120,width:40,height:70,rx:8,fill:'#3A3248'});
+  // wires
+  const wires=[[1190,76,0,170,'#1A1730'],[1230,76,0,240,'#1A1730'],[1370,76,1600,150,'#1A1730'],[1200,76,760,420,'#1A1730'],[1250,76,780,410,'#1A1730'],[1290,130,0,330,'#1A1730'],[1370,76,1600,40,'#1A1730']];
+  wires.forEach(([x1,y1,x2,y2,c],i)=>{const mx=(x1+x2)/2,my=Math.max(y1,y2)+60+i*8;el(g,'path',{d:`M${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`,stroke:c,'stroke-width':i%2?2:3,fill:'none'})});
+  // tangled cable bundle
+  el(g,'path',{d:'M1279 400 c -30 10 -30 40 0 46 c 30 6 30 36 0 46',stroke:'#1A1730','stroke-width':4,fill:'none'});
+})();
+
+// RUBBER BASIN GARDENS (front right on floor)
+(function(){
+  const g=el('fg','g',{});
+  const basin=(cx,cy,w,col)=>{
+    el(g,'path',{d:`M${cx-w/2} ${cy-w*.35} L${cx+w/2} ${cy-w*.35} L${cx+w*.4} ${cy+w*.05} L${cx-w*.4} ${cy+w*.05} Z`,fill:col});
+    el(g,'ellipse',{cx,cy:cy-w*.35,rx:w/2,ry:w*.09,fill:'#3A1E2A'});
+    el(g,'ellipse',{cx,cy:cy+w*.05,rx:w*.4,ry:w*.06,fill:col});
+  };
+  // plants behind basin
+  const leaves=(cx,cy,w,col)=>{for(let i=0;i<9;i++){const a=-Math.PI/2+(i-4)*.32,L=w*(.5+rnd()*.4);const x2=cx+Math.cos(a)*L,y2=cy+Math.sin(a)*L;el(g,'path',{d:`M${cx} ${cy} Q ${cx+Math.cos(a)*L*.5-12} ${cy+Math.sin(a)*L*.5} ${x2} ${y2} Q ${cx+Math.cos(a)*L*.5+12} ${cy+Math.sin(a)*L*.5} ${cx} ${cy}`,fill:col})}};
+  leaves(1430,810,200,'#2F5A4A');leaves(1430,810,150,'#3F7A5C');
+  basin(1430,880,220,'#B8443C');
+  // pepper/lettuce in small styrofoam box
+  el(g,'path',{d:'M1180 900 L1340 900 L1332 960 L1188 960 Z',fill:'#E7E2D6'});
+  el(g,'rect',{x:1180,y:892,width:160,height:12,fill:'#F4F0E6'});
+  for(let i=0;i<6;i++){const x=1196+i*26;el(g,'ellipse',{cx:x,cy:880,rx:16,ry:22,fill:i%2?'#4E8A5E':'#3D6E50'})}
+  el(g,'circle',{cx:1240,cy:874,r:5,fill:'#D2463C'});el(g,'circle',{cx:1290,cy:868,r:5,fill:'#D2463C'});
+  // left front: stacked bricks / bicycle? -> recycling bundle
+  basin(150,960,240,'#8E3A3A');
+  leaves(150,880,160,'#2A4A40');
+})();
+
+// CATS
+(function(){
+  const g=el('fg','g',{});
+  // main: orange tabby, back view, sitting in the alley, gazing toward dawn
+  const c=el(g,'g',{transform:'translate(780 920)'});
+  el(c,'ellipse',{cx:0,cy:6,rx:120,ry:16,fill:'#141228',opacity:.45});
+  // tail curled on floor
+  el(c,'path',{d:'M60 -6 C 130 -4, 150 -40, 120 -70 C 110 -80, 100 -76, 104 -64 C 122 -40, 100 -22, 50 -22 Z',fill:'#D9813F'});
+  // body (pear)
+  el(c,'path',{d:'M-78 0 C -96 -60, -82 -140, -40 -180 C -20 -198, 20 -198, 40 -180 C 82 -140, 96 -60, 78 0 Z',fill:'#E08B44'});
+  // rim light from dawn on body edges
+  // stripes
+  [[-140,-46],[-104,-66],[-66,-74]].forEach(([y,w],i)=>{el(c,'path',{d:`M${w} ${y} Q 0 ${y+16} ${-w} ${y}`,stroke:'#B5622C','stroke-width':9,fill:'none','stroke-linecap':'round'})});
+  el(c,'path',{d:'M0 -170 L0 -120',stroke:'#B5622C','stroke-width':10,'stroke-linecap':'round'});
+  const h=el(c,'g',{transform:'translate(0 22)'});
+  // head
+  el(h,'path',{d:'M-56 -212 C -60 -262, -30 -282, 0 -282 C 30 -282, 60 -262, 56 -212 C 50 -186, -50 -186, -56 -212 Z',fill:'#E08B44'});
+  // ears
+  el(h,'path',{d:'M-52 -244 L-48 -306 L-12 -276 Z',fill:'#E08B44'});
+  el(h,'path',{d:'M52 -244 L48 -306 L12 -276 Z',fill:'#E08B44'});
+  el(h,'path',{d:'M-44 -258 L-44 -292 L-24 -274 Z',fill:'#B5622C'});
+  el(h,'path',{d:'M44 -258 L44 -292 L24 -274 Z',fill:'#B5622C'});
+  el(h,'path',{d:'M-20 -276 Q 0 -262 20 -276 M-26 -258 Q 0 -244 26 -258',stroke:'#B5622C','stroke-width':6,fill:'none','stroke-linecap':'round'});
+  // ear rim light
+  el(h,'path',{d:'M-48 -306 L-12 -276 L-18 -276 L-47 -298 Z',fill:'#FFD3A0'});
+  el(h,'path',{d:'M48 -306 L12 -276 L18 -276 L47 -298 Z',fill:'#FFD3A0'});
+  // whisker tips peeking from sides
+  el(h,'path',{d:'M-56 -214 l-34 -4 M-56 -206 l-30 4 M56 -214 l34 -4 M56 -206 l30 4',stroke:'#F6E3C8','stroke-width':2,'stroke-linecap':'round'});
+  // back paws
+  el(c,'ellipse',{cx:-62,cy:-4,rx:26,ry:12,fill:'#E08B44'});
+  el(c,'ellipse',{cx:62,cy:-4,rx:26,ry:12,fill:'#E08B44'});
+
+  // second cat: black cat on top of the roof eave, mid distance, looking toward the main cat
+  const s=.66, X=410, Y=-302; const p=P(X,Y,s);
+  const k=el(g,'g',{transform:`translate(${p[0]} ${p[1]}) scale(.62)`});
+  el(k,'path',{d:'M-60 0 C -64 -40, -40 -70, 0 -70 C 20 -70, 40 -60, 50 -40 L 70 -40 C 80 -40, 86 -30, 80 0 Z',fill:'#17142A'});
+  el(k,'path',{d:'M30 -70 C 34 -96, 54 -110, 74 -104 C 94 -98, 98 -78, 88 -62 C 78 -48, 50 -48, 38 -56 Z',fill:'#17142A'});
+  el(k,'path',{d:'M48 -98 L44 -128 L64 -106 Z M72 -104 L86 -130 L90 -98 Z',fill:'#17142A'});
+  el(k,'circle',{cx:58,cy:-82,r:5,fill:'#E9E07A'});el(k,'circle',{cx:78,cy:-82,r:5,fill:'#E9E07A'});
+  el(k,'path',{d:'M-58 -6 C -110 -6, -120 40, -96 70',stroke:'#17142A','stroke-width':12,fill:'none','stroke-linecap':'round'});
+
+  // third: kitten eyes under the AC unit? -> small grey kitten peeking from behind left basin
+  const t=el(g,'g',{transform:'translate(270 902)'});
+  el(t,'path',{d:'M-34 0 C -36 -30, -18 -46, 0 -46 C 18 -46, 36 -30, 34 0 Z',fill:'#8C8AA2'});
+  el(t,'path',{d:'M-30 -28 L-28 -60 L-8 -44 Z M30 -28 L28 -60 L8 -44 Z',fill:'#8C8AA2'});
+  el(t,'circle',{cx:-12,cy:-24,r:5,fill:'#F2E07A'});el(t,'circle',{cx:12,cy:-24,r:5,fill:'#F2E07A'});
+  el(t,'circle',{cx:-12,cy:-24,r:2,fill:'#1A1730'});el(t,'circle',{cx:12,cy:-24,r:2,fill:'#1A1730'});
+  el(t,'path',{d:'M-3 -14 L3 -14 L0 -10 Z',fill:'#E6A0A6'});
+})();
+
+// foreground vignette
+el('fg','rect',{x:0,y:0,width:1600,height:1000,fill:'none'});
+</script>
+</body></html>
