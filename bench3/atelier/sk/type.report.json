@@ -1,0 +1,427 @@
+{
+  "score": 0,
+  "issues": [
+    {
+      "severity": "warn",
+      "code": "margin",
+      "msg": "텍스트 \"새벽 로스터리\"가 안전 여백(45px) 안으로 들어옴",
+      "fix": "가장자리에서 더 떨어뜨리세요."
+    },
+    {
+      "severity": "error",
+      "code": "contrast",
+      "msg": "텍스트 \"NanumMyeongjo 800\" 대비 4.17:1 (기준 4.5:1)",
+      "fix": "글자색과 배경의 명도 차이를 키우세요. 배경에 그라디언트가 있으면 글자 뒤 영역을 정리하거나 그림자/판을 까세요."
+    },
+    {
+      "severity": "warn",
+      "code": "margin",
+      "msg": "텍스트 \"NanumMyeongjo 800\"가 안전 여백(45px) 안으로 들어옴",
+      "fix": "가장자리에서 더 떨어뜨리세요."
+    },
+    {
+      "severity": "warn",
+      "code": "margin",
+      "msg": "텍스트 \"새벽 로스터리\"가 안전 여백(45px) 안으로 들어옴",
+      "fix": "가장자리에서 더 떨어뜨리세요."
+    },
+    {
+      "severity": "error",
+      "code": "contrast",
+      "msg": "텍스트 \"Gowun Batang 700\" 대비 4.17:1 (기준 4.5:1)",
+      "fix": "글자색과 배경의 명도 차이를 키우세요. 배경에 그라디언트가 있으면 글자 뒤 영역을 정리하거나 그림자/판을 까세요."
+    },
+    {
+      "severity": "warn",
+      "code": "margin",
+      "msg": "텍스트 \"Gowun Batang 700\"가 안전 여백(45px) 안으로 들어옴",
+      "fix": "가장자리에서 더 떨어뜨리세요."
+    },
+    {
+      "severity": "warn",
+      "code": "margin",
+      "msg": "텍스트 \"새벽 로스터리\"가 안전 여백(45px) 안으로 들어옴",
+      "fix": "가장자리에서 더 떨어뜨리세요."
+    },
+    {
+      "severity": "error",
+      "code": "contrast",
+      "msg": "텍스트 \"Pretendard 700\" 대비 4.17:1 (기준 4.5:1)",
+      "fix": "글자색과 배경의 명도 차이를 키우세요. 배경에 그라디언트가 있으면 글자 뒤 영역을 정리하거나 그림자/판을 까세요."
+    },
+    {
+      "severity": "warn",
+      "code": "margin",
+      "msg": "텍스트 \"Pretendard 700\"가 안전 여백(45px) 안으로 들어옴",
+      "fix": "가장자리에서 더 떨어뜨리세요."
+    },
+    {
+      "severity": "warn",
+      "code": "margin",
+      "msg": "텍스트 \"새벽 로스터리\"가 안전 여백(45px) 안으로 들어옴",
+      "fix": "가장자리에서 더 떨어뜨리세요."
+    },
+    {
+      "severity": "error",
+      "code": "contrast",
+      "msg": "텍스트 \"Gowun Dodum 400\" 대비 4.17:1 (기준 4.5:1)",
+      "fix": "글자색과 배경의 명도 차이를 키우세요. 배경에 그라디언트가 있으면 글자 뒤 영역을 정리하거나 그림자/판을 까세요."
+    },
+    {
+      "severity": "warn",
+      "code": "margin",
+      "msg": "텍스트 \"Gowun Dodum 400\"가 안전 여백(45px) 안으로 들어옴",
+      "fix": "가장자리에서 더 떨어뜨리세요."
+    }
+  ],
+  "metrics": {
+    "width": 1600,
+    "height": 900,
+    "texts": [
+      {
+        "id": "t1",
+        "lines": [
+          "새벽 로스터리"
+        ],
+        "fill": "#2b1a12",
+        "size": 80,
+        "role": "display",
+        "weight": 800,
+        "box": {
+          "x": 40,
+          "y": 43,
+          "w": 463.96875,
+          "h": 83
+        },
+        "sample": "새벽 로스터리",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t2",
+        "lines": [
+          "NanumMyeongjo 800"
+        ],
+        "fill": "#8a6a50",
+        "size": 18,
+        "role": "body",
+        "weight": 400,
+        "box": {
+          "x": 40,
+          "y": 143,
+          "w": 173.6875,
+          "h": 21
+        },
+        "sample": "NanumMyeongjo 800",
+        "contrastP10": 4.165786892255702,
+        "contrastMedian": 4.165786892255702
+      },
+      {
+        "id": "t3",
+        "lines": [
+          "DAWN ROASTERY"
+        ],
+        "fill": "#2b1a12",
+        "size": 56,
+        "role": "display",
+        "weight": 600,
+        "box": {
+          "x": 800,
+          "y": 45,
+          "w": 603.546875,
+          "h": 69
+        },
+        "sample": "DAWN ROASTERY",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t4",
+        "lines": [
+          "Dawn Roastery · Seongsu 1984"
+        ],
+        "fill": "#2b1a12",
+        "size": 40,
+        "role": "display",
+        "weight": 600,
+        "box": {
+          "x": 800,
+          "y": 121,
+          "w": 592.921875,
+          "h": 49
+        },
+        "sample": "Dawn Roastery · Seongsu ",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t5",
+        "lines": [
+          "새벽 로스터리"
+        ],
+        "fill": "#2b1a12",
+        "size": 80,
+        "role": "display",
+        "weight": 700,
+        "box": {
+          "x": 40,
+          "y": 227,
+          "w": 438.8125,
+          "h": 116
+        },
+        "sample": "새벽 로스터리",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t6",
+        "lines": [
+          "Gowun Batang 700"
+        ],
+        "fill": "#8a6a50",
+        "size": 18,
+        "role": "body",
+        "weight": 400,
+        "box": {
+          "x": 40,
+          "y": 353,
+          "w": 153.734375,
+          "h": 21
+        },
+        "sample": "Gowun Batang 700",
+        "contrastP10": 4.165786892255702,
+        "contrastMedian": 4.165786892255702
+      },
+      {
+        "id": "t7",
+        "lines": [
+          "DAWN ROASTERY"
+        ],
+        "fill": "#2b1a12",
+        "size": 56,
+        "role": "display",
+        "weight": 700,
+        "box": {
+          "x": 800,
+          "y": 258,
+          "w": 566.21875,
+          "h": 68
+        },
+        "sample": "DAWN ROASTERY",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t8",
+        "lines": [
+          "Dawn Roastery · Seongsu 1984"
+        ],
+        "fill": "#2b1a12",
+        "size": 40,
+        "role": "display",
+        "weight": 700,
+        "box": {
+          "x": 800,
+          "y": 333,
+          "w": 476.8125,
+          "h": 49
+        },
+        "sample": "Dawn Roastery · Seongsu ",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t9",
+        "lines": [
+          "새벽 로스터리"
+        ],
+        "fill": "#2b1a12",
+        "size": 80,
+        "role": "display",
+        "weight": 700,
+        "box": {
+          "x": 40,
+          "y": 454,
+          "w": 419.28125,
+          "h": 95
+        },
+        "sample": "새벽 로스터리",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t10",
+        "lines": [
+          "Pretendard 700"
+        ],
+        "fill": "#8a6a50",
+        "size": 18,
+        "role": "body",
+        "weight": 400,
+        "box": {
+          "x": 40,
+          "y": 563,
+          "w": 125.328125,
+          "h": 21
+        },
+        "sample": "Pretendard 700",
+        "contrastP10": 4.165786892255702,
+        "contrastMedian": 4.165786892255702
+      },
+      {
+        "id": "t11",
+        "lines": [
+          "DAWN ROASTERY"
+        ],
+        "fill": "#2b1a12",
+        "size": 56,
+        "role": "display",
+        "weight": 600,
+        "box": {
+          "x": 800,
+          "y": 466,
+          "w": 634.34375,
+          "h": 68
+        },
+        "sample": "DAWN ROASTERY",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t12",
+        "lines": [
+          "Dawn Roastery · Seongsu 1984"
+        ],
+        "fill": "#2b1a12",
+        "size": 40,
+        "role": "display",
+        "weight": 600,
+        "box": {
+          "x": 800,
+          "y": 541,
+          "w": 600.390625,
+          "h": 49
+        },
+        "sample": "Dawn Roastery · Seongsu ",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t13",
+        "lines": [
+          "새벽 로스터리"
+        ],
+        "fill": "#2b1a12",
+        "size": 80,
+        "role": "display",
+        "weight": 400,
+        "box": {
+          "x": 40,
+          "y": 647,
+          "w": 434.8125,
+          "h": 116
+        },
+        "sample": "새벽 로스터리",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t14",
+        "lines": [
+          "Gowun Dodum 400"
+        ],
+        "fill": "#8a6a50",
+        "size": 18,
+        "role": "body",
+        "weight": 400,
+        "box": {
+          "x": 40,
+          "y": 773,
+          "w": 156.484375,
+          "h": 21
+        },
+        "sample": "Gowun Dodum 400",
+        "contrastP10": 4.165786892255702,
+        "contrastMedian": 4.165786892255702
+      },
+      {
+        "id": "t15",
+        "lines": [
+          "DAWN ROASTERY"
+        ],
+        "fill": "#2b1a12",
+        "size": 56,
+        "role": "display",
+        "weight": 500,
+        "box": {
+          "x": 800,
+          "y": 675,
+          "w": 577.234375,
+          "h": 71
+        },
+        "sample": "DAWN ROASTERY",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      },
+      {
+        "id": "t16",
+        "lines": [
+          "Dawn Roastery · Seongsu 1984"
+        ],
+        "fill": "#2b1a12",
+        "size": 40,
+        "role": "display",
+        "weight": 500,
+        "box": {
+          "x": 800,
+          "y": 751,
+          "w": 588.734375,
+          "h": 51
+        },
+        "sample": "Dawn Roastery · Seongsu ",
+        "contrastP10": 14.086890488735188,
+        "contrastMedian": 14.086890488735188
+      }
+    ],
+    "detail": [
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "balance": {
+      "dx": -0.050688486697338775,
+      "dy": -0.048058945027457
+    },
+    "coverage": 0.06628318584070797,
+    "colors": [
+      {
+        "hex": "#f3ebdd",
+        "share": 0.935
+      },
+      {
+        "hex": "#2b1a12",
+        "share": 0.045
+      }
+    ],
+    "value": {
+      "mean": 0.9032579523325419,
+      "std": 0.15541899026127212,
+      "dark": 0.049070796460176994,
+      "light": 0.9370796460176991,
+      "mid": 0.013849557522123912
+    }
+  }
+}
