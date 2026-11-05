@@ -38,7 +38,9 @@ node atelier/cli.js render examples/x.mjs --out out --scale 2
 node atelier/cli.js compare a.json b.mjs c.json --out out # out/compare.png
 node atelier/cli.js palette "#e8590c" split --out out     # 토큰 확인
 ```
-처음 실행하는 환경이면 `bash scripts/setup.sh`(Pretendard 폰트 설치)를 먼저 실행한다.
+처음 실행하는 환경이면 `bash scripts/setup.sh`(Pretendard)와 `bash scripts/fonts.sh`(역할별 OFL 폰트 15종)를 먼저 실행한다.
+**폰트 역할:** 한글 명조 `NanumMyeongjo` `Gowun Batang` `Song Myung`(붓) · 한글 제목 `Black Han Sans` `Do Hyeon` `Gowun Dodum` `Gaegu`(손글씨) · 중립 `Pretendard` `Inter` · 라틴 세리프 `Playfair Display` `DM Serif Display` `Cormorant Garamond` `Fraunces` · 라틴 디스플레이 `Space Grotesk` `Archivo Black` `Bebas Neue`. 한 디자인에 2종(제목 + 본문)까지.
+**분석:** `python3 -I atelier/analyze.py out/x.png --sheet out/study` → 명도 구조, 노탄 덩어리 수, 팔레트 면적, 초점 위치·지배도, 디테일 분포, 무게중심. 레퍼런스와 내 결과물을 같은 숫자로 비교한다.
 
 ## 3. 장면 DSL
 최상위: `width`, `height`, `palette: {seed, harmony}`, `tokens: {name: "#hex"}`, `background`,
@@ -63,7 +65,8 @@ node atelier/cli.js palette "#e8590c" split --out out     # 토큰 확인
 | blob | cx cy r(또는 rx ry) points wobble seed | 구름, 덤불, 바위, 얼룩 |
 | ridge | w y bottom amp freq octaves seed | 산맥, 파도, 언덕 레이어 |
 | path | d | 직접 그린 SVG 경로 |
-| text | x y text/lines size weight fill align maxWidth letterSpacing upper role | 타이포 |
+| text | x y text/lines size weight fill align maxWidth letterSpacing upper role font italic **vertical** | 타이포. `vertical:true` = 세로쓰기(글자 세움, 줄은 오른쪽→왼쪽, x = 첫 줄 중심) |
+| arcText | cx cy r text side('top'/'bottom') size font weight letterSpacing offset | 원호 위 글자(배지·스탬프 로고) |
 
 **공통 속성:** `fill` `stroke:{color,width,dash,cap}` `opacity` `blend`(multiply/screen/overlay/soft-light)
 `rotate` `scale` `origin` `translate` `transform`

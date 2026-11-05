@@ -298,10 +298,34 @@ function textNode(ctx, n) {
     ...strokeAttrs(ctx, n.stroke),
     'paint-order': n.stroke ? 'stroke' : undefined,
   };
+  if (n.vertical) {
+    // 세로쓰기(책 표지·전통 타이포): 글자는 세운 채 위→아래, 줄은 오른쪽→왼쪽. y는 첫 글자의 위쪽, x는 첫 줄의 중심
+    attrs.style = [attrs.style, 'writing-mode:vertical-rl', 'text-orientation:upright'].filter(Boolean).join(';');
+    attrs['text-anchor'] = { left: 'start', center: 'middle', right: 'end' }[n.align ?? 'left'] ?? 'start';
+    const cols = lines.map((l, i) => `<tspan x="${+(n.x - i * size * lh).toFixed(2)}" y="${n.y}">${esc(l)}</tspan>`).join('');
+    return `<text ${attrStr(attrs)}>${cols}</text>`;
+  }
   const spans = lines
     .map((l, i) => `<tspan x="${n.x}" dy="${i === 0 ? 0 : +(size * lh).toFixed(2)}">${esc(l)}</tspan>`)
     .join('');
   return `<text ${attrStr(attrs)}>${spans}</text>`;
+}
+
+/** 원호 위 글자(배지·스탬프 로고): side 'top'이면 원 위쪽을 시계 방향으로, 'bottom'이면 아래쪽을 반시계 방향으로(글자가 바로 서게) */
+function arcTextNode(ctx, n) {
+  const { cx, cy, r, side = 'top', size = 24 } = n;
+  const id = ctx.id('arc');
+  const d = side === 'top'
+    ? `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`
+    : `M ${cx - r} ${cy} A ${r} ${r} 0 0 0 ${cx + r} ${cy}`;
+  ctx.defs.push(`<path id="${id}" d="${d}"/>`);
+  ctx.texts.push({ id: id + 't', lines: [n.text], fill: typeof n.fill === 'string' ? ctx.color(n.fill) : null, size, role: 'label', weight: n.weight ?? 400 });
+  const attrs = {
+    'font-family': ctx.fonts[n.font ?? 'default'] ?? n.font, 'font-size': size, 'font-weight': n.weight ?? 400,
+    'letter-spacing': n.letterSpacing, fill: paint(ctx, n.fill ?? '#111'), opacity: n.opacity, 'text-anchor': 'middle',
+    'dominant-baseline': side === 'top' ? 'auto' : 'hanging', transform: transformOf(n),
+  };
+  return `<text ${attrStr(attrs)}><textPath href="#${id}" startOffset="${n.offset ?? 50}%">${esc(n.upper ? String(n.text).toUpperCase() : n.text)}</textPath></text>`;
 }
 
 // ---------- 절차적 반복 ----------
@@ -340,6 +364,7 @@ function node(ctx, n) {
   if (!n || n.hidden) return '';
   if (Array.isArray(n)) return n.map(c => node(ctx, c)).join('');
   if (n.type === 'text') return textNode(ctx, n);
+  if (n.type === 'arcText') return arcTextNode(ctx, n);
   if (n.type === 'scatter') return node(ctx, { type: 'group', children: expandScatter(n), opacity: n.groupOpacity, blend: n.blend, effects: n.effects });
   if (n.type === 'repeat') return node(ctx, { type: 'group', children: expandRepeat(n), effects: n.effects, blend: n.blend });
   if (n.type === 'group') {
