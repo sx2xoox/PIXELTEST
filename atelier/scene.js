@@ -289,6 +289,7 @@ function textNode(ctx, n) {
     'font-size': size,
     'font-weight': n.weight ?? 400,
     'font-style': n.italic ? 'italic' : undefined,
+    'font-variant-numeric': n.numeric === 'lining' ? 'lining-nums' : n.numeric === 'tabular' ? 'lining-nums tabular-nums' : n.numeric === 'oldstyle' ? 'oldstyle-nums' : undefined, // 날짜·시간은 lining(대문자 높이 숫자)
     'letter-spacing': ls ? +ls.toFixed(2) : undefined,
     'text-anchor': anchor,
     opacity: n.opacity,
