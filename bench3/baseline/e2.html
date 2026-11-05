@@ -1,0 +1,137 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html,body{margin:0;padding:0}
+  body{width:1080px;height:1350px;position:relative;overflow:hidden;background:#0E1630;font-family:Pretendard,sans-serif;color:#F4EBD8}
+  svg.bg{position:absolute;left:0;top:0}
+  .top{position:absolute;left:72px;right:72px;top:64px;display:flex;justify-content:space-between;align-items:baseline;font-size:20px;letter-spacing:.18em;color:#C9C3B0}
+  .top b{font-family:'NanumMyeongjo';font-weight:800;font-size:30px;letter-spacing:.04em;color:#F2C86B}
+  .rule{position:absolute;left:72px;right:72px;top:118px;height:1px;background:rgba(244,235,216,.25)}
+  .title{position:absolute;left:66px;top:150px;font-family:'NanumMyeongjo';font-weight:800;line-height:1.02;letter-spacing:-.04em}
+  .title .l1{font-size:200px;color:#F4EBD8}
+  .title .l2{font-size:132px;color:#F4EBD8}
+  .title .l2 em{font-style:normal;color:#F2C86B}
+  .sub{position:absolute;right:72px;top:178px;writing-mode:vertical-rl;font-family:'NanumMyeongjo';font-size:24px;letter-spacing:.32em;color:#C9C3B0}
+  .info{position:absolute;left:72px;right:72px;bottom:64px}
+  .date{display:flex;align-items:baseline;gap:22px;font-family:'Space Grotesk';font-weight:600;color:#F4EBD8}
+  .date .d{font-size:92px;letter-spacing:-.03em;line-height:1}
+  .date .w{font-family:Pretendard;font-weight:700;font-size:40px;color:#F2C86B}
+  .date .t{font-size:44px;font-weight:500;margin-left:auto;letter-spacing:-.01em}
+  .row{margin-top:26px;padding-top:24px;border-top:1px solid rgba(244,235,216,.3);display:flex;justify-content:space-between;align-items:center;font-size:30px;font-weight:600}
+  .row .place small{display:block;font-size:19px;font-weight:400;color:#B9B3A2;letter-spacing:.12em;margin-bottom:6px}
+  .pill{display:flex;gap:12px}
+  .pill span{border:1.5px solid #F2C86B;color:#F2C86B;border-radius:40px;padding:10px 22px;font-size:26px;font-weight:700}
+  .pill span.f{background:#F2C86B;color:#0E1630}
+</style></head>
+<body>
+<svg class="bg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0B1129"/>
+      <stop offset=".5" stop-color="#16214A"/>
+      <stop offset="1" stop-color="#2D3566"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B2550"/>
+      <stop offset="1" stop-color="#0A1027"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="560" cy="960" r="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD98A" stop-opacity=".55"/>
+      <stop offset=".45" stop-color="#F2B65A" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#F2B65A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="moonglow" cx="860" cy="560" r="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF1CC" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#FFF1CC" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF4DA"/>
+      <stop offset="1" stop-color="#F2D9A6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1080" height="1350" fill="url(#sky)"/>
+  <g id="stars" fill="#F4EBD8"></g>
+  <circle cx="860" cy="560" r="140" fill="url(#moonglow)"/>
+  <circle cx="860" cy="560" r="38" fill="#FFF1CC"/>
+  <!-- skyline -->
+  <g id="city" fill="#0D1431"></g>
+  <g id="win" fill="#F2C86B"></g>
+  <!-- water -->
+  <rect x="0" y="760" width="1080" height="590" fill="url(#water)"/>
+  <!-- bridge -->
+  <g stroke="#3B4680" fill="none">
+    <path d="M-20 742 L1100 742" stroke-width="10" stroke="#121A3C"/>
+  </g>
+  <g id="bridge"></g>
+  <g id="refl"></g>
+  <!-- moon reflection -->
+  <g fill="#FFF1CC" opacity=".55">
+    <rect x="836" y="790" width="48" height="4" rx="2"/>
+    <rect x="846" y="806" width="30" height="3" rx="1.5"/>
+    <rect x="828" y="822" width="60" height="3" rx="1.5" opacity=".6"/>
+    <rect x="850" y="840" width="22" height="3" rx="1.5" opacity=".5"/>
+  </g>
+  <!-- grass bank -->
+  <path d="M0 905 C 220 880, 420 900, 600 896 S 900 884, 1080 900 L1080 1350 L0 1350 Z" fill="#0A1124"/>
+  <path d="M0 905 C 220 880, 420 900, 600 896 S 900 884, 1080 900" stroke="#2A3566" stroke-width="2" fill="none"/>
+  <!-- foreground bank: blanket + book -->
+  <circle cx="560" cy="960" r="330" fill="url(#glow)"/>
+  <!-- blanket -->
+  <g transform="translate(540 1010)">
+    <path d="M-300 30 L-220 -50 L300 -50 L330 30 Z" fill="#7E3B3B"/>
+    <g stroke="#B85E4E" stroke-width="5" opacity=".9">
+      <path d="M-270 0 L310 0"/><path d="M-245 -25 L300 -25"/>
+      <path d="M-120 -50 L-150 30"/><path d="M60 -50 L60 30"/><path d="M220 -50 L240 30"/>
+    </g>
+    <!-- open book -->
+    <g transform="translate(20 -48)">
+      <path d="M0 0 C -40 -22, -110 -26, -170 -12 L -180 22 C -120 10, -50 14, 0 34 Z" fill="url(#page)"/>
+      <path d="M0 0 C 40 -22, 110 -26, 170 -12 L 180 22 C 120 10, 50 14, 0 34 Z" fill="#FBE9C2"/>
+      <path d="M0 0 L0 34" stroke="#C99A55" stroke-width="2"/>
+      <g stroke="#C9A876" stroke-width="2" opacity=".7">
+        <path d="M-150 -6 C -110 -16, -60 -12, -20 2"/><path d="M-152 4 C -110 -6, -60 -2, -20 12"/>
+        <path d="M20 2 C 60 -12, 110 -16, 150 -6"/><path d="M20 12 C 60 -2, 110 -6, 152 4"/>
+      </g>
+    </g>
+    <!-- mug -->
+    <g transform="translate(-200 -60)">
+      <rect x="0" y="0" width="36" height="40" rx="5" fill="#E9DFC9"/>
+      <path d="M36 10 q14 0 14 12 q0 12 -14 12" stroke="#E9DFC9" stroke-width="5" fill="none"/>
+      <path d="M10 -10 q-6 -10 2 -22 M24 -8 q-6 -10 2 -22" stroke="#E9DFC9" stroke-opacity=".5" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>
+
+<div class="top"><b>제3회</b><span>HANGANG NIGHT READING · 2026</span></div>
+<div class="rule"></div>
+<div class="title"><div class="l1">한강</div><div class="l2"><em>야간</em> 독서회</div></div>
+<div class="sub">강바람 아래 한 페이지씩</div>
+
+<div class="info">
+  <div class="date"><span class="d">2026.9.19</span><span class="w">토</span><span class="t">19:00 – 23:00</span></div>
+  <div class="row">
+    <div class="place"><small>장소</small>여의도 한강공원 물빛광장</div>
+    <div class="pill"><span class="f">무료</span><span>담요 지참</span></div>
+  </div>
+</div>
+
+<script>
+  // seeded random
+  let s=7; const r=()=>{s=(s*16807)%2147483647;return (s-1)/2147483646};
+  const NS='http://www.w3.org/2000/svg';
+  const add=(g,tag,at)=>{const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);document.getElementById(g).appendChild(e);return e};
+  for(let i=0;i<70;i++){const x=r()*1080,y=470+r()*230;add('stars','circle',{cx:x,cy:y,r:.6+r()*1.6,opacity:.25+r()*.6})}
+  // skyline
+  let x=-10; const bld=[];
+  while(x<1090){const w=24+r()*46;const tall=r()<.18;const h=(tall?110:30)+r()*(tall?90:70);bld.push([x,742-h,w,h]);x+=w+ (r()<.3?4:0);}
+  bld.forEach(([x,y,w,h])=>{add('city','rect',{x,y,width:w,height:h});
+    for(let yy=y+8;yy<736;yy+=12)for(let xx=x+5;xx<x+w-6;xx+=10) if(r()<.13) add('win','rect',{x:xx,y:yy,width:4,height:5,opacity:.5+r()*.5});
+    // reflections
+    if(r()<.45){const cx=x+w/2;for(let k=0;k<6;k++)add('refl','rect',{x:cx-6+r()*12-(10-k),y:770+k*14+r()*6,width:8+r()*22,height:2.5,rx:1.2,fill:'#F2C86B',opacity:(.5-k*.07)})}
+  });
+  // bridge piers + light dots
+  for(let i=0;i<12;i++){const px=20+i*95;add('bridge','rect',{x:px,y:742,width:10,height:22,fill:'#121A3C'});}
+  for(let i=0;i<54;i++){add('bridge','circle',{cx:10+i*20,cy:739,r:2.2,fill:'#FFE3A3'});
+    add('refl','rect',{x:6+i*20,y:776+r()*8,width:8,height:2,fill:'#FFE3A3',opacity:.35});}
+</script>
+</body></html>
