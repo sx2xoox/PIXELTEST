@@ -4,6 +4,7 @@ import fs from 'fs';
 import { buildItems, writePack, previewHTML } from '../atelier/mc/rpgitems.js';
 import { PixelCanvas } from '../atelier/pixel.js';
 import { regionPalette, harmonyReport } from '../atelier/mc/palette.js';
+import { BLOOD_SPEC, GHOST_SPEC } from './palettes.mjs';
 
 const NS = 'rpg';
 // 지역마다 팔레트(공유 잉크·빛 + 역할)를 정하고, 아이템은 hex가 아니라 역할 이름으로 색을 고른다 → 세트 색 조화(atelier/mc/palette.js)
@@ -11,10 +12,7 @@ export const REGIONS = [
   {
     title: '피의 땅 — 흡혈 귀족의 영지',
     note: '역할: 진홍(주 60%) · 와인(보조) · 금(강조, 화폐만) · 뼈. 모든 외곽선은 같은 검붉은 잉크, 모든 반짝임은 같은 따뜻한 빛.',
-    palette: {
-      ink: '#1c0710', light: '#fff1d8', shadowHue: 350, lightHue: 70,
-      roles: { primary: { hue: 22, chroma: 0.22, shift: 0.25 }, secondary: { hue: 0, chroma: 0.16, lift: -0.07, shift: 0.3 }, accent: { hue: 86, chroma: 0.17, lift: 0.11, shift: 1 }, bone: { hue: 75, chroma: 0.045, lift: 0.13 } },
-    },
+    palette: BLOOD_SPEC,
     items: [
       { id: 'blood_shard', name: '혈석 파편', family: 'shard', color: 'primary', tier: 1, desc: ['굳은 피가 결정이 된 조각.'], source: '피의 땅 · 모든 몹' },
       { id: 'clotted_dust', name: '응고된 피 가루', family: 'dust', color: 'secondary', tier: 1, desc: ['갈아 낸 혈석. 정제의 기본 재료.'], source: '혈석 파편 분쇄' },
@@ -31,10 +29,7 @@ export const REGIONS = [
   {
     title: '유령 저택 — 소란의 망령이 사는 곳',
     note: '역할: 민트(주) · 라벤더(보조) · 바랜 황동(강조) · 백랍·촛농(지역 색에 물든 중성). 외곽선은 같은 남보라 잉크, 반짝임은 같은 차가운 빛.',
-    palette: {
-      ink: '#120d24', light: '#ecfff6', shadowHue: 290, lightHue: 165,
-      roles: { primary: { hue: 172, chroma: 0.17, lift: 0.07, shift: 0.3 }, secondary: { hue: 305, chroma: 0.16, shift: 0.25 }, accent: { hue: 84, chroma: 0.13, lift: 0.07, shift: 0.9 }, metal: { hue: 285, chroma: 0.035 }, wax: { hue: 165, chroma: 0.05, lift: 0.1 } },
-    },
+    palette: GHOST_SPEC,
     items: [
       { id: 'pewter_scrap', name: '백랍 조각', family: 'nugget', color: 'metal', tier: 1, desc: ['부서진 촛대에서 떨어진 조각.'], source: '유령 저택 · 모든 몹' },
       { id: 'ghost_wax', name: '유령 촛농', family: 'dust', color: 'wax', tier: 1, desc: ['식어도 희미하게 빛난다.'], source: '촛대 유령' },

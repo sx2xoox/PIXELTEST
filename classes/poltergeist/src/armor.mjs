@@ -4,13 +4,16 @@
 //      벨벳을 밝게(L 약 25~60) + 세로 옷주름 명암 + 결 30%, 연미복 실루엣은 V자 목선·아래 사다리꼴 컷, 한 벌 11색
 import { PixelCanvas } from '../../../atelier/pixel.js';
 import { Armor, critiqueArmor } from '../../../atelier/mc/skin.js';
+import { placeInSlot } from '../../../atelier/mc/slotfit.js';
 import { paintFace, fineRamp, grain, outline } from '../../../atelier/mc/shade.js';
 import { OUT } from './palette.mjs';
 
-export const VEL = fineRamp('#6a42a2', { steps: 5, dL: 0.09, hueShift: 22, chroma: 0.17 });   // v2.1: 채도 9.6 → 14+, 명도 폭 확대   // 벨벳 보라 5
-export const POR = fineRamp('#e6dcc4', { steps: 3, dL: 0.07, hueShift: 6 });     // 도자기·크라바트 3
-export const PEW = ['#7d879c', '#c9d2e0'];                                         // 백랍 단추·버클 2
-export const MINT = '#3fe0b4';                                                     // 민트 솔기 1
+// v3 색 조화: 촛대·재료 아이콘과 같은 지역 팔레트(rpg/palettes.mjs 「유령 저택」) 역할 램프
+import { PAL } from './palette.mjs';
+export const VEL = PAL.ramp('secondary', { steps: 5, lo: 0.24, hi: 0.62, ink: false });   // v2.1: 채도 9.6 → 14+, 명도 폭 확대   // 벨벳 보라 5
+export const POR = PAL.ramp('ivory', { steps: 3, lo: 0.72, hi: 0.86, ink: false });     // 도자기·크라바트 3
+export const PEW = PAL.ramp('metal', { steps: 2, lo: 0.6, hi: 0.86, ink: false });                                         // 백랍 단추·버클 2
+export const [MINT_D, MINT] = PAL.ramp('primary', { steps: 2, lo: 0.6, hi: 0.76, ink: false });                                                     // 민트 솔기 1
 const F4 = ['north', 'east', 'south', 'west'];
 const GR = grain(0.3, 21);
 /** 옷주름: 세로 주름 능선(밝음)과 골(어두움)이 3~4px 간격으로 번갈아, 아래로 갈수록 살짝 어두움 + 결 */
@@ -55,7 +58,7 @@ export default function () {
   // ── 바지(위 9줄): 줄무늬 벨벳 → 정강이(6~8행)에서 민트 엑토플라즘으로 흩어짐
   for (const f of F4) l.draw('leg_r', f, (c, r) => {
     c.paste(paintFace(VEL, r.w, r.h, f, folds(1.6, 2), { rim: false }), r.x, r.y);
-    for (let y = 6; y < 9; y++) for (let x = 0; x < r.w; x++) if (((x * 3 + y * 5) % 4) < y - 5) c.set(r.x + x, r.y + y, y === 8 ? MINT : '#2aa888');
+    for (let y = 6; y < 9; y++) for (let x = 0; x < r.w; x++) if (((x * 3 + y * 5) % 4) < y - 5) c.set(r.x + x, r.y + y, y === 8 ? MINT : MINT_D);
   });
   l.keepRows('leg_r', 0, 9);
 
@@ -64,15 +67,17 @@ export default function () {
 
 /** 아이콘 4종: 갑옷과 같은 팔레트·특징(두건 + 눈가리개 + 드러난 입, 크라바트·단추, 흩어지는 바지 밑단, 버클) — 외곽선 자동 */
 export function icons() {
-  const L = { 0: VEL[0], 1: VEL[1], 2: VEL[2], 3: VEL[3], 4: VEL[4], p: POR[0], P: POR[1], q: POR[2], b: PEW[0], B: PEW[1], m: MINT, n: '#2aa888' };
+  const L = { 0: VEL[0], 1: VEL[1], 2: VEL[2], 3: VEL[3], 4: VEL[4], p: POR[0], P: POR[1], q: POR[2], b: PEW[0], B: PEW[1], m: MINT, n: MINT_D };
   const draw = rows => outline(new PixelCanvas(16).chars(0, 0, rows, L), OUT);
-  return {
+  // 칸 맞춤(atelier/mc/slotfit.js): 그린 뒤 질량 중심을 바닐라 기준 위치로 정수 이동(투구는 약간 위, 장화는 약간 아래)
+  const fitAll = o => Object.fromEntries(Object.entries(o).map(([k, c]) => [k, placeInSlot(c, k)]));
+  return fitAll({
     helmet: draw([
       '................', '.....444433.....', '....43322221....', '...4322222210...', '...3211111110...', '...mPq.qq.qPm...',
       '...3........1...', '...2........1...', '...1........0...', '................', '................', '................',
       '................', '................', '................', '................']),
     chestplate: draw([
-      '................', '..4433....3322..', '.432221..122110.', '.32m1qqqqq1m110.', '.21.1mqPPm1.11..', '....21qPq121....',
+      '................', '...433....332...', '..43221..12211..', '..2m1qqqqq1m11..', '..1.1mqPPm1.1...',   // v2(칸 맞춤): 어깨 1px씩 안으로 → 14px '....21qPq121....',
       '....321Bb321....', '....2212212.....'.padEnd(16, '.'), '....321Bb321....', '....2212212.....'.padEnd(16, '.'), '....321Bb321....', '....22100122....',
       '................', '................', '................', '................']),
     leggings: draw([
@@ -83,5 +88,5 @@ export function icons() {
       '................', '................', '................', '................', '................', '..222....222....',
       '..211....211....', '..2Bb....2Bb....', '..1111...1111...', '..33321..33321..', '..00000..00000..', '................',
       '................', '................', '................', '................']),
-  };
+  });
 }

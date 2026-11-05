@@ -2,10 +2,16 @@
 import { PixelCanvas, tileNoise } from '../../../atelier/pixel.js';
 import { rng } from '../../../atelier/geom.js';
 
-export const BLOOD = ['#2e0810', '#5a0d1a', '#8c1626', '#bf2633', '#e8494f'];   // 어둠 → 밝음
-export const IRON = ['#16131a', '#241f29', '#363039', '#4d4552', '#6e6474'];
-export const BONE = ['#7d6f5c', '#a99a82', '#cfc2a8', '#ece2cc'];
-export const GLOW = ['#ff3b46', '#ff8a7a', '#ffd9cc'];                           // 발광(초점)
+// v6: 색 조화 — 직접 고른 hex 대신 지역 팔레트 「피의 땅」(rpg/palettes.mjs)의 역할 램프를 쓴다.
+//   재료 아이콘·갑옷·낫이 같은 잉크(외곽선)·같은 빛(반짝임)·같은 금속을 공유한다.
+import { BLOOD as PAL } from '../../../rpg/palettes.mjs';
+export { PAL };
+export const INK = PAL.ink, LIGHT = PAL.light;
+export const BLOOD = PAL.ramp('primary', { steps: 5, lo: 0.2, hi: 0.64, ink: false });   // 어둠 → 밝음
+export const IRON = PAL.ramp('metal', { steps: 5, lo: 0.17, hi: 0.52, ink: false });
+export const BONE = PAL.ramp('bone', { steps: 4, lo: 0.5, hi: 0.78, ink: false });
+export const GLOW = PAL.ramp('glow', { steps: 3, lo: 0.55, hi: 0.8, ink: false });      // 발광(초점)
+export const GOLD = PAL.ramp('accent', { steps: 3, lo: 0.35, hi: 0.8, ink: false });
 
 const pick = (r, t) => r[Math.max(0, Math.min(r.length - 1, Math.floor(t * r.length)))];
 

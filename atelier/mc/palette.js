@@ -7,26 +7,36 @@
 //   · 외곽선(0단)은 공유 잉크와 섞어서 세트 전체가 같은 "선 색"을 공유한다
 import { hexToOklch, oklch, mix } from '../color.js';
 
-const LADDER = [0.25, 0.37, 0.48, 0.59, 0.71, 0.84];           // 6단 명도(OKLab L). 외곽선 0단은 이 값보다 잉크 쪽으로 더 내려간다
-const CHROMA_SHAPE = [0.55, 0.85, 1, 1, 0.82, 0.5];            // 중간 톤이 가장 진하다(어둠·밝음은 55~85%)
-const PULL = [1, 0.7, 0.3, 0, 0.45, 0.85];                     // 어둠 쪽은 그림자 색상으로, 밝음 쪽은 빛 색상으로 끌리는 정도
-
 const hd = (a, b) => ((b - a + 540) % 360) - 180;
 const lean = (h, target, k, cap) => (h + Math.max(-cap, Math.min(cap, hd(h, target) * k)) + 360) % 360;
+// 램프 모양(t = 0 어둠 → 1 밝음): 채도는 중간 톤이 가장 높고(어둠 55%, 밝음 50%), 어둠은 그림자 색상으로, 밝음은 빛 색상으로 끌린다
+const cShape = t => t < 0.4 ? 0.55 + (t / 0.4) * 0.45 : t <= 0.6 ? 1 : 1 - ((t - 0.6) / 0.4) * 0.5;
+const pull = t => t < 0.55 ? { to: 'shadow', k: (0.55 - t) / 0.55 } : { to: 'light', k: ((t - 0.55) / 0.45) * 0.9 };
 
 /**
- * 재질 램프 하나. hue = 재질 색상(도), chroma = 중간 톤 최고 채도(OKLCH), lift = 명도 사다리 이동(뼈·밀랍 +0.06, 쇠 −0.04),
- * shift = 그림자·빛 색상 쪽으로 기우는 정도(바닐라: 빨강·청록·보라 ≈0, 금·블레이즈·꿀 −15~−45°/+20~+35°)
- * set = { ink, light, shadowHue, lightHue } (regionPalette가 채움)
+ * 재질 램프 N단(배열). role = { hue, chroma, lift = 0, shift = 0.5 }
+ *  hue = 재질 색상(도), chroma = 중간 톤 최고 채도(OKLCH), lift = 명도 이동(뼈·밀랍 +0.06~0.13, 쇠 −0.04),
+ *  shift = 그림자·빛 색상 쪽으로 기우는 정도(바닐라: 빨강·청록·보라 ≈0, 금·블레이즈·꿀 −15~−45°/+20~+35°)
+ * opts = { steps = 6, lo = 0.25, hi = 0.84 }: 명도 범위(OKLab L). 갑옷 벨벳처럼 어두운 재질은 lo/hi를 내려서 쓴다.
+ * 0단(가장 어두움)은 세트 잉크와 45% 섞는다 → 세트 전체가 같은 "선 색"을 공유한다.
  */
-export function setRamp(set, { hue, chroma, lift = 0, shift = 0.5 }) {
-  const R = LADDER.map((L, i) => {
-    const toward = i < 3 ? set.shadowHue : set.lightHue;
-    const h = lean(hue, toward, PULL[i] * Math.min(1, shift * 1.4), (i < 3 ? 22 : 30) * shift);   // shift: 빨강·청록처럼 색상이 곧 정체성인 재질은 작게(0.2~0.4), 금·황동·불은 크게(0.8~1)
-    return oklch(Math.min(0.95, L + lift * (i === 0 ? 0.3 : 1)), chroma * CHROMA_SHAPE[i], h);
+export function rampN(set, { hue, chroma, lift = 0, shift = 0.5 }, { steps = 6, lo = 0.25, hi = 0.84, ink = true } = {}) {
+  const R = Array.from({ length: steps }, (_, i) => {
+    const L = Math.max(0.06, Math.min(0.97, lo + (hi - lo) * (steps === 1 ? 0.5 : i / (steps - 1)) + lift * (i === 0 ? 0.3 : 1)));
+    // 채도·색상 기울기는 램프 안의 순서가 아니라 "절대 명도"로 정한다 → 어두운 구간만 쓰는 램프(갑옷 판)도, 밝은 구간만 쓰는 램프(발광)도
+    // 같은 역할이면 같은 명도에서 같은 색이 나온다(세트가 색을 공유).
+    const t = Math.max(0, Math.min(1, (L - 0.25) / 0.59));
+    const p = pull(t), target = p.to === 'shadow' ? set.shadowHue : set.lightHue;
+    const h = lean(hue, target, p.k * Math.min(1, shift * 1.4), (p.to === 'shadow' ? 22 : 30) * shift);
+    return oklch(L, chroma * cShape(t), h);
   });
-  R[0] = mix(R[0], set.ink, 0.45);                              // 외곽선은 세트 잉크와 공유
-  return { R, spec: set.light };
+  if (ink) R[0] = mix(R[0], set.ink, 0.45);
+  return R;
+}
+
+/** 아이콘용 6단 램프 + 반짝임 색(세트 공유 빛) */
+export function setRamp(set, role) {
+  return { R: rampN(set, role), spec: set.light };
 }
 
 /**
@@ -43,7 +53,9 @@ export function regionPalette(spec) {
   ramps.rock ??= setRamp(set, { hue: inkH, chroma: 0.025, lift: -0.02 });
   ramps.glass ??= setRamp(set, { hue: hexToOklch(spec.light).H, chroma: 0.03, lift: 0.08 });
   ramps.cork ??= setRamp(set, { hue: 55, chroma: 0.06, lift: -0.04 });
-  return { ...set, ramps, roles: spec.roles };
+  // pal.ramp('metal', { steps: 7, lo: 0.15, hi: 0.9 }) — 같은 역할을 갑옷·무기·아이콘이 길이만 달리해 공유
+  const ramp = (role, opts) => { const r = spec.roles[role]; if (!r) throw new Error(`역할 없음: ${role}`); return rampN(set, r, opts); };
+  return { ...set, ramps, roles: spec.roles, ramp };
 }
 
 /** 세트 조화 측정: 아이콘 PixelCanvas 목록 → 색 수, 공유 색 비율, 색상 군 수, 최고 채도, 외곽선·명도 폭 */

@@ -7,6 +7,7 @@
 // 규약: 쥐는 점 = 원점, 자루 +Y. 팔은 ±Z로 뻗음. ModelEngine: 큐브 회전 없이 본 회전만 사용
 import { PixelCanvas } from '../../../atelier/pixel.js';
 import { paintFace, outline } from '../../../atelier/mc/shade.js';
+import { placeInSlot } from '../../../atelier/mc/slotfit.js';
 import { OUT, PEW, ECT, IVO, VEL } from './palette.mjs';
 
 const D = 4;
@@ -135,23 +136,24 @@ export default function () {
 /** 인벤토리 아이콘 16×16: 대각선 지팡이 위 세 갈래 촛대(불꽃 3개가 초점), 아래 민트 구. 외곽선 자동 */
 export function icon() {
   const L = { p: PEW[3], P: PEW[5], q: PEW[2], w: IVO[4], W: IVO[5], e: ECT[3], E: ECT[5], f: ECT[7], v: VEL[4] };
+  // v2(칸 맞춤): 불꽃 십자 후광을 빼고 촛대를 12px 안으로 — 이전엔 16×16 꽉 차고(채움 0.50) 질량이 왼쪽 위로 쏠렸다(−1.4/−1.1)
   const c = new PixelCanvas(16).chars(0, 0, [
-    '.......E........',
-    '......EfE.......',
-    '..E....E...E....',
-    '.EfE..wW..EfE...',
+    '................',
+    '.......f........',
+    '..f....E...f....',
     '..E...wW...E....',
-    '..wW.PppP..wW...',
-    '..wW..Pq...wW...',
-    '.PppP.Pq..PppP..',
-    '...PPPqPPPP.....',
+    '..wW..wW..wW....',
+    '.PppP.wW.PppP...',
+    '...PPPpqPPP.....',
     '......Pq........',
     '.....Pq.........',
     '....vq..........',
     '...vq...........',
     '..Pq............',
     '.Ee.............',
-    '.e..............',
+    '................',
+    '................',
+    '................',
   ], L);
-  return outline(c, OUT);
+  return placeInSlot(outline(c, OUT), 'tool');
 }

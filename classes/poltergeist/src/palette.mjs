@@ -1,7 +1,10 @@
-// 폴터가이스트 고유 팔레트(CONCEPT.md §3). 각 램프는 어두움 → 밝음, 그림자는 차갑게(남·보라), 밝은 쪽은 재질 고유색으로
-export const OUT = '#07080d';                                                                              // 외곽선
-export const PEW = ['#0b0d14', '#1a1e2a', '#2c3242', '#465066', '#6e7a92', '#a9b6c9', '#e2ecf5'];          // 백랍(틀)
-export const ECT = ['#041a1c', '#06302f', '#0b5a55', '#13917f', '#2fd1a9', '#8cf5d0', '#c9fbe6', '#f0fffa']; // 엑토플라즘(초점)
-export const IVO = ['#3a2f26', '#5a4a3a', '#8f7a5f', '#c2ae8a', '#e6d8b8', '#fbf3e0'];                      // 촛농·도자기
-export const VEL = ['#0d0614', '#160b1f', '#2a1638', '#432458', '#63367c', '#8a52a3'];                      // 저택 벨벳
-export const MAH = ['#120806', '#1c0d0a', '#33170f', '#4e2416', '#6e3520', '#8f4c2c', '#b56d42'];           // 마호가니
+// 폴터가이스트 팔레트 v2 — 색 조화: 직접 고른 hex 대신 지역 팔레트 「유령 저택」(rpg/palettes.mjs)의 역할 램프.
+//  재료 아이콘·갑옷·촛대·펫·보스가 같은 잉크(외곽선)·같은 빛·같은 백랍/민트/라벤더를 공유한다. 각 램프는 어두움 → 밝음.
+import { GHOST as PAL } from '../../../rpg/palettes.mjs';
+export { PAL };
+export const OUT = PAL.ink;                                                                       // 외곽선 = 세트 잉크
+export const PEW = PAL.ramp('metal', { steps: 7, lo: 0.13, hi: 0.93, ink: false });               // 백랍(틀)
+export const ECT = PAL.ramp('primary', { steps: 8, lo: 0.1, hi: 0.92, ink: false });              // 엑토플라즘(초점)
+export const IVO = PAL.ramp('ivory', { steps: 6, lo: 0.22, hi: 0.86, ink: false });               // 촛농·도자기
+export const VEL = PAL.ramp('secondary', { steps: 6, lo: 0.1, hi: 0.52, ink: false });            // 저택 벨벳
+export const MAH = PAL.ramp('wood', { steps: 7, lo: 0.14, hi: 0.62, ink: false });                // 마호가니

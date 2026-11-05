@@ -6,12 +6,15 @@
 //  흡혈 귀족 모티프: 높게 선 깃(뱀파이어 칼라), 이마와 가슴의 혈석, 와인색 안감·띠, 박쥐 날개 모양 어깨 끝
 import { PixelCanvas } from '../../../atelier/pixel.js';
 import { Armor, critiqueArmor } from '../../../atelier/mc/skin.js';
+import { placeInSlot } from '../../../atelier/mc/slotfit.js';
 import { paintFace, fineRamp, grain, outline } from '../../../atelier/mc/shade.js';
 
 // 팔레트(한 벌 10색): 금속 6단계(L 약 28~66) + 와인 3단계 + 혈석 1
-export const MET = fineRamp('#5c2a48', { steps: 6, dL: 0.09, hueShift: 24, chroma: 0.12 });   // v4.5: 보라 → 핏빛 자두(폴터가이스트 보라와 구분)   // v4.4: 채도 5 → 12+(흐림 해소), 명도 폭 확대   // v4.1: 한 단계 어둡게(무게감), 밝은 끝은 L 약 60
-export const WIN = fineRamp('#9c1c38', { steps: 3, dL: 0.1, hueShift: 14, chroma: 0.19 });
-export const GEM = '#ff3a3a';
+// v5 색 조화: 낫·재료 아이콘과 같은 지역 팔레트(rpg/palettes.mjs 「피의 땅」)의 금속·와인·발광 역할을 쓴다
+import { PAL, GLOW } from './palette.mjs';
+export const MET = PAL.ramp('metal', { steps: 6, lo: 0.2, hi: 0.66, ink: false });   // v4.5: 보라 → 핏빛 자두(폴터가이스트 보라와 구분)   // v4.4: 채도 5 → 12+(흐림 해소), 명도 폭 확대   // v4.1: 한 단계 어둡게(무게감), 밝은 끝은 L 약 60
+export const WIN = PAL.ramp('secondary', { steps: 3, lo: 0.36, hi: 0.58, ink: false });
+export const GEM = GLOW[0], GEM_HI = GLOW[2];
 const F4 = ['north', 'east', 'south', 'west'];
 const GR = grain(0.3, 11);
 
@@ -64,7 +67,7 @@ export default function () {
     convex(c, r.x, r.y + 1, 4, 5, MET, { seed: 6, hi: 2 }); convex(c, r.x + 4, r.y + 1, 4, 5, MET, { seed: 7, hi: 2 });
     convex(c, r.x + 1, r.y + 6, 6, 2, MET, { seed: 8, round: 0, hi: 1.4 }); convex(c, r.x + 1, r.y + 8, 6, 2, MET, { seed: 9, round: 0, hi: 1.2 });
     [[0, 0], [1, 0], [6, 0], [7, 0]].forEach(([x, y]) => c.set(r.x + x, r.y + y, MET[5]));                           // 깃 끝 밝은 가장자리
-    c.rect(r.x + 3, r.y + 3, 2, 2, GEM); c.set(r.x + 3, r.y + 3, '#ffd2c4'); c.set(r.x + 4, r.y + 4, WIN[1]);         // 심장 혈석
+    c.rect(r.x + 3, r.y + 3, 2, 2, GEM); c.set(r.x + 3, r.y + 3, GEM_HI); c.set(r.x + 4, r.y + 4, WIN[1]);         // 심장 혈석
   });
   a.draw('body', 'south', (c, r) => { convex(c, r.x, r.y + 1, 8, 4, MET, { seed: 10, round: 0 }); for (let i = 0; i < 3; i++) convex(c, r.x + 2, r.y + 5 + i * 2, 4, 2, MET, { seed: 11 + i, round: 0, hi: 1.3 }); for (let y = 1; y < 9; y++) c.set(r.x + (y % 2 ? 0 : 7), r.y + y, WIN[0]); });   // 등: 견갑판 + 척추 판 3단
   // ── 어깨(팔 위 6줄): 판 2겹 + 와인 테 + 아래 끝 박쥐 날개 톱니
@@ -80,7 +83,7 @@ export default function () {
   const l = new Armor('humanoid_leggings');
   // ── 허리(몸 아래 5줄): 금속 벨트 + 혈석 버클 + 와인 천 앞자락
   paint(l, 'body', F4, MET, plate({ base: 2.6, seams: [9] }));
-  l.draw('body', 'north', (c, r) => { c.rect(r.x + 3, r.y + 8, 2, 1, GEM); c.set(r.x + 3, r.y + 8, '#ffd2c4'); for (let y = 10; y < 12; y++) for (let x = 2; x < 6; x++) c.set(r.x + x, r.y + y, WIN[(x + y) % 2]); });
+  l.draw('body', 'north', (c, r) => { c.rect(r.x + 3, r.y + 8, 2, 1, GEM); c.set(r.x + 3, r.y + 8, GEM_HI); for (let y = 10; y < 12; y++) for (let x = 2; x < 6; x++) c.set(r.x + x, r.y + y, WIN[(x + y) % 2]); });
   l.keepRows('body', 7, 12);
   // ── 다리(위 9줄): 와인 천(세로 주름) + 정면 무릎 판 하나만(v4.1: 금속·천이 번갈아 가로 줄무늬가 되던 것 정리)
   for (const f of F4) l.draw('leg_r', f, (c, r) => c.paste(paintFace(WIN, r.w, r.h, f, (x, y) => 1 + (x % 2 ? -0.35 : 0.25) + GR(x, y) * 0.5, { rim: false }), r.x, r.y));
@@ -92,15 +95,17 @@ export default function () {
 
 /** 아이콘 4종(16×16): 갑옷과 같은 팔레트·특징(이마 혈석과 열린 얼굴, 높은 깃과 심장 혈석, 와인 천, 와인 커프) — 외곽선 자동 */
 export function icons() {
-  const L = { 0: MET[0], 1: MET[1], 2: MET[2], 3: MET[3], 4: MET[4], 5: MET[5], w: WIN[0], W: WIN[1], v: WIN[2], g: GEM, h: '#ffd2c4' };
-  const draw = rows => outline(new PixelCanvas(16).chars(0, 0, rows, L), '#120a14');
-  return {
+  const L = { 0: MET[0], 1: MET[1], 2: MET[2], 3: MET[3], 4: MET[4], 5: MET[5], w: WIN[0], W: WIN[1], v: WIN[2], g: GEM, h: GEM_HI };
+  const draw = rows => outline(new PixelCanvas(16).chars(0, 0, rows, L), PAL.ink);
+  // 칸 맞춤(atelier/mc/slotfit.js): 그린 뒤 질량 중심을 바닐라 기준 위치로 정수 이동(투구는 약간 위, 장화는 약간 아래)
+  const fitAll = o => Object.fromEntries(Object.entries(o).map(([k, c]) => [k, placeInSlot(c, k)]));
+  return fitAll({
     helmet: draw([
       '................', '................', '.....554433.....', '....54433332....', '...5433gg3322...', '...WWWWWWWWWW...',
       '...43.3443.32...', '...32..33..21...', '...32......21...', '...21......10...', '................', '................',
       '................', '................', '................', '................']),
     chestplate: draw([
-      '................', '..55........55..', '.5435......5332.', '.4433v4554v3322.', '.3322344443322 1.'.replace(' ', '1'), '..1.4hg43gg3.1..',
+      '................', '...55......55...', '..5435....5332..', '..433v4554v332..', '..322344443321..', '...14hg43gg31...',   // v2(칸 맞춤): 어깨를 1px씩 안으로 → 14px(바닐라 흉갑 14×13)
       '....3gg44gg3....', '....43344332....', '....11111110....', '....43344332....', '....32333221....', '.....233332.....',
       '......2222......', '................', '................', '................']),
     leggings: draw([
@@ -111,5 +116,5 @@ export function icons() {
       '................', '................', '................', '................', '..WWW....WWW....', '..433....433....',
       '..432....432....', '..3g2....3g2....', '..3221...3221...', '..54443..54443..', '..11110..11110..', '................',
       '................', '................', '................', '................']),
-  };
+  });
 }

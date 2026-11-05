@@ -5,13 +5,15 @@
 //  흐름: 자루의 혈맥이 나선으로 감아 올라가 심장 → 날개뼈 → 막 속 혈맥으로 이어져 날 끝까지 흐른다
 // 좌표: 64×124, 왼쪽 = 날 방향(모델 -Z), 위 = +Y
 import { PixelCanvas } from '../../../atelier/pixel.js';
+import { BLOOD as PAL } from '../../../rpg/palettes.mjs';
 
 export const W = 64, H = 124;
 export const C = {
-  K0: '#07040a',                                                                 // 외곽선(보랏빛 검정)
-  V1: '#1a1120', V2: '#2c1d33', V3: '#46324f', V4: '#715a7b', V5: '#b4a1bb',     // 흑자색 금속 → 라일락 은빛 반사
-  B0: '#20040b', B1: '#3a0715', B2: '#590b1e', B3: '#7e1027', B4: '#a3162f', B5: '#cc2238', // 와인 → 진홍
-  G1: '#ff4b46', G2: '#ff9b84', G3: '#ffe4d0',                                   // 동맥빛 주홍 → 크림(빛나는 부분 전용)
+  // v6 색 조화: 지역 팔레트 「피의 땅」 역할 램프(갑옷 MET와 같은 금속, 재료 아이콘과 같은 진홍·발광)
+  K0: PAL.ink,                                                                   // 외곽선 = 세트 잉크
+  ...Object.fromEntries(PAL.ramp('metal', { steps: 5, lo: 0.17, hi: 0.72, ink: false }).map((c, i) => ['V' + (i + 1), c])),   // 자두빛 흑철 → 밝은 반사
+  ...Object.fromEntries(PAL.ramp('primary', { steps: 6, lo: 0.17, hi: 0.58, ink: false }).map((c, i) => ['B' + i, c])),       // 와인 → 진홍
+  ...Object.fromEntries(PAL.ramp('glow', { steps: 3, lo: 0.55, hi: 0.8, ink: false }).map((c, i) => ['G' + (i + 1), c])),     // 발광(빛나는 부분 전용)
 };
 // 하위 호환(아이콘 등에서 쓰던 이름)
 Object.assign(C, { K1: C.K0, G4: C.V4, G5: C.V5, R1: C.B1, R2: C.B2, R3: C.B3, R5: C.B5, R6: C.G1, P1: C.G2, P2: C.G3, WH: C.G3 });

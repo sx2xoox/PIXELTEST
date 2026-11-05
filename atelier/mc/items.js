@@ -4,6 +4,7 @@
 // 사용: icon('gem', { color:'#d0283c', tier:3, seed:1 }) → PixelCanvas(16)
 import { PixelCanvas } from '../pixel.js';
 import { fineRamp } from './shade.js';
+import { slotShift } from './slotfit.js';
 
 const W = '#ffffff';
 const rnd = s => () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
@@ -34,23 +35,24 @@ const F = {
       if (Math.abs(b) > half) return null;
       return b < -half * 0.2 ? 4.2 - t * 0.6 : b < half * 0.45 ? 3 : 1.9;
     };
-    return one(6.8, 8.2, 15, 2.7) ?? one(10.4, 11.4, 8, 1.6);   // 큰 결정 + 나란히 선 작은 결정(겹치지 않게 축에 수직으로 비킴)
+    return one(6.6, 8.0, 16.5, 3) ?? one(10.6, 11.6, 9, 1.8);   // v2(칸 맞춤): 12px → 13~14px 대각선   // 큰 결정 + 나란히 선 작은 결정(겹치지 않게 축에 수직으로 비킴)
   },
-  // 주괴: 위·앞·옆 세 면이 보이는 막대
+  // 주괴: 위·앞·옆 세 면이 보이는 막대. v2(칸 맞춤): 바닐라 주괴처럼 크게(14×10, 채움 약 0.5) — 이전 12×8은 칸에서 작고 한쪽으로 쏠렸다
   ingot(u, v) {
     const x = Math.floor(u), y = Math.floor(v);
-    if (y < 4 || y > 11) return null;
-    const top = y <= 6 && x >= 6 - (y - 4) && x <= 13 - (y - 4) + 1;
-    if (top) return x === 6 - (y - 4) + 1 && y === 5 ? 5 : 4.4 - (y - 4) * 0.3;
-    const front = y >= 7 && x >= 2 + 0 && x <= 11;
-    if (y >= 7 && x >= 3 && x <= 11) return y === 7 ? 3.6 : 3 - (y - 8) * 0.35;
-    if (y >= 5 && x >= 12 && x <= 14 - Math.max(0, y - 8) && x - 12 <= 11 - y + 1) return 1.8;   // 옆면
+    if (y >= 3 && y <= 6) {                                       // 윗면: 한 줄 내려갈 때마다 왼쪽으로 1px 기움
+      const x0 = 5 - (y - 3), x1 = 14 - (y - 3);
+      if (x >= x0 && x <= x1) return y === 3 ? 4.6 : x === x0 + 1 && y === 4 ? 5 : 4.4 - (y - 3) * 0.25;
+    }
+    if (y >= 7 && y <= 12 && x >= 2 && x <= 11) return y === 7 ? 3.6 : 3.1 - (y - 8) * 0.25;   // 앞면
+    const sx0 = { 3: 15, 4: 14, 5: 13 }[y] ?? 12, sx1 = y <= 9 ? 15 : 15 - (y - 9);              // 옆면(오른쪽)
+    if (y >= 3 && y <= 12 && x >= sx0 && x <= sx1 && !(y <= 6 && x <= 14 - (y - 3))) return 1.9 - (y >= 10 ? 0.3 : 0);
     return null;
   },
   // 가루 무더기: 둥근 봉우리 + 반점
   dust(u, v) {
-    const x = (u - 8) / 7, y = (v - 12.5) / 7;
-    if (y > 0.1 || y < -0.85 + x * x * 1.0 || Math.abs(x) > 1) return null;
+    const x = (u - 8) / 6.6, y = (v - 13.2) / 9.5;             // v2(칸 맞춤): 납작한 6px 무더기 → 바닐라 가루처럼 9~10px 봉우리
+    if (y > 0.05 || y < -0.9 * Math.pow(Math.max(0, 1 - x * x), 0.75) || Math.abs(x) > 1) return null;   // 둥근 봉우리(포물선은 삼각뿔처럼 보였다)
     return 3 - y * 1.2 - x * 0.8;
   },
   // 구슬: 왼쪽 위 광원 + 오른쪽 아래 반사광(가장자리 한 단 밝게)
@@ -76,8 +78,10 @@ const F = {
   },
   // 송곳니·뿔: 아래 넓은 뿌리에서 위로 휘며 가늘어짐
   fang(u, v) {
+    // v2(칸 맞춤): 아래가 넓은 뿔은 세로로 세우면 질량이 아래로 쏠려(세로 중심 +1.9) 칸에서 내려앉아 보인다 → 30° 눕혀 대각선으로(바닐라 뼈·블레이즈 막대 문법)
+    { const a = -0.45, cx0 = 8, cy0 = 8.5, du = u - cx0, dv = v - cy0; u = cx0 + du * Math.cos(a) - dv * Math.sin(a); v = cy0 + du * Math.sin(a) + dv * Math.cos(a); }
     const t = (14.5 - v) / 13; if (t < 0 || t > 1) return null;
-    const cx = 6 + Math.sin(t * 1.7) * 4.2, half = 3.4 * (1 - t) ** 0.8 + 0.3;
+    const cx = 6 + Math.sin(t * 1.7) * 4.2, half = 4.6 * (1 - t) ** 0.8 + 0.45;   // v2(칸 맞춤): 채움 0.23 → 0.28+
     const d = u - cx; if (Math.abs(d) > half) return null;
     return (d < 0 ? 4 : 2.6) - (t < 0.15 ? 1.2 : 0);
   },
@@ -114,6 +118,8 @@ const F = {
   },
 };
 export const FAMILIES = Object.keys(F);
+/** 형태 → 칸 맞춤 기준(slotfit.js FIT). nugget은 네더라이트 파편급 덩어리라 material */
+export const fitKind = f => f === 'rod' ? 'rod' : 'material';
 
 const GLASS0 = ['#3a4450', '#6b7a86', '#a9bac4', '#dfe9ee'], CORK0 = ['#4a2e1c', '#7a5236', '#a8774f'];
 const ROCK0 = fineRamp('#77727c', { steps: 6, dL: 0.1, hueShift: 10, chroma: 0.015 });
@@ -134,6 +140,12 @@ export function icon(family, { color = '#c0283c', tier = 1, chroma, seed = 1, ra
     const k = F[family](x + 0.5, y + 0.5);
     if (k === null || k === undefined) continue;
     val.set(y * 16 + x, k);
+  }
+  // 칸 맞춤(slotfit.js): 그린 형태의 질량 중심을 바닐라 기준 위치로 정수 이동(가로 0, 세로 약간 아래, 여백 ≥1)
+  {
+    const m = new PixelCanvas(16); for (const i of val.keys()) m.set(i % 16, (i / 16) | 0, '#000000');
+    const [dx, dy] = slotShift(m, fitKind(family));
+    if (dx || dy) { const moved = new Map(); for (const [i, k] of val) moved.set((((i / 16) | 0) + dy) * 16 + (i % 16) + dx, k); val.clear(); for (const [i, k] of moved) val.set(i, k); }
   }
   const has = (x, y) => x >= 0 && y >= 0 && x < 16 && y < 16 && val.has(y * 16 + x);
   for (const [i, k] of val) {

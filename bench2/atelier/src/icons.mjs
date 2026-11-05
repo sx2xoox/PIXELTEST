@@ -1,15 +1,16 @@
 // 아이콘 v2 — 바닐라 아이콘 문법(16×16의 70~80% 실루엣, 4~5단 명암, 왼쪽 위 하이라이트, 어두운 외곽선)을 따라 다시 그림
 // 각 행 길이 16, 좌우 대칭 아이콘은 대칭을 코드로 검증한다(손으로 찍을 때의 실수 방지).
 import { PixelCanvas } from '../../../atelier/pixel.js';
-import { BLOOD, IRON, BONE } from './palette.mjs';
+import { placeInSlot } from '../../../atelier/mc/slotfit.js';
+import { BLOOD, IRON, BONE, GLOW, GOLD, INK, PAL } from './palette.mjs';
 
 export const L = {
-  o: '#140b10',                                              // 외곽선
-  1: IRON[1], 2: IRON[2], 3: IRON[3], 4: IRON[4], 5: '#958a9b', // 흑철 5단(5 = 반사광)
+  o: INK,                                                    // 외곽선 = 세트 잉크
+  1: IRON[1], 2: IRON[2], 3: IRON[3], 4: IRON[4], 5: PAL.ramp('metal', { steps: 6, lo: 0.17, hi: 0.72, ink: false })[5], // 흑철 5단(5 = 반사광)
   r: BLOOD[1], R: BLOOD[3], h: BLOOD[4],                      // 피 3단
   b: BONE[0], B: BONE[1], W: BONE[2],                         // 뼈 3단
-  e: '#ff3b46', E: '#ffd9cc',                                 // 발광
-  u: '#8a5a18', y: '#dcb04a', Y: '#fff4c0',                   // 금(갑옷 v3와 같은 램프)
+  e: GLOW[0], E: GLOW[2],                                     // 발광
+  u: GOLD[0], y: GOLD[1], Y: GOLD[2],                         // 금(지역 강조색)
 };
 
 export function draw(rows, { symmetric = false, name = '' } = {}) {
@@ -92,25 +93,27 @@ export function boots() {
 import { C as SC } from './scythe_sprite.mjs';
 const L5 = { M: SC.V4, m: SC.V3, n: SC.V2, v: SC.V1, b: SC.B1, w: SC.B2, r: SC.B3, R: SC.B4, e: SC.B5, g: SC.G1, p: SC.G2, c: SC.G3 };
 export function scythe() {
+  // v6(칸 맞춤): 이전엔 16×16을 꽉 채워(채움 0.60, 질량 중심 왼쪽 위 −1.4/−1.9) 칸에서 답답하고 쏠려 보였다.
+  // 바닐라 도구 문법: 왼쪽 아래 → 오른쪽 위 대각선 자루, 머리(날)는 위, 채움 0.2~0.4. 날 막을 3줄로 줄이고 자루를 대각선 한 줄로.
   const c = new PixelCanvas(16).chars(0, 0, [
-    '..M...M....M.M..',
-    '..mw..mw...mMm..',
-    '.bmrw.mrww.ngpn.',
-    '.bRRRwRRRwngcgn.',
-    'bReeeeeeeRnggg..',
-    'beccccRRe.nmv...',
-    'becc.....nmv....',
-    'ec......nmv.....',
-    'ec.....nmv......',
-    'c.....nmv.......',
-    '.....bRw........',
-    '....eRw.........',
-    '...RRb..........',
-    '..nmv...........',
-    '.Mmv............',
-    '.gg.............',
+    '................',
+    '.....M...M.nMn..',
+    '...bRRwRRwngpgn.',
+    '...ceeeeeR.mv...',
+    '...cc.....mv....',
+    '.........mv.....',
+    '........Rw......',
+    '.......Rw.......',
+    '......mv........',
+    '.....mv.........',
+    '....mv..........',
+    '...Mv...........',
+    '..gg............',
+    '................',
+    '................',
+    '................',
   ], L5);
   const add = []; c.each((x, y) => { if (!c.alpha(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => c.alpha(x + dx, y + dy))) add.push([x, y]); });
   for (const [x, y] of add) c.set(x, y, SC.K0);
-  return c;
+  return placeInSlot(c, 'tool');
 }
