@@ -171,6 +171,13 @@ def analyze(path, sheet_dir=None):
     sym = float(np.corrcoef(L.ravel(), L[:, ::-1].ravel())[0, 1])
     out['balance'] = {'cx': round(float(cx), 3), 'cy': round(float(cy), 3), 'offset': round(math.hypot(cx - 0.5, cy - 0.5), 3), 'symmetryLR': round(sym, 3)}
 
+    # vfx: 흰 심(L≥90) 면적, 빛 띠(채도 있고 L 55~90) 면적, 심/띠 채도(C/L) — 레퍼런스 기준 흰 심 2~8%, 띠 = 심의 1~3배, 띠 채도 ≥ 심 × 2.5
+    hot = L >= 90
+    glow = (L >= 55) & (L < 90) & (C > 20)
+    sat = C / np.maximum(L, 1)
+    out['vfx'] = {'hot': round(float(hot.mean()), 4), 'glow': round(float(glow.mean()), 4), 'glowPerHot': round(float(glow.mean() / max(hot.mean(), 1e-6)), 2),
+                  'coreSat': round(float(sat[hot].mean()) if hot.any() else 0.0, 3), 'glowSat': round(float(sat[glow].mean()) if glow.any() else 0.0, 3)}
+
     if sheet_dir:
         os.makedirs(sheet_dir, exist_ok=True)
         gray = Image.fromarray(np.clip(L * 2.55, 0, 255).astype(np.uint8)).convert('RGB')
