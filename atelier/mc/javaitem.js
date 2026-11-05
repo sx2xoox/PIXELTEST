@@ -32,7 +32,6 @@ export function fitGui(elements, { fill = 15 / 16, grip = [8, 8, 8] } = {}) {
   const pts = elements.flatMap(corners).map(p => [p[0] - 8, p[1] - 8, p[2] - 8]);
   const g = [grip[0] - 8, grip[1] - 8, grip[2] - 8];
   const top = pts.reduce((a, p) => (p[1] > a[1] ? p : a), pts[0]);
-  const len3 = Math.max(...pts.map(p => p[1])) - Math.min(...pts.map(p => p[1]));   // 자루 방향(모델 Y) 실제 길이
   // 보이는 면적: 요소마다 6면의 (면 넓이 × 카메라 쪽 법선 성분) 합 — 넓은 면(날·촛대 팔)이 정면을 볼수록 크다.
   // (경계상자 비율은 45° 기운 가는 막대도 정사각형이라 속는다 → 면적으로 판정)
   // 보이는 넓이 = 칸(48×48, GUI 배율 3)에 실제로 찍히는 픽셀 수. 면 넓이 합은 돌출 스프라이트의 안쪽 면 때문에 속는다
@@ -47,16 +46,16 @@ export function fitGui(elements, { fill = 15 / 16, grip = [8, 8, 8] } = {}) {
     return out;
   });
   const cands = [];
-  // Minecraft는 Z → Y → X 순으로 돌리므로 "옆으로 돌린 뒤 화면에서 45° 기울이기"는 세 축이 섞인 값이 된다 → 15° 격자 전수 탐색
-  for (let rx = -90; rx <= 90; rx += 15) for (let ry = -180; ry < 180; ry += 15) for (let rz = -90; rz <= 90; rz += 15) {
-    const r = [rx, ry, rz];
+  // v2(반성): 15° 격자 전수 탐색 + 점수식은 이상한 각도를 골랐다. 사람이 하는 대로 단순하게:
+  //  1) 가장 얇은 축(두께)을 카메라 쪽으로 → 옆모습이 정면  2) 자루(모델 +Y)를 화면에서 왼쪽 아래 → 오른쪽 위 45°(바닐라 도구 방향)
+  //  두께가 X면 [x, ±45, z] 조합 4개, Z면 화면 안에서 바로 굴리는 2개 중 자루가 45°로 서는 것만 남기고, 칸에 더 많이 찍히는 쪽.
+  const ext = [0, 2].map(i => Math.max(...pts.map(p => p[i])) - Math.min(...pts.map(p => p[i])));
+  const POSES = ext[0] <= ext[1] ? [[90, 45, -90], [-90, -45, -90], [90, -45, 90], [-90, 45, 90]] : [[0, 0, -45], [0, 0, 45], [0, 180, -45], [0, 180, 45]];
+  for (const r of POSES) {
     const G = rotXYZ(g, r), Tp = rotXYZ(top, r);
     const ang = (Math.atan2(Tp[1] - G[1], Tp[0] - G[0]) * 180) / Math.PI;     // 자루 방향(화면): 45° = 오른쪽 위
-    if (Math.abs(ang - 45) > 20) continue;
     const P = pts.map(p => rotXYZ(p, r));
     const ys = P.map(p => p[1]), xs = P.map(p => p[0]);
-    const ux = Tp[0] - G[0], uy = Tp[1] - G[1], ul = Math.hypot(ux, uy) || 1, along = P.map(p => (p[0] * ux + p[1] * uy) / ul);
-    if (Math.max(...along) - Math.min(...along) < len3 * 0.9) continue;          // 자루가 화면 안쪽으로 눕지 않게(단축 금지)
     const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys), k = (48 * fill) / Math.max(w, h);
     const cx0 = (Math.max(...xs) + Math.min(...xs)) / 2, cy0 = (Math.max(...ys) + Math.min(...ys)) / 2, hit = new Set();
     for (const p of samples) { const q = rotXYZ(p, r); hit.add(Math.floor((q[0] - cx0) * k + 24) * 64 + Math.floor((q[1] - cy0) * k + 24)); }
@@ -65,7 +64,7 @@ export function fitGui(elements, { fill = 15 / 16, grip = [8, 8, 8] } = {}) {
   const amax = Math.max(...cands.map(c => c.area));
   let best = null;
   for (const c of cands) {
-    const score = -Math.abs(c.ang - 45) / 45 + (c.area / amax) * 1.5 - (Math.abs(c.r[0]) + Math.abs(c.r[2])) / 900;
+    const score = -Math.abs(c.ang - 45) / 15 + (c.area / amax) * 0.5;          // 방향이 먼저, 같은 방향이면 더 많이 보이는 쪽
     if (best && score <= best.score) continue;
     const w = Math.max(...c.xs) - Math.min(...c.xs), h = Math.max(...c.ys) - Math.min(...c.ys);
     const s = Math.min(4, (16 * fill) / Math.max(w, h));
@@ -133,11 +132,11 @@ export function toJavaItem(m, { ns = 'atelier', name = m.spec.name, grip = [0, 0
 
 /**
  * items/<name>.json — 칸(인벤토리)에 무엇을 보일지 고른다(1.21.4+ select display_context)
- *  mode '3d'     : 어디서나 같은 3D 모델
+ *  mode '3d'     : 어디서나 같은 3D 모델(기본 — 칸에서는 옆모습을 45° 대각선으로)
  *  mode '3d-gui' : 칸에서는 자루를 줄인 칸 전용 3D 모델(<name>_gui), 손·바닥·액자는 원래 3D
  *  mode '2d'     : 칸·바닥·액자에서 2D 스프라이트(<name>_icon), 손에서는 3D — 바닐라 삼지창·망원경 방식
  */
-export function itemDefinition(ns, name, { mode = '3d-gui' } = {}) {
+export function itemDefinition(ns, name, { mode = '3d' } = {}) {
   const m = id => ({ type: 'minecraft:model', model: `${ns}:item/${id}` });
   if (mode === '3d') return { model: m(name) };
   const when = mode === '2d' ? ['gui', 'ground', 'fixed'] : ['gui'];
