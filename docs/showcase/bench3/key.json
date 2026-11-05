@@ -1,0 +1,24 @@
+{
+ "E1": {
+  "A": "baseline",
+  "B": "atelier_prev",
+  "C": "atelier"
+ },
+ "E2": {
+  "A": "baseline",
+  "B": "atelier",
+  "C": "atelier_prev"
+ },
+ "E3": {
+  "A": "atelier",
+  "B": "baseline"
+ },
+ "E4": {
+  "A": "baseline",
+  "B": "atelier"
+ },
+ "E5": {
+  "A": "atelier",
+  "B": "baseline"
+ }
+}
