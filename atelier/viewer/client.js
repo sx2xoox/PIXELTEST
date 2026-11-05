@@ -263,10 +263,54 @@
     };
   }
 
+  // ---------- 3D 리본(레퍼런스: '진짜 3D 형태가 고급스럽다') ----------
+  // 경로: 중심 c, 반지름 r, 시작각 a0, 휩쓸기 sweep(도), 나선 spiral(반지름 변화 비율), rise(블록, 진행에 따른 높이 변화), 기울기 tilt[x,y,z](도)
+  // 시간: start_tick부터 head_ticks 동안 머리가 0→1, tail_delay 뒤 꼬리가 따라붙어 end_tick에 소멸. 폭: width(블록) × 프로필(양끝 0, 머리 쪽 두꺼움)
+  // 텍스처: 가로(u) = 길이(0 꼬리 → 1 머리), 세로(v) = 폭(가운데 흰 심). 텍스처 이미지는 frames[0]
+  function buildRibbon(tr, frames, root) {
+    const SEG = tr.segments ?? 48;
+    const geo = new T.BufferGeometry();
+    const pos = new Float32Array((SEG + 1) * 2 * 3), uv = new Float32Array((SEG + 1) * 2 * 2), idx = [];
+    for (let i = 0; i < SEG; i++) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+    geo.setIndex(idx); geo.setAttribute('position', new T.BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.BufferAttribute(uv, 2));
+    const tex = frames[tr.frames?.[0]] ? loadTex(frames[tr.frames[0]]) : null;
+    if (tex) { tex.magFilter = T.LinearFilter; tex.minFilter = T.LinearFilter; }      // 리본은 부드럽게(구운 빛 번짐 유지)
+    const mat = new T.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: T.DoubleSide, color: new T.Color(tr.tint || '#ffffff').convertSRGBToLinear(), alphaTest: 0.01 });
+    const mesh = new T.Mesh(geo, mat); mesh.renderOrder = 12; mesh.visible = false; mesh.frustumCulled = false; root.add(mesh);
+    const c = tr.center || [0, 1, 0], r0 = tr.radius ?? 2, a0 = (tr.start ?? 0) * Math.PI / 180, sw = (tr.sweep ?? 180) * Math.PI / 180;
+    const tilt = new T.Euler(...(tr.tilt || [0, 0, 0]).map(v => v * Math.PI / 180), 'XYZ');
+    const q = new T.Quaternion().setFromEuler(tilt);
+    const at = s => { const a = a0 + sw * s, r = r0 * (1 + (tr.spiral ?? 0) * (s - 0.5)); const v = new T.Vector3(Math.cos(a) * r, (tr.rise ?? 0) * s, Math.sin(a) * r).applyQuaternion(q); return v.add(new T.Vector3(...c)); };
+    const s0 = tr.start_tick ?? 0, hd = tr.head_ticks ?? 4, td = tr.tail_delay ?? 2, e = tr.end_tick ?? s0 + hd + 6;
+    const ease = x => 1 - (1 - Math.min(1, Math.max(0, x))) ** 3;
+    return (tick, camera) => {
+      if (tick < s0 || tick > e) { mesh.visible = false; return; }
+      mesh.visible = true;
+      const head = ease((tick - s0) / hd), tail = ease((tick - s0 - td) / Math.max(1, e - s0 - td));
+      const W = (tr.width ?? 0.4);
+      const camDir = camera ? new T.Vector3() : null;
+      for (let i = 0; i <= SEG; i++) {
+        const t = i / SEG, s = tail + (head - tail) * t;                               // 꼬리(0) → 머리(1)
+        const p = at(s), p2 = at(Math.min(1, s + 0.002)), tan = p2.clone().sub(p).normalize();
+        // 폭 방향: 기본은 경로 평면의 법선(평평한 띠). face:'camera'면 카메라를 향해 비틈
+        let side = new T.Vector3(0, 1, 0).applyQuaternion(q).cross(tan).normalize();
+        if (tr.face === 'normal') side = new T.Vector3(0, 1, 0).applyQuaternion(q);
+        if (tr.face === 'camera' && camera) { camera.getWorldPosition(camDir); side = camDir.clone().sub(p.clone().multiplyScalar(16)).normalize().cross(tan).normalize(); }
+        const prof = Math.sin(Math.PI * Math.min(1, t * 1.05)) ** 0.6 * (0.35 + 0.65 * t);  // 양끝 0, 머리 쪽 두꺼움
+        const w = W * prof * (1 - 0.5 * tail);
+        const A = p.clone().addScaledVector(side, w / 2), B = p.clone().addScaledVector(side, -w / 2);
+        pos.set([A.x * 16, A.y * 16, A.z * 16, B.x * 16, B.y * 16, B.z * 16], i * 6);
+        uv.set([t, 1, t, 0], i * 4);
+      }
+      geo.attributes.position.needsUpdate = true; geo.attributes.uv.needsUpdate = true; geo.computeBoundingSphere();
+    };
+  }
+
   function buildFx(tl, frames) {
     const root = new T.Group();
     const emitters = (tl.tracks || []).filter(tr => tr.type === 'emitter').map(tr => buildEmitter(tr, frames, root));
-    const tracks = (tl.tracks || []).filter(tr => tr.type !== 'emitter').map(tr => {
+    emitters.push(...(tl.tracks || []).filter(tr => tr.type === 'ribbon').map(tr => buildRibbon(tr, frames, root)));
+    const tracks = (tl.tracks || []).filter(tr => tr.type !== 'emitter' && tr.type !== 'ribbon').map(tr => {
       const mats = (tr.frames || []).map(f => new T.MeshBasicMaterial({ map: frames[f] ? loadTex(frames[f]) : null, transparent: true, alphaTest: 0.02, depthWrite: false, side: T.DoubleSide, color: new T.Color(tr.tint || '#ffffff').convertSRGBToLinear() })); // 틴트 hex는 sRGB → 선형 변환(안 하면 분홍빛으로 옅어짐)
       const sz = tr.size || [1, 1];
       const mesh = new T.Mesh(new T.PlaneGeometry(sz[0] * 16, sz[1] * 16), mats[0] || new T.MeshBasicMaterial({ visible: false }));
@@ -333,10 +377,15 @@
           const [x, y, z] = k.translation.map(v => v * 16), h = ((tr.size || [1, 1])[1] * 16) / 2, w = ((tr.size || [1, 1])[0] * 16) / 2;
           box.expandByPoint(new T.Vector3(x - w, Math.max(0, y - h), z - w)).expandByPoint(new T.Vector3(x + w, y + h, z + w));
         }
+        // 리본(중심 ± 반지름)과 이미터(발생 위치 ± 이동 거리)도 화면에 담는다
+        for (const tr of p.timeline.tracks || []) {
+          if (tr.type === 'ribbon') { const [x, y, z] = (tr.center || [0, 1, 0]).map(v => v * 16), r = (tr.radius ?? 2) * 16 * (1 + Math.abs(tr.spiral ?? 0) / 2); box.expandByPoint(new T.Vector3(x - r, Math.max(0, y - r * 0.5), z - r)).expandByPoint(new T.Vector3(x + r, y + r * 0.5 + (tr.rise ?? 0) * 16, z + r)); }
+          if (tr.type === 'emitter') { const [x, y, z] = (tr.at || [0, 0, 0]).map(v => v * 16), sp = Array.isArray(tr.speed) ? Math.max(...tr.speed.map(Math.abs)) : Math.abs(tr.speed ?? 0), r = (((tr.shape?.radius ?? 0) + sp / Math.max(1, tr.drag ?? 1)) * 16) * 0.8; box.expandByPoint(new T.Vector3(x - r, Math.max(0, y - r), z - r)).expandByPoint(new T.Vector3(x + r, y + r, z + r)); }
+        }
       }
       this.center = box.getCenter(new T.Vector3());
       const s = box.getSize(new T.Vector3());
-      this.dist = Math.max(s.x, s.y, s.z) * (p.kind === 'fx' ? 1.45 : 1.75) + 6;
+      this.dist = Math.max(s.x, s.y, s.z) * (p.kind === 'fx' ? 1.15 : 1.75) + 6;
     }
     bindInput() {
       const el = this.renderer.domElement;

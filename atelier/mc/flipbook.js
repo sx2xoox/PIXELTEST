@@ -68,3 +68,31 @@ export function puff({ size = 16, frames = 8, seed = 1 } = {}) {
 
 /** 점(4px × 1): 가장 작은 기본 입자 */
 export const mote = ({ size = 4 } = {}) => [new PixelCanvas(size).rect(1, 1, 2, 2, W)];
+
+/**
+ * 3D 리본용 띠 텍스처(가로 = 길이: 왼쪽 꼬리 → 오른쪽 머리, 세로 = 폭). 디스플레이 엔티티엔 블룸이 없으므로 빛 번짐을 구워 넣는다.
+ * 레퍼런스 실측: 이펙트 픽셀 중 흰 심 24~40%, 심 채도 ≈ 0, 빛 띠 채도 0.3~0.8 → 심은 순백, 띠는 색, 바깥은 투명
+ * glow: 빛 띠 색, edge: 가장 바깥(어두운) 색, core: 심 폭 비율, streaks: 길이 방향 결(속도감)
+ */
+export function ribbonStrip({ w = 128, h = 32, glow = '#ff3040', edge = '#5a0010', core = 0.24, streaks = 5, seed = 1 } = {}) {
+  const hex = c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
+  const G = hex(glow), E = hex(edge), Wt = [255, 255, 255];
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  let s = seed; const R = () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  const lines = Array.from({ length: streaks }, () => ({ v: 0.15 + R() * 0.7, u0: R() * 0.5, amp: 0.4 + R() * 0.6 }));
+  const c = new PixelCanvas(w, h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const u = (x + 0.5) / w, v = (y + 0.5) / h, d = Math.abs(v - 0.5) * 2;      // d: 0 가운데 → 1 가장자리
+    const along = Math.min(1, u * 1.25);                                         // 꼬리 쪽 옅어짐
+    const cw = core * (0.4 + 0.6 * u);                                          // 심은 머리 쪽이 굵다
+    let col, a;
+    if (d < cw) { col = Wt; a = 1; }
+    else if (d < cw + 0.18) { const t = (d - cw) / 0.18; col = mix(Wt, G, t ** 0.7); a = 1; }
+    else { const t = Math.min(1, (d - cw - 0.18) / (1 - cw - 0.18)); col = mix(G, E, t); a = (1 - t) ** 1.6; }
+    for (const L of lines) if (Math.abs(v - L.v) < 0.03 && u > L.u0) { col = mix(col, Wt, 0.35 * L.amp); a = Math.max(a, 0.5 * L.amp); }
+    a *= along ** 0.8;
+    if (a < 0.02) continue;
+    c.set(x, y, [...col, Math.round(a * 255)]);
+  }
+  return c;
+}
