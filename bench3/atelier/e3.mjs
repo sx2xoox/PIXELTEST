@@ -19,6 +19,7 @@
 // 라운드 3: 실측 — 잉크/상자 62%(규칙 25~60% 초과), 틈 1.5U(6.25%)는 24px 이하에서 흐려짐 →
 //   틈 2U(8.3%), 해 r 5.5U로 바꿔 링 바깥 반지름 7.5U는 그대로 유지(치수가 모두 정수/반정수 U).
 //   가로 조합형 키움(K 76→84), 어두운 바탕·단색 패널에 용도 캡션, 여백 = 해 반지름 5.5U.
+// 라운드 4: 32px 기하도 마스터 비율(해 r≈5.5U, 틈 2U)에 맞춤(r 7px, 틈 3px), 세로 조합형 심볼 10% 축소(글 덩어리와 균형).
 
 import fs from 'fs';
 import path from 'path';
@@ -101,7 +102,7 @@ export function lockupH(x, y, K, col = {}) {
 export function lockupV(cx, y, K, col = {}) {
   const ink = col.ink ?? C.espresso, sun = col.sun ?? C.amber, text = col.text ?? ink;
   const E = 0.48 * K, W = KOW * K;
-  const h = 1.05 * W * INK.h / INK.w * 0.62;
+  const h = W * INK.h / INK.w * 0.56;
   const mw = markW(h);
   const kb = y + h + 0.42 * K + KOA * K;
   const eb = kb + KOD * K + 0.3 * K + ENA * E;
