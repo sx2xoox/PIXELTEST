@@ -3,6 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { icon, RARITY } from './items.js';
+import { setRamp } from './palette.js';
 
 const esc = s => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 const loreLines = d => [
@@ -39,8 +40,17 @@ export function writePack(dir, ns, items, { description = 'RPG materials' } = {}
 }
 
 /** 정의 목록 → 아이콘 생성 + 명령어 */
-export function buildItems(ns, defs) {
-  return defs.map((d, i) => ({ ...d, icon: icon(d.family, { color: d.color, tier: d.tier, seed: i + 1 }), give: giveCommands(ns, d) }));
+// pal(palette.js regionPalette)을 주면 d.color는 역할 이름('primary'·'secondary'·'accent'·'bone'·'metal' …)이다 → 세트 색 조화가 보장된다.
+// 같은 역할 = 같은 램프(바닐라처럼 재질 하나에 팔레트 하나). 등급은 채도 2단계 + 밝기·반짝임·별 장식으로 나타낸다.
+export function buildItems(ns, defs, pal) {
+  return defs.map((d, i) => {
+    let opt = { color: d.color, tier: d.tier, seed: i + 1 };
+    if (pal) {
+      const role = pal.roles[d.color]; if (!role) throw new Error(`역할 없음: ${d.color} (${d.id})`);
+      opt = { ...opt, pal, ramp: setRamp(pal, d.tier <= 2 ? { ...role, chroma: role.chroma * 0.72 } : role) };   // 채도 = 희귀도: 1~2등급은 바랜 원재료 램프, 3등급 이상은 순수 램프(역할당 램프 2개만 → 세트가 색을 공유)
+    }
+    return { ...d, icon: icon(d.family, opt), give: giveCommands(ns, d) };
+  });
 }
 
 /**

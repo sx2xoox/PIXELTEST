@@ -115,14 +115,19 @@ const F = {
 };
 export const FAMILIES = Object.keys(F);
 
-const GLASS = ['#3a4450', '#6b7a86', '#a9bac4', '#dfe9ee'], CORK = ['#4a2e1c', '#7a5236', '#a8774f'];
-const ROCK = fineRamp('#77727c', { steps: 6, dL: 0.1, hueShift: 10, chroma: 0.015 });
+const GLASS0 = ['#3a4450', '#6b7a86', '#a9bac4', '#dfe9ee'], CORK0 = ['#4a2e1c', '#7a5236', '#a8774f'];
+const ROCK0 = fineRamp('#77727c', { steps: 6, dL: 0.1, hueShift: 10, chroma: 0.015 });
 
 /**
  * 아이콘 하나. tier(1~5): 1 기본 · 2 반짝임 1px 추가 · 3 가장자리 빛(밝은 단계 강화) · 4 별 반짝임 · 5 별 반짝임 2개 + 테두리 한 단 밝게
  */
-export function icon(family, { color = '#c0283c', tier = 1, chroma, seed = 1 } = {}) {
-  const R = materialRamp(color, { chroma: chroma ?? (0.1 + tier * 0.012) });
+export function icon(family, { color = '#c0283c', tier = 1, chroma, seed = 1, ramp, pal } = {}) {
+  // ramp = setRamp(...) 결과({R, spec})를 주면 세트 팔레트를 쓴다(권장, palette.js). 없으면 예전 방식(색 하나 → 독립 램프)
+  const R = ramp ? ramp.R.slice() : materialRamp(color, { chroma: chroma ?? (0.1 + tier * 0.012) });
+  const SPEC = ramp ? ramp.spec : W;
+  const GLASS = pal ? pal.ramps.glass.R.filter((_, i) => i % 2 === 0 || i === 5).slice(0, 4) : GLASS0;
+  const CORK = pal ? pal.ramps.cork.R.slice(0, 5).filter((_, i) => i === 0 || i === 2 || i === 4) : CORK0;
+  const ROCK = pal ? pal.ramps.rock.R : ROCK0;
   const c = new PixelCanvas(16), rand = rnd(seed * 97 + tier);
   const val = new Map();
   for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
@@ -149,9 +154,9 @@ export function icon(family, { color = '#c0283c', tier = 1, chroma, seed = 1 } =
   // 반짝임: 실루엣 왼쪽 위 안쪽의 가장 밝은 픽셀 근처 1~2px을 순백으로
   let best = null;
   for (const [i, k] of val) { if (typeof k !== 'number') continue; const x = i % 16, y = (i / 16) | 0; const s = k - (x + y) * 0.08; if (!best || s > best.s) best = { x, y, s }; }
-  if (best && family !== 'dust') { c.set(best.x, best.y, W); if (tier >= 2 && has(best.x + 1, best.y)) c.set(best.x + 1, best.y, R[5]); }
+  if (best && family !== 'dust') { c.set(best.x, best.y, SPEC); if (tier >= 2 && has(best.x + 1, best.y)) c.set(best.x + 1, best.y, R[5]); }
   // 등급 장식: 4~5등급은 실루엣 밖 대각선 위치에 4갈래 별 반짝임
-  const star = (sx, sy) => { c.set(sx, sy, W); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!has(sx + dx, sy + dy)) c.set(sx + dx, sy + dy, R[4]); };
+  const star = (sx, sy) => { c.set(sx, sy, SPEC); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!has(sx + dx, sy + dy)) c.set(sx + dx, sy + dy, R[4]); };
   if (tier >= 4) star(13, 2);
   if (tier >= 5) star(2, 13);
   return c;

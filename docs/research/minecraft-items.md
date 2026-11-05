@@ -52,4 +52,5 @@
 ## 4. Atelier 구현
 - `atelier/mc/items.js`: 형태 12종(gem, shard, ingot, dust, orb, nugget, rod, fang, scale, essence, coin, stone) × 등급 1~5. 위 실측 문법을 따른다.
 - `atelier/mc/rpgitems.js`: 정의 목록 → 아이콘 + 리소스팩 + /give(1.21.4·1.21.5+) + 게임 화면 미리보기(인벤토리·툴팁, Unifont).
-- `rpg/materials.mjs`: 시연(피의 땅·유령 저택 각 10종).
+- `atelier/mc/palette.js`: 지역 팔레트(공유 잉크·빛 + 역할) → 세트 색 조화. 규칙과 실측은 `color-harmony.md`.
+- `rpg/materials.mjs`: 시연(피의 땅·유령 저택 각 10종). 아이템 색은 hex가 아니라 역할 이름이다.
