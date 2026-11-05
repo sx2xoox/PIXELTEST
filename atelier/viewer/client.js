@@ -131,6 +131,11 @@
         if (ks[i].interpolation === 'step') return val(ks[i]);
         const u = (t - ks[i].time) / Math.max(1e-6, ks[i + 1].time - ks[i].time);
         const a = val(ks[i]), b = val(ks[i + 1]);
+        // catmullrom(Mojang 공식 애니메이션의 97%): 앞뒤 키프레임까지 써서 부드러운 곡선으로 잇는다
+        if (ks[i].interpolation === 'catmullrom' || ks[i + 1].interpolation === 'catmullrom') {
+          const p0 = val(ks[Math.max(0, i - 1)]), p3 = val(ks[Math.min(ks.length - 1, i + 2)]);
+          return a.map((p1, j) => { const q0 = p0[j], q2 = b[j], q3 = p3[j]; return 0.5 * (2 * p1 + (-q0 + q2) * u + (2 * q0 - 5 * p1 + 4 * q2 - q3) * u * u + (-q0 + 3 * p1 - 3 * q2 + q3) * u * u * u); });
+        }
         return a.map((x, j) => x + (b[j] - x) * u);
       }
     return val(ks[ks.length - 1]);

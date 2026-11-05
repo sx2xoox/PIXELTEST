@@ -114,7 +114,7 @@ export function toBBModel(m) {
               uuid: uuid(`${name}/${an}/${bn}/${ch}/${t}`),
               time: +t,
               color: -1,
-              interpolation: a.interpolation ?? 'linear',
+              interpolation: a.interpolation ?? 'catmullrom',   // Mojang 공식 애니메이션 기본값(97%)
             }))
           ),
         },
@@ -237,7 +237,7 @@ export function toBedrockAnimation(m) {
       bones[bn] = {};
       for (const [ch, keys] of Object.entries(chans)) {
         const conv = v => (ch === 'rotation' ? [neg(v[0]), neg(v[1]), v[2]] : ch === 'position' ? [neg(v[0]), v[1], v[2]] : v);
-        bones[bn][ch] = Object.fromEntries(Object.entries(keys).sort((a, b) => +a[0] - +b[0]).map(([t, v]) => [(+t).toFixed(4).replace(/0+$/, '').replace(/\.$/, '.0'), conv(v).map(num)]));
+        bones[bn][ch] = Object.fromEntries(Object.entries(keys).sort((a, b) => +a[0] - +b[0]).map(([t, v]) => [(+t).toFixed(4).replace(/0+$/, '').replace(/\.$/, '.0'), (a.interpolation ?? 'catmullrom') === 'catmullrom' ? { post: conv(v).map(num), lerp_mode: 'catmullrom' } : conv(v).map(num)]));   // 공식 형식: 키마다 lerp_mode
       }
     }
     animations[`animation.${name}.${an}`] = { loop: a.loop !== false, animation_length: a.length ?? 1, bones };
