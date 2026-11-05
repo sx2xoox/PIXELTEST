@@ -4,7 +4,7 @@ const [file, out, sec, ...ticks] = process.argv.slice(2);
 const b = await browser();
 const page = await b.newPage({ viewport: { width: 760, height: 900 } });
 const errs = []; page.on('pageerror', e => errs.push(e.message));
-await page.goto('file://' + process.cwd() + '/' + file);
+await page.goto('file://' + (file.startsWith('/') ? file : process.cwd() + '/' + file));
 await page.evaluate(id => window.__viewer.show(id), sec);
 await page.waitForTimeout(800);
 const shots = [];

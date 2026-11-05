@@ -149,3 +149,10 @@ export default {
 1. `CONCEPT.md`: 콘셉트 한 줄 → 모티프 표(모티프 × 무기·갑옷·이펙트·펫·보스) → 고유 팔레트(틀/초점/보조/넓은 면) → 부위별 1·2·3차 형태
 2. 모티프가 **이펙트 입자 자체**가 되게(폴터가이스트 = 날아다니는 접시·찻잔·책, 노크 파문, 비명 얼굴). 다른 직업의 모양·색은 가져오지 않는다.
 3. 매 부품마다 렌더 → 보고 → 고친다(불꽃 새장, 상자 같은 주전자, 불투명한 유령 얼굴 등은 렌더를 봐야 보인다).
+
+## 스킬 이펙트 v2 — 공식 파티클 문법 (docs/research/minecraft-official-study.md)
+- **이미터 트랙:** 타임라인에 `{ type:'emitter', start_tick, frames, fps?, count, emit_ticks?, shape:{type:'point|sphere|disc|ring|line', radius, surface?}, at, direction:'outward'|'up'|[x,y,z], spread, speed:[a,b], drag, gravity, lifetime:[a,b](초), size:[a,b], sizeEnd, spin:[a,b], colors:[[0,'#fff'],[1,'#000']], seed }`.
+  공식 Bedrock 파티클과 같은 개념이다(수명·크기 무작위, 저항·중력 감속, 수명에 따른 색). 큰 평면 몇 장보다 작은 입자 수십 개가 고급스럽다.
+- **플립북(`atelier/mc/flipbook.js`):** `impact`(수렴 → 점 → 꽉 찬 원 1프레임 → 이중 고리 → 조각화), `spark`, `shard`, `puff`, `mote`. 흰색 1~3단 + 컷아웃이고 색은 이미터 `colors`로 입힌다.
+- **타격 공식:** 예비(점이 안으로 수렴, 3~6틱) → **타격 섬광 1틱**(지름 1~1.5블록) → 고리가 퍼지며 가늘어짐 → **조각나며 소멸**. 불티는 빠르게(속도 6~12, 저항 5), 파편은 회전하며 떨어지고(중력 −16), 연기는 천천히 위로(속도 1, 저항 2).
+- **크기 기준:** 워든 음파 1.5블록. 타격 섬광이 2블록을 넘으면 화면을 가린다.

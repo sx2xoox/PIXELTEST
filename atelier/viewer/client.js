@@ -211,9 +211,62 @@
   }
 
   // ---------- 이펙트 타임라인 ----------
+  // ---------- 파티클 이미터(공식 Bedrock 파티클 문법: 작은 입자 다수 · 무작위 수명/크기/속도 · 저항·중력 감속 · 수명에 따른 색 변화 · 컷아웃) ----------
+  function mulberry(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function gradientAt(stops, u) {
+    if (!stops || !stops.length) return new T.Color(1, 1, 1);
+    if (u <= stops[0][0]) return new T.Color(stops[0][1]).convertSRGBToLinear();
+    for (let i = 0; i < stops.length - 1; i++) if (u <= stops[i + 1][0]) { const k = (u - stops[i][0]) / Math.max(1e-6, stops[i + 1][0] - stops[i][0]); return new T.Color(stops[i][1]).lerp(new T.Color(stops[i + 1][1]), k).convertSRGBToLinear(); }
+    return new T.Color(stops[stops.length - 1][1]).convertSRGBToLinear();
+  }
+  function buildEmitter(tr, frames, root) {
+    const R = mulberry(tr.seed ?? 7), rnd = (r, d) => (Array.isArray(r) ? r[0] + R() * (r[1] - r[0]) : r ?? d);
+    const texs = (tr.frames || []).map(f => (frames[f] ? loadTex(frames[f]) : null));
+    const at = tr.at || [0, 0, 0], sh = tr.shape || { type: 'point' };
+    const n = tr.count ?? 20, emitTicks = tr.emit_ticks ?? 0, s0 = tr.start_tick ?? 0;
+    const parts = [];
+    for (let i = 0; i < n; i++) {
+      // 발생 위치
+      let off = [0, 0, 0], dirOut = [0, 1, 0];
+      const a = R() * Math.PI * 2, r = sh.radius ?? 0;
+      if (sh.type === 'sphere') { const u = R() * 2 - 1, q = Math.sqrt(1 - u * u); dirOut = [q * Math.cos(a), u, q * Math.sin(a)]; const rr = (sh.surface ? 1 : Math.cbrt(R())) * r; off = dirOut.map(v => v * rr); }
+      else if (sh.type === 'disc' || sh.type === 'ring') { dirOut = [Math.cos(a), 0, Math.sin(a)]; const rr = sh.type === 'ring' ? r : Math.sqrt(R()) * r; off = [dirOut[0] * rr, 0, dirOut[2] * rr]; }
+      else if (sh.type === 'line') { const t = R(); off = (sh.to || [0, 1, 0]).map(v => v * t); }
+      // 방향: outward(발생 형태 바깥) | up | [x,y,z] + 퍼짐(도)
+      let d = tr.direction === 'outward' ? dirOut : tr.direction === 'up' || !tr.direction ? [0, 1, 0] : tr.direction;
+      const spread = (tr.spread ?? 0) * Math.PI / 180;
+      if (spread) { d = [d[0] + (R() - 0.5) * 2 * Math.sin(spread), d[1] + (R() - 0.5) * 2 * Math.sin(spread), d[2] + (R() - 0.5) * 2 * Math.sin(spread)]; }
+      const L = Math.hypot(...d) || 1, sp = rnd(tr.speed, 0);
+      const mat = new T.MeshBasicMaterial({ map: texs[0], transparent: true, alphaTest: tr.alphaTest ?? 0.5, depthWrite: false, side: T.DoubleSide });
+      const sz = rnd(tr.size, 0.2);
+      const mesh = new T.Mesh(new T.PlaneGeometry(16, 16), mat);
+      mesh.visible = false; mesh.renderOrder = 11; root.add(mesh);
+      parts.push({ mesh, mat, spawn: s0 + (emitTicks ? R() * emitTicks : 0), life: rnd(tr.lifetime, 1), p0: [at[0] + off[0], at[1] + off[1], at[2] + off[2]], v0: d.map(v => (v / L) * sp), size: sz, rot0: R() * Math.PI * 2, spin: rnd(tr.spin, 0) * Math.PI / 180, f0: Math.floor(R() * (tr.randomFrame ? texs.length : 1)) });
+    }
+    const k = tr.drag ?? 0, g = [0, tr.gravity ?? 0, 0];
+    return (tick, camera) => {
+      for (const q of parts) {
+        const age = (tick - q.spawn) / 20;
+        if (age < 0 || age > q.life) { q.mesh.visible = false; continue; }
+        const u = age / q.life;
+        const pos = [0, 1, 2].map(i => (k > 0 ? q.p0[i] + (q.v0[i] - g[i] / k) * (1 - Math.exp(-k * age)) / k + (g[i] * age) / k : q.p0[i] + q.v0[i] * age + 0.5 * g[i] * age * age));
+        q.mesh.visible = true;
+        q.mesh.position.set(pos[0] * 16, pos[1] * 16, pos[2] * 16);
+        const sizeEnd = tr.sizeEnd ?? 1, s = q.size * (1 + (sizeEnd - 1) * u);
+        q.mesh.scale.set(s, s, 1);
+        // 플립북: fps 지정 시 그 속도로, 없으면 수명 전체에 프레임을 늘림(Bedrock stretch_to_lifetime)
+        const nf = texs.length;
+        if (nf) { const fi = tr.fps ? Math.min(nf - 1, q.f0 + Math.floor(age * tr.fps)) : Math.min(nf - 1, Math.floor(u * nf)); q.mat.map = texs[fi]; }
+        q.mat.color.copy(gradientAt(tr.colors, u));
+        if (camera) { q.mesh.quaternion.copy(camera.quaternion); q.mesh.rotateZ(q.rot0 + q.spin * age); }
+      }
+    };
+  }
+
   function buildFx(tl, frames) {
     const root = new T.Group();
-    const tracks = (tl.tracks || []).map(tr => {
+    const emitters = (tl.tracks || []).filter(tr => tr.type === 'emitter').map(tr => buildEmitter(tr, frames, root));
+    const tracks = (tl.tracks || []).filter(tr => tr.type !== 'emitter').map(tr => {
       const mats = (tr.frames || []).map(f => new T.MeshBasicMaterial({ map: frames[f] ? loadTex(frames[f]) : null, transparent: true, alphaTest: 0.02, depthWrite: false, side: T.DoubleSide, color: new T.Color(tr.tint || '#ffffff').convertSRGBToLinear() })); // 틴트 hex는 sRGB → 선형 변환(안 하면 분홍빛으로 옅어짐)
       const sz = tr.size || [1, 1];
       const mesh = new T.Mesh(new T.PlaneGeometry(sz[0] * 16, sz[1] * 16), mats[0] || new T.MeshBasicMaterial({ visible: false }));
@@ -222,6 +275,7 @@
       return { tr, mesh, mats };
     });
     function update(tick, camera) {
+      for (const em of emitters) em(tick, camera);
       for (const { tr, mesh, mats } of tracks) {
         const s = tr.start_tick ?? 0, e = tr.end_tick ?? tl.duration_ticks ?? 20;
         if (tick < s || tick > e || !mats.length) { mesh.visible = false; continue; }
