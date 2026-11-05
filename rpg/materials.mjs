@@ -1,5 +1,5 @@
 // RPG 서버 재료 시연: 지역 2곳(피의 땅 · 유령 저택) × 재료 10종. 이 목록만 바꾸면 아이콘·리소스팩·명령어·미리보기가 다시 나온다.
-//   node rpg/materials.mjs   → rpg/out/pack/ (리소스팩), rpg/out/give.txt, rpg/out/preview.html, rpg/out/icons.png
+//   node rpg/materials.mjs && node rpg/weapons.mjs   → rpg/out/pack/ (리소스팩: 재료 + 무기), rpg/out/give.txt, rpg/out/preview.html, rpg/out/icons.png  (materials가 rpg/out을 새로 만드므로 순서 지킬 것)
 import fs from 'fs';
 import { buildItems, writePack, previewHTML } from '../atelier/mc/rpgitems.js';
 import { PixelCanvas } from '../atelier/pixel.js';
