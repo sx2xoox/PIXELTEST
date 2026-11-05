@@ -17,7 +17,10 @@
 //   water). Thumbnail (200px) title still reads. Added: faint warm afterglow in the sky toward the horizon (late
 //   afternoon, ΔL small so midtones stay <5%); small horizon-dash publisher mark above 파랑서가.
 //   B0 600→510: title block hugged the bottom edge (120px) while 25% sky sat empty; lifted 90px.
-//   Kept: gravity dy≈.25 is intentional (sea anchors the page; type & sun sit on the horizon).
+//   Publisher returned to the foot margin (96px) on axis AX — after lifting, it floated mid-sea.
+// FINAL measure: 2 colours cover 90%, midtones 2%, notan 3, accent (sun) <1%, focus thirds-dist .097, dominance 8.0,
+//   empty 74%, gravity dev .239. Title block y 20–88% (~68%, slightly over 66), 3 sizes (185 / 46 / 24).
+//   Kept: gravity dy≈.24 is intentional (sea anchors the page; type & sun sit on the horizon).
 const W = 1200, H = 1800;
 const S = 185;                 // title size
 const P = Math.round(S * 0.95); // vertical pitch (Myeongjo advance 0.95em, tightened)
@@ -54,7 +57,7 @@ export default () => ({
     // right axis AX: author (top, paper) and publisher (bottom, sea) share one vertical axis
     { type: 'text', vertical: true, x: AX, y: B0 - ASC * S, size: 46, font: 'm', weight: 700, text: '윤서해', fill: '$sea', letterSpacing: 4 },
     { type: 'text', vertical: true, x: AX, y: B0 - ASC * S + 3 * 50 + 34, size: 24, font: 's', weight: 500, text: '장편소설', fill: '$ink2', letterSpacing: 3 },
-    { type: 'rect', x: AX - 13, y: BOT - 4 * 27 - 26, w: 26, h: 3, fill: '$mist' },
-    { type: 'text', vertical: true, x: AX, y: BOT - 4 * 27 + 4, size: 24, font: 's', weight: 600, text: '파랑서가', fill: '$mist', letterSpacing: 3 },
+    { type: 'rect', x: AX - 13, y: H - 96 - 4 * 27 - 30, w: 26, h: 3, fill: '$mist' },
+    { type: 'text', vertical: true, x: AX, y: H - 96 - 4 * 27, size: 24, font: 's', weight: 600, text: '파랑서가', fill: '$mist', letterSpacing: 3 },
   ],
 });
