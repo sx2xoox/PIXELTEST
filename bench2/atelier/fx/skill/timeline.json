@@ -1,32 +1,25 @@
 {
-  "name": "군주의 만찬 — 사방의 땅에서 피 여섯 줄기를 빨아들여 몸을 휘감는 피의 리본으로 두른 뒤, 앞으로 X자 대참격을 날려 박쥐 떼와 핏방울을 터뜨린다",
+  "name": "군주의 만찬 — 사방의 땅에서 핏줄기를 빨아들여 피의 리본으로 몸을 휘감은 뒤, 앞으로 X자 대참격을 날려 핏방울과 박쥐 떼를 터뜨린다",
   "duration_ticks": 60,
   "tracks": [
     {
-      "id": "ringIn",
+      "id": "sigil",
       "frames": [
-        "ringIn_0.png",
-        "ringIn_1.png",
-        "ringIn_2.png",
-        "ringIn_3.png",
-        "ringIn_4.png",
-        "ringIn_5.png",
-        "ringIn_6.png",
-        "ringIn_7.png"
+        "sigil_0.png"
       ],
-      "ticks_per_frame": 1,
       "start_tick": 0,
-      "end_tick": 7,
+      "end_tick": 44,
       "size": [
-        6.5,
-        6.5
+        5.5,
+        5.5
       ],
+      "tint": "#7a2430",
       "keys": [
         {
           "tick": 0,
           "translation": [
             0,
-            0.05,
+            0.04,
             0
           ],
           "rotation": [
@@ -35,243 +28,329 @@
             0
           ],
           "scale": [
+            0.3,
+            0.3,
+            1
+          ]
+        },
+        {
+          "tick": 10,
+          "scale": [
             1,
             1,
             1
+          ],
+          "rotation": [
+            -90,
+            0,
+            60
+          ]
+        },
+        {
+          "tick": 30,
+          "rotation": [
+            -90,
+            0,
+            200
+          ]
+        },
+        {
+          "tick": 44,
+          "scale": [
+            1.15,
+            1.15,
+            1
+          ],
+          "rotation": [
+            -90,
+            0,
+            260
           ]
         }
       ]
     },
     {
       "id": "stream0",
+      "type": "ribbon",
       "frames": [
-        "stream_0.png",
-        "stream_1.png",
-        "stream_2.png",
-        "stream_3.png",
-        "stream_4.png",
-        "stream_5.png",
-        "stream_6.png",
-        "stream_7.png"
+        "thin_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 2,
-      "end_tick": 9,
-      "size": [
-        3.2,
-        3.2
-      ],
-      "keys": [
-        {
-          "tick": 2,
-          "translation": [
-            1.5454813220625094,
-            0.9,
-            0.4141104721640332
-          ],
-          "rotation": [
-            0,
-            165,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
+      "start_tick": 1,
+      "head_ticks": 7,
+      "tail_delay": 4,
+      "end_tick": 13,
+      "face": "camera",
+      "width": 0.45,
+      "points": [
+        [
+          3.343677711939621,
+          0.05,
+          1.0343207233146885
+        ],
+        [
+          2.5077582839547157,
+          0.6,
+          0.7757405424860164
+        ],
+        [
+          1.3475993231756709,
+          1.5,
+          -0.21118964031522258
+        ],
+        [
+          0,
+          1.4,
+          0
+        ]
       ]
     },
     {
       "id": "stream1",
+      "type": "ribbon",
       "frames": [
-        "stream_0.png",
-        "stream_1.png",
-        "stream_2.png",
-        "stream_3.png",
-        "stream_4.png",
-        "stream_5.png",
-        "stream_6.png",
-        "stream_7.png"
+        "thin_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 4,
-      "end_tick": 11,
-      "size": [
-        3.2,
-        3.2
-      ],
-      "keys": [
-        {
-          "tick": 4,
-          "translation": [
-            0.4141104721640332,
-            0.9,
-            1.5454813220625094
-          ],
-          "rotation": [
-            0,
-            105,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
+      "start_tick": 3,
+      "head_ticks": 7,
+      "tail_delay": 4,
+      "end_tick": 15,
+      "face": "camera",
+      "width": 0.45,
+      "points": [
+        [
+          0.776090833918595,
+          0.05,
+          3.4128702022648825
+        ],
+        [
+          0.5820681254389463,
+          0.6,
+          2.559652651698662
+        ],
+        [
+          0.8566952551169166,
+          1.5,
+          1.0614604278352355
+        ],
+        [
+          0,
+          1.4,
+          0
+        ]
       ]
     },
     {
       "id": "stream2",
+      "type": "ribbon",
       "frames": [
-        "stream_0.png",
-        "stream_1.png",
-        "stream_2.png",
-        "stream_3.png",
-        "stream_4.png",
-        "stream_5.png",
-        "stream_6.png",
-        "stream_7.png"
+        "thin_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 6,
-      "end_tick": 13,
-      "size": [
-        3.2,
-        3.2
-      ],
-      "keys": [
-        {
-          "tick": 6,
-          "translation": [
-            -1.131370849898476,
-            0.9,
-            1.1313708498984762
-          ],
-          "rotation": [
-            0,
-            45,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
+      "start_tick": 5,
+      "head_ticks": 7,
+      "tail_delay": 4,
+      "end_tick": 17,
+      "face": "camera",
+      "width": 0.45,
+      "points": [
+        [
+          -2.567586878021025,
+          0.05,
+          2.378549478950195
+        ],
+        [
+          -1.9256901585157689,
+          0.6,
+          1.7839121092126464
+        ],
+        [
+          -0.49090406805875386,
+          1.5,
+          1.2726500681504582
+        ],
+        [
+          0,
+          1.4,
+          0
+        ]
       ]
     },
     {
       "id": "stream3",
+      "type": "ribbon",
       "frames": [
-        "stream_0.png",
-        "stream_1.png",
-        "stream_2.png",
-        "stream_3.png",
-        "stream_4.png",
-        "stream_5.png",
-        "stream_6.png",
-        "stream_7.png"
+        "thin_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 2,
-      "end_tick": 9,
-      "size": [
-        3.2,
-        3.2
-      ],
-      "keys": [
-        {
-          "tick": 2,
-          "translation": [
-            -1.5454813220625097,
-            0.9,
-            -0.4141104721640326
-          ],
-          "rotation": [
-            0,
-            -15,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
+      "start_tick": 1,
+      "head_ticks": 7,
+      "tail_delay": 4,
+      "end_tick": 13,
+      "face": "camera",
+      "width": 0.45,
+      "points": [
+        [
+          -3.3436777119396215,
+          0.05,
+          -1.0343207233146874
+        ],
+        [
+          -2.507758283954716,
+          0.6,
+          -0.7757405424860155
+        ],
+        [
+          -1.347599323175671,
+          1.5,
+          0.21118964031522308
+        ],
+        [
+          0,
+          1.4,
+          0
+        ]
       ]
     },
     {
       "id": "stream4",
+      "type": "ribbon",
       "frames": [
-        "stream_0.png",
-        "stream_1.png",
-        "stream_2.png",
-        "stream_3.png",
-        "stream_4.png",
-        "stream_5.png",
-        "stream_6.png",
-        "stream_7.png"
+        "thin_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 4,
-      "end_tick": 11,
-      "size": [
-        3.2,
-        3.2
-      ],
-      "keys": [
-        {
-          "tick": 4,
-          "translation": [
-            -0.414110472164033,
-            0.9,
-            -1.5454813220625094
-          ],
-          "rotation": [
-            0,
-            -75,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
+      "start_tick": 3,
+      "head_ticks": 7,
+      "tail_delay": 4,
+      "end_tick": 15,
+      "face": "camera",
+      "width": 0.45,
+      "points": [
+        [
+          -0.7760908339185969,
+          0.05,
+          -3.412870202264882
+        ],
+        [
+          -0.5820681254389477,
+          0.6,
+          -2.5596526516986615
+        ],
+        [
+          -0.8566952551169172,
+          1.5,
+          -1.0614604278352349
+        ],
+        [
+          0,
+          1.4,
+          0
+        ]
       ]
     },
     {
       "id": "stream5",
+      "type": "ribbon",
       "frames": [
-        "stream_0.png",
-        "stream_1.png",
-        "stream_2.png",
-        "stream_3.png",
-        "stream_4.png",
-        "stream_5.png",
-        "stream_6.png",
-        "stream_7.png"
+        "thin_0.png"
+      ],
+      "start_tick": 5,
+      "head_ticks": 7,
+      "tail_delay": 4,
+      "end_tick": 17,
+      "face": "camera",
+      "width": 0.45,
+      "points": [
+        [
+          2.567586878021026,
+          0.05,
+          -2.378549478950194
+        ],
+        [
+          1.9256901585157695,
+          0.6,
+          -1.7839121092126455
+        ],
+        [
+          0.4909040680587543,
+          1.5,
+          -1.272650068150458
+        ],
+        [
+          0,
+          1.4,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "gather",
+      "type": "emitter",
+      "start_tick": 0,
+      "frames": [
+        "mot_0.png"
+      ],
+      "count": 40,
+      "emit_ticks": 10,
+      "shape": {
+        "type": "sphere",
+        "radius": 3,
+        "surface": true
+      },
+      "at": [
+        0,
+        1.4,
+        0
+      ],
+      "direction": "outward",
+      "speed": [
+        -7,
+        -5.5
+      ],
+      "lifetime": [
+        0.4,
+        0.5
+      ],
+      "size": [
+        0.07,
+        0.13
+      ],
+      "colors": [
+        [
+          0,
+          "#4a0010"
+        ],
+        [
+          0.7,
+          "#ff2a3c"
+        ],
+        [
+          1,
+          "#ffffff"
+        ]
+      ],
+      "seed": 11
+    },
+    {
+      "id": "charge",
+      "frames": [
+        "imp_4.png",
+        "imp_5.png",
+        "imp_6.png",
+        "imp_7.png",
+        "imp_8.png"
       ],
       "ticks_per_frame": 1,
-      "start_tick": 6,
-      "end_tick": 13,
+      "start_tick": 12,
+      "end_tick": 16,
       "size": [
-        3.2,
-        3.2
+        1.2,
+        1.2
       ],
+      "billboard": "center",
+      "tint": "#ffe0e4",
       "keys": [
         {
-          "tick": 6,
+          "tick": 12,
           "translation": [
-            1.1313708498984758,
-            0.9,
-            -1.1313708498984762
-          ],
-          "rotation": [
             0,
-            -135,
+            1.4,
             0
           ],
           "scale": [
@@ -284,556 +363,279 @@
     },
     {
       "id": "wrap0",
+      "type": "ribbon",
       "frames": [
-        "wrap0_0.png",
-        "wrap0_1.png",
-        "wrap0_2.png",
-        "wrap0_3.png",
-        "wrap0_4.png",
-        "wrap0_5.png",
-        "wrap0_6.png",
-        "wrap0_7.png",
-        "wrap0_8.png",
-        "wrap0_9.png",
-        "wrap0_10.png"
+        "strip_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 12,
-      "end_tick": 22,
-      "size": [
-        4.2,
-        4.2
+      "start_tick": 16,
+      "head_ticks": 8,
+      "tail_delay": 4,
+      "end_tick": 30,
+      "center": [
+        0,
+        0.2,
+        0
       ],
-      "keys": [
-        {
-          "tick": 12,
-          "translation": [
-            0,
-            1,
-            0
-          ],
-          "rotation": [
-            -90,
-            0,
-            0
-          ],
-          "scale": [
-            0.85,
-            0.85,
-            1
-          ]
-        },
-        {
-          "tick": 22,
-          "rotation": [
-            -90,
-            0,
-            -70
-          ],
-          "scale": [
-            1.15,
-            1.15,
-            1
-          ]
-        }
-      ]
+      "radius": 1.5,
+      "start": 0,
+      "sweep": 540,
+      "spiral": 0.35,
+      "rise": 2.6,
+      "tilt": [
+        0,
+        0,
+        -6
+      ],
+      "width": 0.85
     },
     {
       "id": "wrap1",
+      "type": "ribbon",
       "frames": [
-        "wrap1_0.png",
-        "wrap1_1.png",
-        "wrap1_2.png",
-        "wrap1_3.png",
-        "wrap1_4.png",
-        "wrap1_5.png",
-        "wrap1_6.png",
-        "wrap1_7.png",
-        "wrap1_8.png",
-        "wrap1_9.png",
-        "wrap1_10.png"
+        "thin_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 14,
-      "end_tick": 24,
-      "size": [
-        4.7,
-        4.7
+      "start_tick": 17,
+      "head_ticks": 8,
+      "tail_delay": 4,
+      "end_tick": 31,
+      "center": [
+        0,
+        0.2,
+        0
       ],
-      "keys": [
-        {
-          "tick": 14,
-          "translation": [
-            0,
-            1.35,
-            0
-          ],
-          "rotation": [
-            -62,
-            0,
-            0
-          ],
-          "scale": [
-            0.85,
-            0.85,
-            1
-          ]
-        },
-        {
-          "tick": 24,
-          "rotation": [
-            -62,
-            0,
-            70
-          ],
-          "scale": [
-            1.15,
-            1.15,
-            1
-          ]
-        }
-      ]
+      "radius": 1.85,
+      "start": 90,
+      "sweep": -540,
+      "spiral": 0.35,
+      "rise": 2.6,
+      "tilt": [
+        0,
+        0,
+        6
+      ],
+      "width": 0.4
     },
     {
       "id": "wrap2",
+      "type": "ribbon",
       "frames": [
-        "wrap2_0.png",
-        "wrap2_1.png",
-        "wrap2_2.png",
-        "wrap2_3.png",
-        "wrap2_4.png",
-        "wrap2_5.png",
-        "wrap2_6.png",
-        "wrap2_7.png",
-        "wrap2_8.png",
-        "wrap2_9.png",
-        "wrap2_10.png"
+        "strip_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 16,
-      "end_tick": 26,
-      "size": [
-        5.2,
-        5.2
+      "start_tick": 18,
+      "head_ticks": 8,
+      "tail_delay": 4,
+      "end_tick": 32,
+      "center": [
+        0,
+        0.2,
+        0
       ],
-      "keys": [
-        {
-          "tick": 16,
-          "translation": [
-            0,
-            1.6,
-            0
-          ],
-          "rotation": [
-            -118,
-            0,
-            0
-          ],
-          "scale": [
-            0.85,
-            0.85,
-            1
-          ]
-        },
-        {
-          "tick": 26,
-          "rotation": [
-            -118,
-            0,
-            -70
-          ],
-          "scale": [
-            1.15,
-            1.15,
-            1
-          ]
-        }
-      ]
+      "radius": 1.5,
+      "start": 180,
+      "sweep": 540,
+      "spiral": 0.35,
+      "rise": 2.6,
+      "tilt": [
+        0,
+        0,
+        -6
+      ],
+      "width": 0.85
     },
     {
       "id": "wrap3",
+      "type": "ribbon",
       "frames": [
-        "wrap3_0.png",
-        "wrap3_1.png",
-        "wrap3_2.png",
-        "wrap3_3.png",
-        "wrap3_4.png",
-        "wrap3_5.png",
-        "wrap3_6.png",
-        "wrap3_7.png",
-        "wrap3_8.png",
-        "wrap3_9.png",
-        "wrap3_10.png"
+        "thin_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 18,
-      "end_tick": 28,
-      "size": [
-        4.2,
-        4.2
+      "start_tick": 19,
+      "head_ticks": 8,
+      "tail_delay": 4,
+      "end_tick": 33,
+      "center": [
+        0,
+        0.2,
+        0
       ],
-      "keys": [
-        {
-          "tick": 18,
-          "translation": [
-            0,
-            0.65,
-            0
-          ],
-          "rotation": [
-            -74,
-            0,
-            0
-          ],
-          "scale": [
-            0.85,
-            0.85,
-            1
-          ]
-        },
-        {
-          "tick": 28,
-          "rotation": [
-            -74,
-            0,
-            70
-          ],
-          "scale": [
-            1.15,
-            1.15,
-            1
-          ]
-        }
-      ]
+      "radius": 1.85,
+      "start": 270,
+      "sweep": -540,
+      "spiral": 0.35,
+      "rise": 2.6,
+      "tilt": [
+        0,
+        0,
+        6
+      ],
+      "width": 0.4
     },
     {
-      "id": "wrap4",
+      "id": "wrapSparks",
+      "type": "emitter",
+      "start_tick": 17,
       "frames": [
-        "wrap4_0.png",
-        "wrap4_1.png",
-        "wrap4_2.png",
-        "wrap4_3.png",
-        "wrap4_4.png",
-        "wrap4_5.png",
-        "wrap4_6.png",
-        "wrap4_7.png",
-        "wrap4_8.png",
-        "wrap4_9.png",
-        "wrap4_10.png"
+        "spk_0.png",
+        "spk_1.png",
+        "spk_2.png",
+        "spk_3.png",
+        "spk_4.png",
+        "spk_5.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 20,
-      "end_tick": 30,
+      "count": 30,
+      "emit_ticks": 12,
+      "shape": {
+        "type": "disc",
+        "radius": 1.7
+      },
+      "at": [
+        0,
+        1.2,
+        0
+      ],
+      "direction": "outward",
+      "spread": 25,
+      "speed": [
+        2,
+        4
+      ],
+      "drag": 3,
+      "gravity": -2,
+      "lifetime": [
+        0.3,
+        0.6
+      ],
       "size": [
-        4.7,
-        4.7
+        0.09,
+        0.17
       ],
-      "keys": [
-        {
-          "tick": 20,
-          "translation": [
-            0,
-            1.95,
-            0
-          ],
-          "rotation": [
-            -106,
-            0,
-            0
-          ],
-          "scale": [
-            0.85,
-            0.85,
-            1
-          ]
-        },
-        {
-          "tick": 30,
-          "rotation": [
-            -106,
-            0,
-            -70
-          ],
-          "scale": [
-            1.15,
-            1.15,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "wrap5",
-      "frames": [
-        "wrap5_0.png",
-        "wrap5_1.png",
-        "wrap5_2.png",
-        "wrap5_3.png",
-        "wrap5_4.png",
-        "wrap5_5.png",
-        "wrap5_6.png",
-        "wrap5_7.png",
-        "wrap5_8.png",
-        "wrap5_9.png",
-        "wrap5_10.png"
+      "sizeEnd": 0.4,
+      "colors": [
+        [
+          0,
+          "#ffffff"
+        ],
+        [
+          0.18,
+          "#ffd0d6"
+        ],
+        [
+          0.45,
+          "#ff2a3c"
+        ],
+        [
+          1,
+          "#4a0010"
+        ]
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 22,
-      "end_tick": 32,
-      "size": [
-        5.2,
-        5.2
-      ],
-      "keys": [
-        {
-          "tick": 22,
-          "translation": [
-            0,
-            1.2,
-            0
-          ],
-          "rotation": [
-            -90,
-            0,
-            0
-          ],
-          "scale": [
-            0.85,
-            0.85,
-            1
-          ]
-        },
-        {
-          "tick": 32,
-          "rotation": [
-            -90,
-            0,
-            70
-          ],
-          "scale": [
-            1.15,
-            1.15,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "wrap6",
-      "frames": [
-        "wrap6_0.png",
-        "wrap6_1.png",
-        "wrap6_2.png",
-        "wrap6_3.png",
-        "wrap6_4.png",
-        "wrap6_5.png",
-        "wrap6_6.png",
-        "wrap6_7.png",
-        "wrap6_8.png",
-        "wrap6_9.png",
-        "wrap6_10.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 24,
-      "end_tick": 34,
-      "size": [
-        4.2,
-        4.2
-      ],
-      "keys": [
-        {
-          "tick": 24,
-          "translation": [
-            0,
-            0.9,
-            0
-          ],
-          "rotation": [
-            -55,
-            0,
-            0
-          ],
-          "scale": [
-            0.85,
-            0.85,
-            1
-          ]
-        },
-        {
-          "tick": 34,
-          "rotation": [
-            -55,
-            0,
-            -70
-          ],
-          "scale": [
-            1.15,
-            1.15,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "wrap7",
-      "frames": [
-        "wrap7_0.png",
-        "wrap7_1.png",
-        "wrap7_2.png",
-        "wrap7_3.png",
-        "wrap7_4.png",
-        "wrap7_5.png",
-        "wrap7_6.png",
-        "wrap7_7.png",
-        "wrap7_8.png",
-        "wrap7_9.png",
-        "wrap7_10.png"
-      ],
-      "ticks_per_frame": 1,
-      "start_tick": 26,
-      "end_tick": 36,
-      "size": [
-        4.7,
-        4.7
-      ],
-      "keys": [
-        {
-          "tick": 26,
-          "translation": [
-            0,
-            1.5,
-            0
-          ],
-          "rotation": [
-            -125,
-            0,
-            0
-          ],
-          "scale": [
-            0.85,
-            0.85,
-            1
-          ]
-        },
-        {
-          "tick": 36,
-          "rotation": [
-            -125,
-            0,
-            70
-          ],
-          "scale": [
-            1.15,
-            1.15,
-            1
-          ]
-        }
-      ]
+      "seed": 13
     },
     {
       "id": "xA",
+      "type": "ribbon",
       "frames": [
-        "xA_0.png",
-        "xA_1.png",
-        "xA_2.png",
-        "xA_3.png",
-        "xA_4.png",
-        "xA_5.png",
-        "xA_6.png",
-        "xA_7.png"
+        "strip_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 31,
+      "start_tick": 30,
+      "head_ticks": 3,
+      "tail_delay": 2,
       "end_tick": 38,
-      "size": [
-        6,
-        6
+      "normal": [
+        0,
+        0,
+        1
       ],
-      "keys": [
-        {
-          "tick": 31,
-          "translation": [
-            0,
-            1.4,
-            -2.2
-          ],
-          "rotation": [
-            0,
-            0,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
+      "width": 1,
+      "points": [
+        [
+          -2.4,
+          3.2,
+          -1.7
+        ],
+        [
+          -0.9,
+          2.2,
+          -2.5
+        ],
+        [
+          0.4,
+          1.2,
+          -2.7
+        ],
+        [
+          2.2,
+          0.15,
+          -2
+        ]
       ]
     },
     {
       "id": "xB",
+      "type": "ribbon",
       "frames": [
-        "xB_0.png",
-        "xB_1.png",
-        "xB_2.png",
-        "xB_3.png",
-        "xB_4.png",
-        "xB_5.png",
-        "xB_6.png",
-        "xB_7.png"
+        "strip_0.png"
       ],
-      "ticks_per_frame": 1,
-      "start_tick": 33,
+      "start_tick": 32,
+      "head_ticks": 3,
+      "tail_delay": 2,
       "end_tick": 40,
-      "size": [
-        6,
-        6
+      "normal": [
+        0,
+        0,
+        1
       ],
-      "keys": [
-        {
-          "tick": 33,
-          "translation": [
-            0,
-            1.4,
-            -2.3000000000000003
-          ],
-          "rotation": [
-            0,
-            0,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
+      "width": 1,
+      "points": [
+        [
+          2.4,
+          3.2,
+          -1.7
+        ],
+        [
+          0.9,
+          2.2,
+          -2.5
+        ],
+        [
+          -0.4,
+          1.2,
+          -2.7
+        ],
+        [
+          -2.2,
+          0.15,
+          -2
+        ]
       ]
     },
     {
-      "id": "star",
+      "id": "burst",
       "frames": [
-        "star_0.png",
-        "star_1.png",
-        "star_2.png",
-        "star_3.png"
+        "imp_5.png",
+        "imp_6.png",
+        "imp_7.png",
+        "imp_8.png",
+        "imp_9.png",
+        "imp_10.png",
+        "imp_11.png",
+        "imp_12.png",
+        "imp_13.png"
       ],
       "ticks_per_frame": 1,
       "start_tick": 34,
-      "end_tick": 37,
+      "end_tick": 42,
       "size": [
-        2.4,
-        2.4
+        2.2,
+        2.2
       ],
       "billboard": "center",
-      "tint": "#ff9b84",
+      "tint": "#ffd0d6",
       "keys": [
         {
           "tick": 34,
           "translation": [
             0,
-            1.4,
-            -2.2
+            1.5,
+            -2.6
           ],
           "scale": [
             1,
@@ -844,98 +646,7 @@
       ]
     },
     {
-      "id": "drops",
-      "frames": [
-        "drops_0.png",
-        "drops_1.png",
-        "drops_2.png",
-        "drops_3.png",
-        "drops_4.png",
-        "drops_5.png",
-        "drops_6.png",
-        "drops_7.png",
-        "drops_8.png",
-        "drops_9.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 34,
-      "end_tick": 53,
-      "size": [
-        6,
-        6
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 34,
-          "translation": [
-            0,
-            1.4,
-            -2.2
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "bats",
-      "frames": [
-        "bats_0.png",
-        "bats_1.png",
-        "bats_2.png",
-        "bats_3.png",
-        "bats_4.png",
-        "bats_5.png",
-        "bats_6.png",
-        "bats_7.png",
-        "bats_8.png",
-        "bats_9.png",
-        "bats_10.png",
-        "bats_11.png"
-      ],
-      "ticks_per_frame": 2,
-      "start_tick": 35,
-      "end_tick": 58,
-      "size": [
-        4.8,
-        4.8
-      ],
-      "billboard": "center",
-      "keys": [
-        {
-          "tick": 35,
-          "translation": [
-            0,
-            1.6,
-            -1.6
-          ],
-          "scale": [
-            0.8,
-            0.8,
-            1
-          ]
-        },
-        {
-          "tick": 58,
-          "translation": [
-            0,
-            3.2,
-            -1.6
-          ],
-          "scale": [
-            1.2,
-            1.2,
-            1
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ring",
+      "id": "ring1",
       "frames": [
         "ring_0.png",
         "ring_1.png",
@@ -959,7 +670,7 @@
           "translation": [
             0,
             0.05,
-            -1.4
+            -1.6
           ],
           "rotation": [
             -90,
@@ -999,7 +710,7 @@
           "translation": [
             0,
             0.06,
-            -2.2
+            -2.6
           ],
           "rotation": [
             -90,
@@ -1013,6 +724,262 @@
           ]
         }
       ]
+    },
+    {
+      "id": "burstSparks",
+      "type": "emitter",
+      "start_tick": 34,
+      "frames": [
+        "spk_0.png",
+        "spk_1.png",
+        "spk_2.png",
+        "spk_3.png",
+        "spk_4.png",
+        "spk_5.png"
+      ],
+      "count": 40,
+      "shape": {
+        "type": "sphere",
+        "radius": 0.2
+      },
+      "at": [
+        0,
+        1.5,
+        -2.6
+      ],
+      "direction": "outward",
+      "speed": [
+        7,
+        13
+      ],
+      "drag": 5,
+      "gravity": -6,
+      "lifetime": [
+        0.35,
+        0.7
+      ],
+      "size": [
+        0.12,
+        0.24
+      ],
+      "sizeEnd": 0.4,
+      "colors": [
+        [
+          0,
+          "#ffffff"
+        ],
+        [
+          0.18,
+          "#ffd0d6"
+        ],
+        [
+          0.45,
+          "#ff2a3c"
+        ],
+        [
+          1,
+          "#4a0010"
+        ]
+      ],
+      "seed": 17
+    },
+    {
+      "id": "dropsL",
+      "type": "emitter",
+      "start_tick": 34,
+      "frames": [
+        "mot_0.png"
+      ],
+      "count": 6,
+      "shape": {
+        "type": "sphere",
+        "radius": 0.3
+      },
+      "at": [
+        0,
+        1.5,
+        -2.6
+      ],
+      "direction": "outward",
+      "spread": 30,
+      "speed": [
+        3,
+        5
+      ],
+      "drag": 0.8,
+      "gravity": -18,
+      "lifetime": [
+        0.9,
+        1.2
+      ],
+      "size": [
+        0.2,
+        0.28
+      ],
+      "colors": [
+        [
+          0,
+          "#ff3040"
+        ],
+        [
+          1,
+          "#4a0010"
+        ]
+      ],
+      "seed": 19
+    },
+    {
+      "id": "dropsS",
+      "type": "emitter",
+      "start_tick": 34,
+      "frames": [
+        "mot_0.png"
+      ],
+      "count": 30,
+      "shape": {
+        "type": "sphere",
+        "radius": 0.3
+      },
+      "at": [
+        0,
+        1.5,
+        -2.6
+      ],
+      "direction": "outward",
+      "spread": 30,
+      "speed": [
+        2.5,
+        6
+      ],
+      "drag": 1,
+      "gravity": -18,
+      "lifetime": [
+        0.6,
+        1.1
+      ],
+      "size": [
+        0.05,
+        0.1
+      ],
+      "colors": [
+        [
+          0,
+          "#ff5060"
+        ],
+        [
+          1,
+          "#4a0010"
+        ]
+      ],
+      "seed": 21
+    },
+    {
+      "id": "bats",
+      "type": "emitter",
+      "start_tick": 35,
+      "frames": [
+        "bat_0.png",
+        "bat_1.png"
+      ],
+      "fps": 10,
+      "count": 9,
+      "shape": {
+        "type": "sphere",
+        "radius": 0.4
+      },
+      "at": [
+        0,
+        1.5,
+        -2.6
+      ],
+      "direction": [
+        0,
+        1,
+        0.2
+      ],
+      "spread": 70,
+      "speed": [
+        2.5,
+        4
+      ],
+      "drag": 0.6,
+      "gravity": 1.5,
+      "lifetime": [
+        1,
+        1.4
+      ],
+      "size": [
+        0.35,
+        0.5
+      ],
+      "colors": [
+        [
+          0,
+          "#ffffff"
+        ],
+        [
+          1,
+          "#ffffff"
+        ]
+      ],
+      "seed": 23
+    },
+    {
+      "id": "mist",
+      "type": "emitter",
+      "start_tick": 36,
+      "frames": [
+        "puf_0.png",
+        "puf_1.png",
+        "puf_2.png",
+        "puf_3.png",
+        "puf_4.png",
+        "puf_5.png",
+        "puf_6.png",
+        "puf_7.png"
+      ],
+      "count": 10,
+      "emit_ticks": 6,
+      "shape": {
+        "type": "disc",
+        "radius": 1.6
+      },
+      "at": [
+        0,
+        0.2,
+        -1.8
+      ],
+      "direction": "up",
+      "spread": 25,
+      "speed": [
+        0.5,
+        1.2
+      ],
+      "drag": 2,
+      "lifetime": [
+        0.8,
+        1.2
+      ],
+      "size": [
+        0.4,
+        0.7
+      ],
+      "sizeEnd": 1.6,
+      "colors": [
+        [
+          0,
+          "#a3162f"
+        ],
+        [
+          0.5,
+          "#590b1e"
+        ],
+        [
+          1,
+          "#20040b"
+        ]
+      ],
+      "seed": 25
     }
   ],
   "player": [
@@ -1053,7 +1020,7 @@
       ]
     },
     {
-      "tick": 12,
+      "tick": 14,
       "arm_r": [
         -40,
         0,
@@ -1076,7 +1043,7 @@
       ]
     },
     {
-      "tick": 14,
+      "tick": 16,
       "arm_r": [
         -90,
         0,
@@ -1099,7 +1066,7 @@
       ]
     },
     {
-      "tick": 21,
+      "tick": 23,
       "arm_r": [
         -90,
         0,
@@ -1112,20 +1079,7 @@
       ]
     },
     {
-      "tick": 28,
-      "arm_r": [
-        -90,
-        0,
-        0
-      ],
-      "body": [
-        0,
-        400,
-        0
-      ]
-    },
-    {
-      "tick": 31,
+      "tick": 29,
       "arm_r": [
         -175,
         0,
@@ -1138,7 +1092,7 @@
       ]
     },
     {
-      "tick": 34,
+      "tick": 33,
       "arm_r": [
         -30,
         0,

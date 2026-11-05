@@ -8,6 +8,8 @@
 //  · 1타 수평(가닥 2) · 2타 역사선 올려베기(가닥 3, 더 큼) · 3타 내려찍기(가닥 4 + 바닥 고리 2겹 + 솟구치는 빛줄기 + 꽃잎 폭발)
 import * as RB from '../../../atelier/mc/ribbon.js';
 import * as V from '../../../atelier/mc/vfx.js';
+import * as FB from '../../../atelier/mc/flipbook.js';
+import { PixelCanvas } from '../../../atelier/pixel.js';
 
 const reg = (F, name, list) => { list.forEach((c, i) => (F[`${name}_${i}.png`] = c)); return list.map((_, i) => `${name}_${i}.png`); };
 const loop = (list, n) => Array.from({ length: n }, (_, i) => list[i % list.length]);
@@ -62,49 +64,62 @@ export function basic_attack() {
 }
 
 export function skill() {
-  // 군주의 만찬: 사방 땅에서 피 여섯 줄기를 빨아들임 → 그 피가 리본 8가닥이 되어 몸을 휘감으며 회전 → 앞으로 X자 대참격, 박쥐 떼와 핏방울이 터짐
+  // 군주의 만찬 v6 — 공식 파티클 문법 + RPG 스킬 레퍼런스 수치(docs/research/minecraft-official-study.md, mc-rpg-vfx-references.md)
+  //  v5 측정: 흰 심 0~3%, 채도 1.0~1.24(과포화), 평면 그림뿐 → v6: 흰 심이 구워진 3D 리본, 한 색 계열 + 흰색, 층 5개, 크기 키의 2~3배
+  //  ① 예비(0~14): 바닥 혈인(앵커)이 돌며 펼쳐지고, 반경 3.5블록 여섯 곳에서 핏줄기(3D 곡선 리본)가 가슴으로 빨려 듦 + 수렴하는 점
+  //  ② 응축(14~16): 가슴에서 타격 섬광 1틱
+  //  ③ 휘감기(16~30): 피의 리본 4가닥이 나선으로 몸을 감아 오름(높이 0.2→2.8) + 불티
+  //  ④ 해방(30~36): 앞으로 X자 대참격(세로 리본 2장) + 큰 섬광 + 바닥 충격 고리 2겹
+  //  ⑤ 소멸(36~60): 핏방울이 중력으로 떨어지고 박쥐가 흩어지며, 고리는 조각나 사라짐
   const F = {}, T = [];
-  const ringIn = reg(F, 'ringIn', RB.thinRing({ size: 128, frames: 8, ramp: LQ }).reverse());
-  const ring = reg(F, 'ring', RB.thinRing({ size: 128, frames: 8, ramp: LQ }));
-  const drops = reg(F, 'drops', RB.petalBurst({ size: 128, frames: 10, count: 34, seed: 23, ramp: LQ, particle: 'drop' }));
-  const bats = reg(F, 'bats', RB.petalBurst({ size: 128, frames: 12, count: 12, seed: 24, ramp: LQ, particle: 'bat', flash: false }));
-  const star = reg(F, 'star', V.impactStar({ size: 32, frames: 4 }));
-  const stream = reg(F, 'stream', RB.ribbonLine({ size: 128, frames: 8, angle: -12, length: 0.95, width: 0.04, ramp: LQ, particle: 'drop', petals: 5, seed: 50 }));
-  // ① 흡혈(0~14): 바닥 고리가 조여들고, 반경 3블록의 여섯 곳에서 핏줄기가 플레이어 가슴으로 빨려 들어옴
-  T.push({ id: 'ringIn', frames: ringIn, ticks_per_frame: 1, start_tick: 0, end_tick: 7, size: [6.5, 6.5], keys: [{ tick: 0, translation: [0, 0.05, 0], rotation: [-90, 0, 0], scale: [1, 1, 1] }] });
+  const strip = reg(F, 'strip', [FB.ribbonStrip({ glow: '#ff3446', edge: '#4a0010', core: 0.36, seed: 1 })]);
+  const thin = reg(F, 'thin', [FB.ribbonStrip({ glow: '#ff5464', edge: '#5a0418', core: 0.44, streaks: 2, seed: 4 })]);
+  const imp = reg(F, 'imp', FB.impact()), spk = reg(F, 'spk', FB.spark()), mot = reg(F, 'mot', FB.mote()), puf = reg(F, 'puf', FB.puff());
+  const batF = reg(F, 'bat', [0, 1].map(k => { const c = new PixelCanvas(12, 8); RB.bat(c, 6, 4, 1, k); return c; }));
+  const sigil = reg(F, 'sigil', V.magicCircle({ size: 64, folds: 7, frames: 1, seed: 9 }));
+  const ring = reg(F, 'ring', RB.thinRing({ size: 128, frames: 8, ramp: ['#20040b', '#4a0010', '#a3162f', '#ff2a3c', '#ff8090', '#ffd0d6', '#ffffff', '#ffffff'] }));
+  const BLOODC = [[0, '#ffffff'], [0.18, '#ffd0d6'], [0.45, '#ff2a3c'], [1, '#4a0010']];
+  const chest = [0, 1.4, 0];
+  // ① 바닥 혈인 + 빨려 드는 핏줄기 6개 + 수렴 점
+  T.push({ id: 'sigil', frames: sigil, start_tick: 0, end_tick: 44, size: [5.5, 5.5], tint: '#7a2430', keys: [{ tick: 0, translation: [0, 0.04, 0], rotation: [-90, 0, 0], scale: [0.3, 0.3, 1] }, { tick: 10, scale: [1, 1, 1], rotation: [-90, 0, 60] }, { tick: 30, rotation: [-90, 0, 200] }, { tick: 44, scale: [1.15, 1.15, 1], rotation: [-90, 0, 260] }] });
   for (let k = 0; k < 6; k++) {
-    const a = (k / 6) * 360 + 15, ar = (a * Math.PI) / 180, t0 = 2 + (k % 3) * 2;
-    T.push({ id: `stream${k}`, frames: stream, ticks_per_frame: 1, start_tick: t0, end_tick: t0 + 7, size: [3.2, 3.2], keys: [{ tick: t0, translation: [Math.cos(ar) * 1.6, 0.9, Math.sin(ar) * 1.6], rotation: [0, 180 - a, 0], scale: [1, 1, 1] }] });
+    const a = (k / 6) * Math.PI * 2 + 0.3, x = Math.cos(a) * 3.5, z = Math.sin(a) * 3.5, t0 = 1 + (k % 3) * 2;
+    T.push({ id: `stream${k}`, type: 'ribbon', frames: thin, start_tick: t0, head_ticks: 7, tail_delay: 4, end_tick: t0 + 12, face: 'camera', width: 0.45,
+      points: [[x, 0.05, z], [x * 0.75, 0.6, z * 0.75], [x * 0.35 + Math.sin(a) * 0.6, 1.5, z * 0.35 - Math.cos(a) * 0.6], chest] });
   }
-  // ② 휘감기(12~30): 빨아들인 피가 리본 8장이 되어 서로 다른 기울기로 몸을 감음
-  const wraps = [[-90, 0, 0, 1.0], [-62, 0, 30, 1.35], [-118, 0, -40, 1.6], [-74, 0, 110, 0.65], [-106, 0, 200, 1.95], [-90, 0, 280, 1.2], [-55, 0, 160, 0.9], [-125, 0, 320, 1.5]];
-  wraps.forEach(([rx, ry, rz, h], k) => {
-    const t0 = 12 + k * 2, fr = reg(F, `wrap${k}`, RB.ribbonArc({ frames: 11, start: rz, sweep: k % 2 ? 320 : -320, radius: 0.36, width: 0.05, spiral: 0.18, seed: 30 + k, petals: 6, strands: k % 3 === 0 ? S4 : S3, ...BLOOD }));
-    const sz = 4.2 + (k % 3) * 0.5;
-    T.push({ id: `wrap${k}`, frames: fr, ticks_per_frame: 1, start_tick: t0, end_tick: t0 + 10, size: [sz, sz], keys: [{ tick: t0, translation: [0, h, 0], rotation: [rx, ry, 0], scale: [0.85, 0.85, 1] }, { tick: t0 + 10, rotation: [rx, ry, k % 2 ? 70 : -70], scale: [1.15, 1.15, 1] }] });
+  T.push({ id: 'gather', type: 'emitter', start_tick: 0, frames: mot, count: 40, emit_ticks: 10, shape: { type: 'sphere', radius: 3, surface: true }, at: chest, direction: 'outward', speed: [-7, -5.5], lifetime: [0.4, 0.5], size: [0.07, 0.13], colors: [[0, '#4a0010'], [0.7, '#ff2a3c'], [1, '#ffffff']], seed: 11 });
+  // ② 응축 섬광(작게, 1틱 타격 프레임 포함)
+  T.push({ id: 'charge', frames: imp.slice(4, 9), ticks_per_frame: 1, start_tick: 12, end_tick: 16, size: [1.2, 1.2], billboard: 'center', tint: '#ffe0e4', keys: [{ tick: 12, translation: chest, scale: [1, 1, 1] }] });
+  // ③ 휘감는 나선 리본 4가닥
+  [[0, 1], [90, -1], [180, 1], [270, -1]].forEach(([st, dir], k) => {
+    const t0 = 16 + k;
+    T.push({ id: `wrap${k}`, type: 'ribbon', frames: k % 2 ? thin : strip, start_tick: t0, head_ticks: 8, tail_delay: 4, end_tick: t0 + 14, center: [0, 0.2, 0], radius: 1.5 + (k % 2) * 0.35, start: st, sweep: 540 * dir, spiral: 0.35, rise: 2.6, tilt: [0, 0, k % 2 ? 6 : -6], width: k % 2 ? 0.4 : 0.85 });
   });
-  // ③ 대참격(31~): 앞으로 X자 피 리본 2장 + 섬광 + 박쥐 떼 + 핏방울 폭발 + 바닥 고리 2겹
-  const xA = reg(F, 'xA', RB.ribbonLine({ frames: 8, angle: -38, seed: 41, petals: 10, width: 0.04, ramp: LQ, particle: 'drop' }));
-  const xB = reg(F, 'xB', RB.ribbonLine({ frames: 8, angle: 38, seed: 42, petals: 10, width: 0.04, ramp: LQ, particle: 'drop' }));
-  const front = [0, 1.4, -2.2];
-  T.push({ id: 'xA', frames: xA, ticks_per_frame: 1, start_tick: 31, end_tick: 38, size: [6, 6], keys: [{ tick: 31, translation: front, rotation: [0, 0, 0], scale: [1, 1, 1] }] });
-  T.push({ id: 'xB', frames: xB, ticks_per_frame: 1, start_tick: 33, end_tick: 40, size: [6, 6], keys: [{ tick: 33, translation: [front[0], front[1], front[2] - 0.1], rotation: [0, 0, 0], scale: [1, 1, 1] }] });
-  T.push({ id: 'star', frames: star, ticks_per_frame: 1, start_tick: 34, end_tick: 37, size: [2.4, 2.4], billboard: 'center', tint: '#ff9b84', keys: [{ tick: 34, translation: front, scale: [1, 1, 1] }] });
-  T.push({ id: 'drops', frames: drops, ticks_per_frame: 2, start_tick: 34, end_tick: 53, size: [6, 6], billboard: 'center', keys: [{ tick: 34, translation: front, scale: [1, 1, 1] }] });
-  T.push({ id: 'bats', frames: bats, ticks_per_frame: 2, start_tick: 35, end_tick: 58, size: [4.8, 4.8], billboard: 'center', keys: [{ tick: 35, translation: [0, 1.6, -1.6], scale: [0.8, 0.8, 1] }, { tick: 58, translation: [0, 3.2, -1.6], scale: [1.2, 1.2, 1] }] });
-  T.push({ id: 'ring', frames: ring, ticks_per_frame: 2, start_tick: 34, end_tick: 49, size: [7, 7], keys: [{ tick: 34, translation: [0, 0.05, -1.4], rotation: [-90, 0, 0], scale: [1, 1, 1] }] });
-  T.push({ id: 'ring2', frames: ring, ticks_per_frame: 2, start_tick: 37, end_tick: 52, size: [4.5, 4.5], keys: [{ tick: 37, translation: [0, 0.06, -2.2], rotation: [-90, 0, 30], scale: [1, 1, 1] }] });
+  T.push({ id: 'wrapSparks', type: 'emitter', start_tick: 17, frames: spk, count: 30, emit_ticks: 12, shape: { type: 'disc', radius: 1.7 }, at: [0, 1.2, 0], direction: 'outward', spread: 25, speed: [2, 4], drag: 3, gravity: -2, lifetime: [0.3, 0.6], size: [0.09, 0.17], sizeEnd: 0.4, colors: BLOODC, seed: 13 });
+  // ④ 해방: 앞으로 X자 대참격(세로 평면 원호 2장) + 섬광 + 바닥 고리
+  const front = [0, 1.5, -2.6];
+  // 대각선 베기: 왼쪽 위 → 앞 가운데 → 오른쪽 아래(살짝 휘어짐), 띠 면은 앞을 봄
+  T.push({ id: 'xA', type: 'ribbon', frames: strip, start_tick: 30, head_ticks: 3, tail_delay: 2, end_tick: 38, normal: [0, 0, 1], width: 1.0, points: [[-2.4, 3.2, -1.7], [-0.9, 2.2, -2.5], [0.4, 1.2, -2.7], [2.2, 0.15, -2.0]] });
+  T.push({ id: 'xB', type: 'ribbon', frames: strip, start_tick: 32, head_ticks: 3, tail_delay: 2, end_tick: 40, normal: [0, 0, 1], width: 1.0, points: [[2.4, 3.2, -1.7], [0.9, 2.2, -2.5], [-0.4, 1.2, -2.7], [-2.2, 0.15, -2.0]] });
+  T.push({ id: 'burst', frames: imp.slice(5), ticks_per_frame: 1, start_tick: 34, end_tick: 42, size: [2.2, 2.2], billboard: 'center', tint: '#ffd0d6', keys: [{ tick: 34, translation: front, scale: [1, 1, 1] }] });
+  T.push({ id: 'ring1', frames: ring, ticks_per_frame: 2, start_tick: 34, end_tick: 49, size: [7, 7], keys: [{ tick: 34, translation: [0, 0.05, -1.6], rotation: [-90, 0, 0], scale: [1, 1, 1] }] });
+  T.push({ id: 'ring2', frames: ring, ticks_per_frame: 2, start_tick: 37, end_tick: 52, size: [4.5, 4.5], keys: [{ tick: 37, translation: [0, 0.06, -2.6], rotation: [-90, 0, 30], scale: [1, 1, 1] }] });
+  T.push({ id: 'burstSparks', type: 'emitter', start_tick: 34, frames: spk, count: 40, shape: { type: 'sphere', radius: 0.2 }, at: front, direction: 'outward', speed: [7, 13], drag: 5, gravity: -6, lifetime: [0.35, 0.7], size: [0.12, 0.24], sizeEnd: 0.4, colors: BLOODC, seed: 17 });
+  // ⑤ 소멸: 핏방울(크기 3단계) + 박쥐 + 피안개
+  T.push({ id: 'dropsL', type: 'emitter', start_tick: 34, frames: mot, count: 6, shape: { type: 'sphere', radius: 0.3 }, at: front, direction: 'outward', spread: 30, speed: [3, 5], drag: 0.8, gravity: -18, lifetime: [0.9, 1.2], size: [0.2, 0.28], colors: [[0, '#ff3040'], [1, '#4a0010']], seed: 19 });
+  T.push({ id: 'dropsS', type: 'emitter', start_tick: 34, frames: mot, count: 30, shape: { type: 'sphere', radius: 0.3 }, at: front, direction: 'outward', spread: 30, speed: [2.5, 6], drag: 1, gravity: -18, lifetime: [0.6, 1.1], size: [0.05, 0.1], colors: [[0, '#ff5060'], [1, '#4a0010']], seed: 21 });
+  T.push({ id: 'bats', type: 'emitter', start_tick: 35, frames: batF, fps: 10, count: 9, shape: { type: 'sphere', radius: 0.4 }, at: front, direction: [0, 1, 0.2], spread: 70, speed: [2.5, 4], drag: 0.6, gravity: 1.5, lifetime: [1, 1.4], size: [0.35, 0.5], colors: [[0, '#ffffff'], [1, '#ffffff']], seed: 23 });
+  T.push({ id: 'mist', type: 'emitter', start_tick: 36, frames: puf, count: 10, emit_ticks: 6, shape: { type: 'disc', radius: 1.6 }, at: [0, 0.2, -1.8], direction: 'up', spread: 25, speed: [0.5, 1.2], drag: 2, lifetime: [0.8, 1.2], size: [0.4, 0.7], sizeEnd: 1.6, colors: [[0, '#a3162f'], [0.5, '#590b1e'], [1, '#20040b']], seed: 25 });
   const player = [
     { tick: 0, arm_r: [0, 0, 0], body: [0, 0, 0] },
-    { tick: 8, arm_r: [-40, 0, 50], arm_l: [-40, 0, -50], body: [-8, 0, 0], head: [-15, 0, 0] },   // 두 팔을 벌려 피를 빨아들임
-    { tick: 12, arm_r: [-40, 0, 50], arm_l: [-40, 0, -50], body: [-8, 0, 0], head: [-15, 0, 0] },
-    { tick: 14, arm_r: [-90, 0, 0], arm_l: [0, 0, 0], body: [0, -40, 0], head: [0, 0, 0] },
-    { tick: 21, arm_r: [-90, 0, 0], body: [0, 180, 0] },
-    { tick: 28, arm_r: [-90, 0, 0], body: [0, 400, 0] },
-    { tick: 31, arm_r: [-175, 0, 0], body: [-10, 360, 0] },
-    { tick: 34, arm_r: [-30, 0, 0], body: [22, 360, 0] },
+    { tick: 8, arm_r: [-40, 0, 50], arm_l: [-40, 0, -50], body: [-8, 0, 0], head: [-15, 0, 0] },
+    { tick: 14, arm_r: [-40, 0, 50], arm_l: [-40, 0, -50], body: [-8, 0, 0], head: [-15, 0, 0] },
+    { tick: 16, arm_r: [-90, 0, 0], arm_l: [0, 0, 0], body: [0, -40, 0], head: [0, 0, 0] },
+    { tick: 23, arm_r: [-90, 0, 0], body: [0, 180, 0] },
+    { tick: 29, arm_r: [-175, 0, 0], body: [-10, 360, 0] },
+    { tick: 33, arm_r: [-30, 0, 0], body: [22, 360, 0] },
     { tick: 46, arm_r: [-20, 0, 0], body: [10, 360, 0] },
     { tick: 58, arm_r: [0, 0, 0], body: [0, 360, 0] },
   ];
-  return { timeline: { name: '군주의 만찬 — 사방의 땅에서 피 여섯 줄기를 빨아들여 몸을 휘감는 피의 리본으로 두른 뒤, 앞으로 X자 대참격을 날려 박쥐 떼와 핏방울을 터뜨린다', duration_ticks: 60, tracks: T, player }, frames: F };
+  return { timeline: { name: '군주의 만찬 — 사방의 땅에서 핏줄기를 빨아들여 피의 리본으로 몸을 휘감은 뒤, 앞으로 X자 대참격을 날려 핏방울과 박쥐 떼를 터뜨린다', duration_ticks: 60, tracks: T, player }, frames: F };
 }

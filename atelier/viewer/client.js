@@ -280,7 +280,8 @@
     const c = tr.center || [0, 1, 0], r0 = tr.radius ?? 2, a0 = (tr.start ?? 0) * Math.PI / 180, sw = (tr.sweep ?? 180) * Math.PI / 180;
     const tilt = new T.Euler(...(tr.tilt || [0, 0, 0]).map(v => v * Math.PI / 180), 'XYZ');
     const q = new T.Quaternion().setFromEuler(tilt);
-    const at = s => { const a = a0 + sw * s, r = r0 * (1 + (tr.spiral ?? 0) * (s - 0.5)); const v = new T.Vector3(Math.cos(a) * r, (tr.rise ?? 0) * s, Math.sin(a) * r).applyQuaternion(q); return v.add(new T.Vector3(...c)); };
+    const crv = tr.points ? new T.CatmullRomCurve3(tr.points.map(p => new T.Vector3(...p))) : null;   // 경로점이 있으면 곡선 보간(빨려 드는 줄기 등)
+    const at = s => { if (crv) return crv.getPointAt(Math.min(1, Math.max(0, s))); const a = a0 + sw * s, r = r0 * (1 + (tr.spiral ?? 0) * (s - 0.5)); const v = new T.Vector3(Math.cos(a) * r, (tr.rise ?? 0) * s, Math.sin(a) * r).applyQuaternion(q); return v.add(new T.Vector3(...c)); };
     const s0 = tr.start_tick ?? 0, hd = tr.head_ticks ?? 4, td = tr.tail_delay ?? 2, e = tr.end_tick ?? s0 + hd + 6;
     const ease = x => 1 - (1 - Math.min(1, Math.max(0, x))) ** 3;
     return (tick, camera) => {
@@ -295,6 +296,7 @@
         // 폭 방향: 기본은 경로 평면의 법선(평평한 띠). face:'camera'면 카메라를 향해 비틈
         let side = new T.Vector3(0, 1, 0).applyQuaternion(q).cross(tan).normalize();
         if (tr.face === 'normal') side = new T.Vector3(0, 1, 0).applyQuaternion(q);
+        if (tr.normal) side = new T.Vector3(...tr.normal).normalize().cross(tan).normalize();   // 띠 면의 법선 고정(앞을 보는 베기 등)
         if (tr.face === 'camera' && camera) { camera.getWorldPosition(camDir); side = camDir.clone().sub(p.clone().multiplyScalar(16)).normalize().cross(tan).normalize(); }
         const prof = Math.sin(Math.PI * Math.min(1, t * 1.05)) ** 0.6 * (0.35 + 0.65 * t);  // 양끝 0, 머리 쪽 두꺼움
         const w = W * prof * (1 - 0.5 * tail);
@@ -380,7 +382,7 @@
         // 리본(중심 ± 반지름)과 이미터(발생 위치 ± 이동 거리)도 화면에 담는다
         for (const tr of p.timeline.tracks || []) {
           if (tr.type === 'ribbon') { const [x, y, z] = (tr.center || [0, 1, 0]).map(v => v * 16), r = (tr.radius ?? 2) * 16 * (1 + Math.abs(tr.spiral ?? 0) / 2); box.expandByPoint(new T.Vector3(x - r, Math.max(0, y - r * 0.5), z - r)).expandByPoint(new T.Vector3(x + r, y + r * 0.5 + (tr.rise ?? 0) * 16, z + r)); }
-          if (tr.type === 'emitter') { const [x, y, z] = (tr.at || [0, 0, 0]).map(v => v * 16), sp = Array.isArray(tr.speed) ? Math.max(...tr.speed.map(Math.abs)) : Math.abs(tr.speed ?? 0), r = (((tr.shape?.radius ?? 0) + sp / Math.max(1, tr.drag ?? 1)) * 16) * 0.8; box.expandByPoint(new T.Vector3(x - r, Math.max(0, y - r), z - r)).expandByPoint(new T.Vector3(x + r, y + r, z + r)); }
+          if (tr.type === 'emitter') { const [x, y, z] = (tr.at || [0, 0, 0]).map(v => v * 16), sp = Math.max(0, ...(Array.isArray(tr.speed) ? tr.speed : [tr.speed ?? 0])), life = Math.max(...(Array.isArray(tr.lifetime) ? tr.lifetime : [tr.lifetime ?? 1])), reach = (tr.drag ?? 0) > 0 ? sp / tr.drag : sp * life, r = Math.min(4, (tr.shape?.radius ?? 0) * (sp > 0 ? 1 : 0.5) + reach) * 16 * 0.8; /* 안으로 날아오는 입자는 범위를 넓히지 않음 */ box.expandByPoint(new T.Vector3(x - r, Math.max(0, y - r), z - r)).expandByPoint(new T.Vector3(x + r, y + r, z + r)); }
         }
       }
       this.center = box.getCenter(new T.Vector3());
