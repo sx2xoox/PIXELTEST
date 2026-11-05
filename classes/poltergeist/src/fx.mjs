@@ -3,6 +3,7 @@
 //  입자: 날아가며 회전하는 집기(접시·찻잔·책) — 폴터가이스트 = 물건을 집어 던지는 망령
 //  타격: '노크' 동심원 파문(쿵·쿵·쿵 3겹), 스킬의 비명 지르는 망령 얼굴
 import * as RB from '../../../atelier/mc/ribbon.js';
+import * as FB from '../../../atelier/mc/flipbook.js';
 import { PixelCanvas } from '../../../atelier/pixel.js';
 import { outline } from '../../../atelier/mc/shade.js';
 import { OUT, ECT, IVO, VEL, MAH, PEW } from './palette.mjs';
@@ -132,43 +133,51 @@ export function basic_attack() {
 }
 
 export function skill() {
-  // 한밤의 소란: 쿵·쿵·쿵 노크와 촛불 깜빡임 → 집기들이 기울어진 세 궤도로 떠올라 몸 주위를 돌고 연기가 휘감음 → 비명 지르는 망령 얼굴 → 모든 집기가 사방으로 날아감
+  // 한밤의 소란 v2 — 이펙트 엔진 v2(3D 리본·파티클 이미터·공식 플립북) + 레퍼런스 수치(흰 심, 한 색 계열, 층 5개, 키의 2~3배)
+  //  ① 노크(0~10): 쿵·쿵·쿵 — 바닥 타격 플립북 3번 + 퍼지는 바닥 고리 + 촛불 불티
+  //  ② 떠오름(8~30): 집기들이 바닥에서 떠올라 천천히 회전(이미터, 위로·저항), 연기 리본 4가닥이 나선으로 몸을 감아 오름
+  //  ③ 비명(28~36): 반투명 망령 얼굴이 번쩍
+  //  ④ 분출(32~): 큰 타격 섬광 + 모든 집기가 사방으로 회전하며 날아가 떨어짐(속도·중력) + 불티 + 연기 + 큰 고리 2겹
   const F = {}, T = [];
+  const strip = reg(F, 'strip', [FB.ribbonStrip({ glow: '#2fd1a9', edge: '#0b5a55', core: 0.38, seed: 2 })]);
+  const thin = reg(F, 'thin', [FB.ribbonStrip({ glow: '#8cf5d0', edge: '#13917f', core: 0.44, streaks: 2, seed: 5 })]);
+  const imp = reg(F, 'imp', FB.impact()), spk = reg(F, 'spk', FB.spark()), puf = reg(F, 'puf', FB.puff());
   const ring = reg(F, 'ring', RB.thinRing({ size: 128, frames: 7, ramp: ECTR }));
-  const flick = reg(F, 'flick', flicker());
   const face = reg(F, 'face', ghostFace());
-  const burst = reg(F, 'burst', RB.petalBurst({ size: 128, frames: 11, count: 26, seed: 31, ramp: ECTR, particle: ALL }));
-  const ray = reg(F, 'ray', RB.ribbonLine({ size: 128, frames: 7, angle: 0, length: 0.95, width: 0.035, ramp: ECTR, particle: ALL, petals: 2, seed: 61 }));
-  // ① 노크(0~10)
-  [0, 4, 8].forEach((t, i) => knock(T, `knock${i}`, t, [0, 0.05 + i * 0.01, 0], 3 + i * 1.2, i * 25, ring));
-  [[1.2, 2.4, -0.6, 2], [-1.3, 2.1, 0.4, 5], [0.3, 2.8, 1.2, 8]].forEach(([x, y, z, t], i) => T.push({ id: `flick${i}`, frames: flick, ticks_per_frame: 1, start_tick: t, end_tick: t + 2, size: [0.9, 0.9], billboard: 'center', keys: [{ tick: t, translation: [x, y, z], scale: [1, 1, 1] }] }));
-  // ② 떠오르는 궤도(8~31): 기울기 다른 3개의 집기 궤도 + 연기 리본 4장
-  [[-90, 0, 0, 1.0, 1], [-60, 0, 35, 1.6, 2], [-120, 0, -30, 2.1, 3]].forEach(([rx, ry, rz, h, seed], k) => {
-    const fr = reg(F, `orbit${k}`, orbit({ seed, n: 5 + k, turn: k % 2 ? -0.5 : 0.5 }));
-    const t0 = 8 + k * 2, seq = [...fr, ...fr];
-    T.push({ id: `orbit${k}`, frames: seq, ticks_per_frame: 1, start_tick: t0, end_tick: t0 + seq.length - 1, size: [3.6 + k * 0.4, 3.6 + k * 0.4], keys: [{ tick: t0, translation: [0, h - 0.6, 0], rotation: [rx, ry, rz], scale: [0.5, 0.5, 1] }, { tick: t0 + 6, translation: [0, h, 0], scale: [1, 1, 1] }, { tick: t0 + seq.length - 1, rotation: [rx, ry, rz + (k % 2 ? -40 : 40)] }] });
+  const obj = Object.fromEntries(Object.entries(OBJ).map(([k, c]) => [k, reg(F, 'o_' + k, [c])]));
+  const WHITE = [[0, '#ffffff'], [1, '#ffffff']], MINT = [[0, '#ffffff'], [0.2, '#c9fbe6'], [0.55, '#2fd1a9'], [1, '#0b5a55']];
+  // ① 노크 3번: 바닥에 납작한 타격 + 고리, 매번 조금씩 크게
+  [0, 4, 8].forEach((t, i) => {
+    T.push({ id: `knock${i}`, frames: imp.slice(5), ticks_per_frame: 1, start_tick: t, end_tick: t + 8, size: [1.2 + i * 0.4, 1.2 + i * 0.4], tint: '#c9fbe6', keys: [{ tick: t, translation: [0, 0.05 + i * 0.01, 0], rotation: [-90, 0, i * 25], scale: [1, 1, 1] }] });
+    T.push({ id: `kring${i}`, frames: ring, ticks_per_frame: 1, start_tick: t + 1, end_tick: t + 7, size: [3 + i * 1.2, 3 + i * 1.2], keys: [{ tick: t + 1, translation: [0, 0.06, 0], rotation: [-90, 0, 0], scale: [1, 1, 1] }] });
   });
-  [[-70, 0, 0, 1.1], [-110, 0, 120, 1.7], [-80, 0, 240, 0.7], [-100, 0, 60, 2.2]].forEach(([rx, ry, rz, h], k) => {
-    const t0 = 12 + k * 3, fr = reg(F, `wrap${k}`, RB.ribbonArc({ frames: 11, start: rz, sweep: k % 2 ? 320 : -320, radius: 0.36, width: 0.05, spiral: 0.18, seed: 40 + k, petals: 0, strands: k % 2 ? S3 : S4, ...WISP }));
-    T.push({ id: `wrap${k}`, frames: fr, ticks_per_frame: 1, start_tick: t0, end_tick: t0 + 10, size: [4.4, 4.4], keys: [{ tick: t0, translation: [0, h, 0], rotation: [rx, ry, 0], scale: [0.9, 0.9, 1] }, { tick: t0 + 10, rotation: [rx, ry, k % 2 ? 70 : -70], scale: [1.15, 1.15, 1] }] });
+  T.push({ id: 'flicker', type: 'emitter', start_tick: 1, frames: spk, count: 14, emit_ticks: 9, shape: { type: 'ring', radius: 2.2 }, at: [0, 2.2, 0], direction: 'up', spread: 30, speed: [0.5, 1.5], drag: 2, lifetime: [0.2, 0.4], size: [0.12, 0.2], colors: MINT, seed: 3 });
+  // ② 떠오르는 집기(종류마다 이미터) + 나선 연기 리본
+  const rise = (k, n, seed, sz) => ({ id: 'rise_' + k, type: 'emitter', start_tick: 8, frames: obj[k], count: n, emit_ticks: 10, shape: { type: 'disc', radius: 2.4 }, at: [0, 0.2, 0], direction: 'up', spread: 15, speed: [2.2, 3.2], drag: 1.6, gravity: 0, lifetime: [1.1, 1.3], size: sz, spin: [-160, 160], colors: WHITE, seed });
+  T.push(rise('plate', 6, 31, [0.35, 0.45]), rise('cup', 4, 32, [0.3, 0.38]), rise('book', 4, 33, [0.38, 0.46]), rise('fork', 3, 34, [0.28, 0.34]));
+  [[0, 1], [90, -1], [180, 1], [270, -1]].forEach(([st, dir], k) => {
+    const t0 = 12 + k * 2;
+    T.push({ id: `wisp${k}`, type: 'ribbon', frames: k % 2 ? thin : strip, start_tick: t0, head_ticks: 9, tail_delay: 5, end_tick: t0 + 16, center: [0, 0.1, 0], radius: 1.6 + (k % 2) * 0.4, start: st, sweep: 600 * dir, spiral: 0.3, rise: 2.8, tilt: [0, 0, k % 2 ? 7 : -7], width: k % 2 ? 0.45 : 0.8 });
   });
-  // ③ 비명(28~38): 망령 얼굴이 앞 위쪽에 번쩍 커지며 나타났다 흩어짐
-  T.push({ id: 'face', frames: face, ticks_per_frame: 1, start_tick: 28, end_tick: 36, size: [2.6, 2.6], billboard: 'center', keys: [{ tick: 28, translation: [0, 3.1, -1.2], scale: [0.5, 0.5, 1] }, { tick: 31, scale: [1.1, 1.1, 1] }, { tick: 36, translation: [0, 3.4, -1.4], scale: [1.25, 1.25, 1] }] });
-  // ④ 분출(32~): 모든 집기가 사방으로 — 집기 폭발 + 수평 광선 6줄 + 큰 노크 파문 2겹
-  T.push({ id: 'burst', frames: burst, ticks_per_frame: 2, start_tick: 32, end_tick: 53, size: [7, 7], billboard: 'center', keys: [{ tick: 32, translation: [0, 1.3, 0], scale: [1, 1, 1] }] });
-  for (let k = 0; k < 6; k++) {
-    const a = (k / 6) * 360 + 30, ar = (a * Math.PI) / 180, t0 = 32 + (k % 2);
-    T.push({ id: `ray${k}`, frames: ray, ticks_per_frame: 1, start_tick: t0, end_tick: t0 + 6, size: [4, 4], keys: [{ tick: t0, translation: [Math.cos(ar) * 2.1, 1.2, Math.sin(ar) * 2.1], rotation: [0, -a, 0], scale: [1, 1, 1] }] });
-  }
-  knock(T, 'knockB1', 32, [0, 0.05, 0], 7, 0, ring); knock(T, 'knockB2', 36, [0, 0.06, 0], 9, 30, ring);
+  // ③ 비명
+  T.push({ id: 'face', frames: face, ticks_per_frame: 1, start_tick: 28, end_tick: 36, size: [2.8, 2.8], billboard: 'center', keys: [{ tick: 28, translation: [0, 3.2, -1.0], scale: [0.5, 0.5, 1] }, { tick: 31, scale: [1.1, 1.1, 1] }, { tick: 36, translation: [0, 3.5, -1.2], scale: [1.25, 1.25, 1] }] });
+  // ④ 분출
+  const center = [0, 1.4, 0];
+  T.push({ id: 'burst', frames: imp.slice(5), ticks_per_frame: 1, start_tick: 32, end_tick: 40, size: [2.4, 2.4], billboard: 'center', tint: '#c9fbe6', keys: [{ tick: 32, translation: center, scale: [1, 1, 1] }] });
+  const hurl = (k, n, seed, sz) => ({ id: 'hurl_' + k, type: 'emitter', start_tick: 32, frames: obj[k], count: n, shape: { type: 'sphere', radius: 0.6 }, at: center, direction: 'outward', spread: 10, speed: [9, 14], drag: 1.2, gravity: -14, lifetime: [1.2, 1.6], size: sz, spin: [-720, 720], colors: WHITE, seed });
+  T.push(hurl('plate', 9, 41, [0.36, 0.46]), hurl('cup', 6, 42, [0.3, 0.38]), hurl('book', 6, 43, [0.4, 0.48]), hurl('fork', 5, 44, [0.28, 0.34]));
+  T.push({ id: 'burstSparks', type: 'emitter', start_tick: 32, frames: spk, count: 36, shape: { type: 'sphere', radius: 0.2 }, at: center, direction: 'outward', speed: [8, 14], drag: 5, gravity: -4, lifetime: [0.3, 0.6], size: [0.12, 0.22], sizeEnd: 0.4, colors: MINT, seed: 45 });
+  T.push({ id: 'smoke', type: 'emitter', start_tick: 33, frames: puf, count: 12, emit_ticks: 5, shape: { type: 'disc', radius: 1.4 }, at: [0, 0.3, 0], direction: 'up', spread: 30, speed: [0.6, 1.4], drag: 2, lifetime: [0.8, 1.2], size: [0.4, 0.7], sizeEnd: 1.6, colors: [[0, '#8cf5d0'], [0.5, '#13917f'], [1, '#06302f']], seed: 47 });
+  T.push({ id: 'bring1', frames: ring, ticks_per_frame: 2, start_tick: 32, end_tick: 45, size: [8, 8], keys: [{ tick: 32, translation: [0, 0.05, 0], rotation: [-90, 0, 0], scale: [1, 1, 1] }] });
+  T.push({ id: 'bring2', frames: ring, ticks_per_frame: 2, start_tick: 35, end_tick: 48, size: [5.5, 5.5], keys: [{ tick: 35, translation: [0, 0.06, 0], rotation: [-90, 0, 30], scale: [1, 1, 1] }] });
   const player = [
     { tick: 0, arm_r: [0, 0, 0], body: [0, 0, 0] },
-    { tick: 8, arm_r: [-150, 0, 25], arm_l: [-150, 0, -25], body: [-6, 0, 0], head: [-20, 0, 0] },   // 두 팔을 들어 염동력
+    { tick: 8, arm_r: [-150, 0, 25], arm_l: [-150, 0, -25], body: [-6, 0, 0], head: [-20, 0, 0] },
     { tick: 20, arm_r: [-160, 0, 35], arm_l: [-160, 0, -35], body: [-10, 0, 0], head: [-25, 0, 0] },
     { tick: 28, arm_r: [-170, 0, 10], arm_l: [-170, 0, -10], body: [-14, 0, 0], head: [-30, 0, 0] },
-    { tick: 32, arm_r: [-80, 0, 70], arm_l: [-80, 0, -70], body: [12, 0, 0], head: [8, 0, 0] },       // 사방으로 내던짐
+    { tick: 32, arm_r: [-80, 0, 70], arm_l: [-80, 0, -70], body: [12, 0, 0], head: [8, 0, 0] },
     { tick: 46, arm_r: [-40, 0, 40], arm_l: [-40, 0, -40], body: [6, 0, 0], head: [0, 0, 0] },
     { tick: 58, arm_r: [0, 0, 0], arm_l: [0, 0, 0], body: [0, 0, 0], head: [0, 0, 0] },
   ];
-  return { timeline: { name: '한밤의 소란 — 쿵·쿵·쿵 노크와 함께 집기들이 세 궤도로 떠올라 몸 주위를 돌고, 비명 지르는 망령 얼굴이 번쩍인 뒤 모든 집기가 사방으로 날아간다', duration_ticks: 60, tracks: T, player }, frames: F };
+  return { timeline: { name: '한밤의 소란 — 쿵·쿵·쿵 노크와 함께 집기들이 떠올라 몸 주위로 연기가 휘감고, 비명 지르는 망령 얼굴이 번쩍인 뒤 모든 집기가 사방으로 날아간다', duration_ticks: 60, tracks: T, player }, frames: F };
 }
